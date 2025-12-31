@@ -1,0 +1,82 @@
+name: Simple Performance Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_id:
+        description: 'Unique test identifier'
+        required: true
+        type: string
+      complexity:
+        description: 'Test complexity level'
+        required: false
+        default: 'simple'
+        type: choice
+        options:
+          - simple
+          - medium
+          - complex
+
+jobs:
+  simple-test:
+    runs-on: ubuntu-latest
+    name: Simple Test - ${{ inputs.test_id }}
+
+    steps:
+      - name: 📝 Log Test Start
+        run: |
+          echo "Starting test: ${{ inputs.test_id }}"
+          echo "Complexity: ${{ inputs.complexity }}"
+          echo "Start time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+
+      - name: ⚙️ Initialize Environment
+        run: |
+          echo "Setting up test environment..."
+          sleep 2
+
+      - name: 🔄 Simulate Processing
+        run: |
+          echo "Performing test workload..."
+          case "${{ inputs.complexity }}" in
+            simple)
+              echo "Running simple workload (30 seconds)..."
+              sleep 30
+              ;;
+            medium)
+              echo "Running medium workload (60 seconds)..."
+              sleep 60
+              ;;
+            complex)
+              echo "Running complex workload (90 seconds)..."
+              sleep 90
+              ;;
+          esac
+
+      - name: 📊 Generate Test Data
+        run: |
+          echo "Generating test data..."
+          dd if=/dev/urandom of=test_data.bin bs=1M count=5 2>/dev/null
+          echo "Generated $(ls -lh test_data.bin | awk '{print $5}') of test data"
+
+      - name: 🔢 Compute Checksums
+        run: |
+          echo "Computing checksums..."
+          sha256sum test_data.bin > checksums.txt
+          md5sum test_data.bin >> checksums.txt
+          cat checksums.txt
+
+      - name: 📈 Report Metrics
+        run: |
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "----------------------------------------"
+          echo "Test ID: ${{ inputs.test_id }}"
+          echo "Complexity: ${{ inputs.complexity }}"
+          echo "Duration: ${DURATION} seconds"
+          echo "Status: SUCCESS"
+          echo "End time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "----------------------------------------"
+
+      - name: 🏁 Test Complete
+        run: echo "Test ${{ inputs.test_id }} completed successfully"

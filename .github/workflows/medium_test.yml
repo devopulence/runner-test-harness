@@ -1,0 +1,161 @@
+name: Medium Complexity Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_id:
+        description: 'Unique test identifier'
+        required: true
+        type: string
+      data_size_mb:
+        description: 'Size of data to process (MB)'
+        required: false
+        default: '50'
+        type: string
+
+jobs:
+  medium-test:
+    runs-on: ubuntu-latest
+    name: Medium Test - ${{ inputs.test_id }}
+
+    steps:
+      - name: 📝 Log Test Start
+        run: |
+          echo "Starting medium complexity test: ${{ inputs.test_id }}"
+          echo "Data size: ${{ inputs.data_size_mb }}MB"
+          echo "Start time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+
+      - name: 🛠️ Setup Tools
+        run: |
+          echo "Installing required tools..."
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gzip bzip2 xz-utils jq > /dev/null 2>&1
+          echo "Tools installed"
+
+      - name: 📁 Create Test Data
+        run: |
+          echo "Creating ${{ inputs.data_size_mb }}MB of test data..."
+          dd if=/dev/urandom of=data.bin bs=1M count=${{ inputs.data_size_mb }} 2>/dev/null
+          ls -lh data.bin
+
+      - name: 🗜️ Compression Tests
+        run: |
+          echo "Testing different compression algorithms..."
+
+          echo "1. GZIP compression..."
+          time gzip -c data.bin > data.gz
+          echo "GZIP size: $(ls -lh data.gz | awk '{print $5}')"
+
+          echo "2. BZIP2 compression..."
+          time bzip2 -c data.bin > data.bz2
+          echo "BZIP2 size: $(ls -lh data.bz2 | awk '{print $5}')"
+
+          echo "3. XZ compression..."
+          time xz -c data.bin > data.xz
+          echo "XZ size: $(ls -lh data.xz | awk '{print $5}')"
+
+      - name: 🔄 Data Transformation
+        run: |
+          echo "Performing data transformations..."
+
+          # Base64 encoding
+          base64 data.bin > data.b64
+          echo "Base64 size: $(ls -lh data.b64 | awk '{print $5}')"
+
+          # Split into chunks
+          split -b 10M data.bin chunk_
+          echo "Created $(ls -1 chunk_* | wc -l) chunks"
+
+      - name: 📊 Calculate Statistics
+        run: |
+          echo "Calculating file statistics..."
+
+          # Create JSON report
+          cat << EOF > stats.json
+          {
+            "test_id": "${{ inputs.test_id }}",
+            "original_size": $(stat -c%s data.bin),
+            "gzip_size": $(stat -c%s data.gz),
+            "bzip2_size": $(stat -c%s data.bz2),
+            "xz_size": $(stat -c%s data.xz),
+            "base64_size": $(stat -c%s data.b64),
+            "chunk_count": $(ls -1 chunk_* | wc -l),
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+
+          cat stats.json | jq '.'
+
+      - name: 🔐 Cryptographic Operations
+        run: |
+          echo "Performing cryptographic operations..."
+
+          # Generate checksums
+          sha256sum data.bin > checksums.txt
+          sha512sum data.bin >> checksums.txt
+          md5sum data.bin >> checksums.txt
+
+          # Generate random keys
+          openssl rand -hex 32 > key.txt
+
+          echo "Checksums calculated"
+
+      - name: 💾 Simulate Database Operations
+        run: |
+          echo "Simulating database operations..."
+
+          # Create SQLite database
+          sqlite3 test.db << EOF
+          CREATE TABLE test_data (
+            id INTEGER PRIMARY KEY,
+            data TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+          EOF
+
+          # Insert sample data
+          for i in {1..100}; do
+            echo "INSERT INTO test_data (data) VALUES ('Test data $i');" | sqlite3 test.db
+          done
+
+          echo "Inserted 100 records into database"
+          echo "SELECT COUNT(*) as total_records FROM test_data;" | sqlite3 test.db
+
+      - name: 🌐 Network Simulation
+        run: |
+          echo "Simulating network operations..."
+
+          # DNS lookups
+          for domain in github.com google.com cloudflare.com; do
+            nslookup $domain > /dev/null 2>&1
+            echo "Resolved: $domain"
+          done
+
+          # Ping test (localhost only in GitHub Actions)
+          ping -c 5 127.0.0.1 > ping_results.txt
+          echo "Ping test completed"
+
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ inputs.test_id }}
+          path: |
+            stats.json
+            checksums.txt
+            ping_results.txt
+
+      - name: 📈 Report Final Metrics
+        run: |
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+
+          echo "========================================="
+          echo "MEDIUM TEST COMPLETED"
+          echo "========================================="
+          echo "Test ID: ${{ inputs.test_id }}"
+          echo "Data Processed: ${{ inputs.data_size_mb }}MB"
+          echo "Total Duration: ${DURATION} seconds"
+          echo "Status: SUCCESS"
+          echo "End time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "========================================="
