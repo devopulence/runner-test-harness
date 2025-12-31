@@ -11,7 +11,7 @@ variable "github_owner" {
 variable "github_repo" {
   description = "GitHub repository name"
   type        = string
-  default     = "test-workflows"
+  default     = "pythonProject"
 }
 
 # Variable for GitHub token (set via environment: export TF_VAR_github_token="ghp_...")

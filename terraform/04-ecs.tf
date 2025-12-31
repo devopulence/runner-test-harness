@@ -81,11 +81,11 @@ resource "aws_ecs_task_definition" "github_runner" {
         }
       ]
 
-      # Pull GitHub token from Secrets Manager
+      # Pull GitHub token from Secrets Manager (using plain token secret)
       secrets = [
         {
           name      = "ACCESS_TOKEN"
-          valueFrom = aws_secretsmanager_secret.github_token.arn
+          valueFrom = "arn:aws:secretsmanager:us-east-1:094012737297:secret:github-runner-token-plain-dugkYi"
         }
       ]
 
