@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-8b36b25c-5fb1-4f0b-9672-ddf97f0ae1bc"
+      }
+    },
+    "knowledge-graph": {
+      "type": "stdio",
+      "command": "mcp-knowledge-graph",
+      "args": ["--memory-path", "/Users/johndesposito/pnc-work/pythonProjec/.aim"],
+      "env": {}
+    }
+  }
+}

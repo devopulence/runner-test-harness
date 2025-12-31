@@ -1,0 +1,14 @@
+# terraform.tfvars.example
+# Copy this to terraform.tfvars and fill in your values
+
+# AWS Configuration
+aws_region = "us-east-1"  # Your AWS region
+
+# Network Configuration (optional - defaults are usually fine)
+vpc_cidr           = "10.0.0.0/16"
+public_subnet_cidr = "10.0.1.0/24"
+
+# GitHub Configuration (for later)
+github_owner = "Devopulence"
+github_repo  = "test-workflows"
+# github_token will be set via environment variable for security
