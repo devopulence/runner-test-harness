@@ -30,7 +30,7 @@ runners:
   max_job_duration: 3600  # 1 hour
 
 workflows:
-  directory: .github/workflows/realistic
+  directory: .github/workflows
 
   # Available workflows for testing
   available:

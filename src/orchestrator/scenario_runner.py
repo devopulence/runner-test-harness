@@ -304,10 +304,8 @@ class ScenarioRunner:
                         'https': proxy_url
                     }
 
-            # For workflows in subdirectories, we need to include the full path
+            # Use the workflow file as configured
             workflow_path = workflow_config.file
-            if not workflow_path.startswith('realistic/'):
-                workflow_path = f"realistic/{workflow_path}"
 
             trigger_workflow_dispatch(
                 owner=self.environment.github_owner,
