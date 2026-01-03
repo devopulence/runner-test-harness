@@ -21,6 +21,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.orchestrator.environment_switcher import EnvironmentConfig, TestProfile
 from src.orchestrator.workflow_tracker import WorkflowTracker
+from src.orchestrator.enhanced_metrics import EnhancedMetrics
 from main import trigger_workflow_dispatch
 
 # Configure logging
@@ -142,6 +143,9 @@ class ScenarioRunner:
             repo=environment.github_repo
         )
 
+        # Initialize enhanced metrics
+        self.enhanced_metrics = EnhancedMetrics()
+
         # Test control flags
         self.test_running = False
         self.abort_requested = False
@@ -198,6 +202,12 @@ class ScenarioRunner:
         # Calculate final statistics
         stats = self.metrics.calculate_statistics()
         logger.info(f"Test complete. Results: {json.dumps(stats, indent=2)}")
+
+        # Generate enhanced metrics report
+        if self.enhanced_metrics.workflows:
+            logger.info("Generating enhanced metrics report...")
+            report_path = self.enhanced_metrics.generate_report(profile_name, f"test_results/{self.environment.name}")
+            logger.info(f"Enhanced report saved to: {report_path}")
 
         return self.metrics
 
@@ -374,15 +384,31 @@ class ScenarioRunner:
                 self.metrics.successful_workflows = tracker_metrics["successful"]
                 self.metrics.failed_workflows = tracker_metrics["failed"]
 
+                # Add completed workflows to enhanced metrics
+                for workflow in self.tracker.tracked_workflows.values():
+                    if (workflow.get("status") == "completed" and
+                        workflow.get("run_id") and
+                        workflow.get("run_id") not in [w.get("id") for w in self.enhanced_metrics.workflows]):
+                        self.enhanced_metrics.add_workflow(workflow)
+
                 # Get active jobs count
                 active_count = await self.tracker.get_active_jobs_count()
                 utilization = min(active_count / self.environment.runner_count, 1.0)
                 self.metrics.runner_utilization.append(utilization)
                 self.metrics.concurrent_jobs.append(active_count)
 
-                # Log status
-                logger.info(f"Status - Queued: {summary['queued']}, Running: {summary['in_progress']}, "
-                          f"Completed: {summary['completed']}, Utilization: {utilization:.1%}")
+                # Log status with enhanced metrics
+                if self.enhanced_metrics.workflows:
+                    stats = self.enhanced_metrics.calculate_statistics()
+                    avg_queue = stats["queue_time"].get("mean_minutes", 0)
+                    avg_exec = stats["execution_time"].get("mean_minutes", 0)
+                    avg_total = stats["total_time"].get("mean_minutes", 0)
+                    logger.info(f"Status - Queued: {summary['queued']}, Running: {summary['in_progress']}, "
+                              f"Completed: {summary['completed']}, Utilization: {utilization:.1%}")
+                    logger.info(f"Avg Times - Queue: {avg_queue:.1f}min, Exec: {avg_exec:.1f}min, Total: {avg_total:.1f}min")
+                else:
+                    logger.info(f"Status - Queued: {summary['queued']}, Running: {summary['in_progress']}, "
+                              f"Completed: {summary['completed']}, Utilization: {utilization:.1%}")
 
             except Exception as e:
                 logger.error(f"Error polling workflow status: {e}")
