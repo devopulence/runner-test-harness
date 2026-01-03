@@ -102,7 +102,7 @@ test_profiles:
     workflows:
       - build_job
     dispatch_pattern: steady  # Steady rate of job submissions
-    jobs_per_minute: 0.5      # 1 job every 2 minutes
+    jobs_per_minute: 1.2      # 72 jobs/hour - will create some queuing
 
   # Capacity test - maximum throughput
   capacity:

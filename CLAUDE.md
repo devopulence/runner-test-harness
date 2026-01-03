@@ -64,7 +64,7 @@ The harness enables the following types of performance testing to evaluate OpenS
   - Test with varying build sizes and complexities
   - Determine optimal batch sizes for artifact processing
 
-- **Capacity Testing**: Maximum concurrent workflow handling
+- **Capacity Testing**: Maximum concur2 jrent workflow handling
   - Establish hard limits for parallel builds
   - Define queue management strategies
 

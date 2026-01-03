@@ -156,14 +156,14 @@ def capture_current_metrics():
         print("  None")
 
     # Process completed runs
-    print("\n✅ RECENTLY COMPLETED:")
+    print("\n✅ RECENTLY COMPLETED (Last 30 minutes):")
     print("-" * 40)
-    completed_in_last_hour = [r for r in completed_runs
+    completed_in_last_30_min = [r for r in completed_runs
                               if (datetime.now(timezone.utc) -
-                                  datetime.fromisoformat(r["updated_at"].replace("Z", "+00:00"))).total_seconds() < 3600]
+                                  datetime.fromisoformat(r["updated_at"].replace("Z", "+00:00"))).total_seconds() < 1800]
 
-    if completed_in_last_hour:
-        for run in completed_in_last_hour[:5]:  # Show last 5
+    if completed_in_last_30_min:
+        for run in completed_in_last_30_min[:5]:  # Show last 5
             created = datetime.fromisoformat(run["created_at"].replace("Z", "+00:00"))
             updated = datetime.fromisoformat(run["updated_at"].replace("Z", "+00:00"))
 
@@ -195,7 +195,7 @@ def capture_current_metrics():
                   f"Execution: {run_data['execution_time_minutes']:.1f} min | "
                   f"Total: {run_data['total_time_minutes']:.1f} min")
     else:
-        print("  None in the last hour")
+        print("  None in the last 30 minutes")
 
     # Calculate aggregate metrics
     print("\n📊 METRICS SUMMARY:")
