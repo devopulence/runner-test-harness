@@ -44,7 +44,7 @@ jobs:
       - name: Calculate Workload Duration
         id: duration
         run: |
-          # Base durations in seconds for realistic CI build times
+          # Base durations in seconds - REDUCED FOR FASTER TESTING
           case "${{ inputs.workload_type }}" in
             test)
               BASE=45     # 45 seconds
@@ -52,19 +52,19 @@ jobs:
               MAX=60      # 60 seconds
               ;;
             light)
-              BASE=300    # 5 minutes
-              MIN=300     # 5 minutes
-              MAX=480     # 8 minutes
+              BASE=150    # 2.5 minutes
+              MIN=120     # 2 minutes
+              MAX=180     # 3 minutes
               ;;
             standard)
-              BASE=600    # 10 minutes
-              MIN=480     # 8 minutes
-              MAX=900     # 15 minutes
+              BASE=240    # 4 minutes
+              MIN=180     # 3 minutes
+              MAX=300     # 5 minutes
               ;;
             heavy)
-              BASE=1200   # 20 minutes
-              MIN=900     # 15 minutes
-              MAX=1800    # 30 minutes
+              BASE=390    # 6.5 minutes
+              MIN=300     # 5 minutes
+              MAX=480     # 8 minutes
               ;;
           esac
 
