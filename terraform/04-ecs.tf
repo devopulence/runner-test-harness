@@ -72,6 +72,14 @@ resource "aws_ecs_task_definition" "github_runner" {
           value = "false"  # Persistent runners
         },
         {
+          name  = "DISABLE_AUTO_UPDATE"
+          value = "true"  # Prevent runner from auto-updating and restarting
+        },
+        {
+          name  = "STARTUP_DELAY_IN_SECONDS"
+          value = "0"  # No startup delay
+        },
+        {
           name  = "LABELS"
           value = "self-hosted,ecs-fargate,aws,linux"
         },
@@ -107,6 +115,15 @@ resource "aws_ecs_task_definition" "github_runner" {
           hardLimit = 65536
         }
       ]
+
+      # Health check to keep runners alive
+      healthCheck = {
+        command     = ["CMD-SHELL", "pgrep Runner.Listener || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
     }
   ])
 
@@ -139,6 +156,7 @@ resource "aws_ecs_service" "github_runners" {
   # Deployment configuration
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
+  health_check_grace_period_seconds  = 300  # 5 minutes for persistent runners
 
   tags = {
     Name        = "github-runners-service"
