@@ -8,8 +8,8 @@ environment:
   region: us-east-1
 
 github:
-  owner: Devopulence
-  repo: pythonProject  # Update this to your actual repo name
+  owner: devopulence  # Changed to lowercase
+  repo: pythonProject
   # Runner labels must match your ECS task definition
   runner_labels:
     - self-hosted
