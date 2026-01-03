@@ -41,6 +41,13 @@ workflows:
         workload_type: standard
         enable_randomization: true
 
+    - name: build_job_test
+      file: build_job.yml
+      description: Fast test version (30-60 seconds)
+      default_inputs:
+        workload_type: test
+        enable_randomization: true
+
     - name: deployment_pipeline
       file: deployment_pipeline.yml
       description: Simulates deployment to environments
@@ -73,6 +80,22 @@ workflows:
         enable_randomization: true
 
 test_profiles:
+  # Validation test - 5 minutes with fast jobs (30-60 seconds each)
+  validation:
+    duration_minutes: 5
+    workflows:
+      - build_job_test  # Uses test workload (30-60 seconds)
+    dispatch_pattern: steady
+    jobs_per_minute: 1.0      # 1 job per minute
+
+  # Quick test - 5 minutes (jobs won't complete in time)
+  quick:
+    duration_minutes: 5
+    workflows:
+      - build_job
+    dispatch_pattern: steady
+    jobs_per_minute: 1.0      # 1 job per minute
+
   # Performance baseline test
   performance:
     duration_minutes: 30

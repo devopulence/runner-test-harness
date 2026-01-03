@@ -9,6 +9,7 @@ on:
         type: choice
         default: 'standard'
         options:
+          - test      # 30-60 seconds for testing
           - light
           - standard
           - heavy
@@ -45,6 +46,11 @@ jobs:
         run: |
           # Base durations in seconds for realistic CI build times
           case "${{ inputs.workload_type }}" in
+            test)
+              BASE=45     # 45 seconds
+              MIN=30      # 30 seconds
+              MAX=60      # 60 seconds
+              ;;
             light)
               BASE=300    # 5 minutes
               MIN=300     # 5 minutes

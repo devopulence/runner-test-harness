@@ -20,6 +20,7 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.orchestrator.environment_switcher import EnvironmentConfig, TestProfile
+from src.orchestrator.workflow_tracker import WorkflowTracker
 from main import trigger_workflow_dispatch
 
 # Configure logging
@@ -40,6 +41,7 @@ class WorkflowRun:
     execution_time: Optional[float] = None
     inputs: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
+    tracking_id: Optional[str] = None
 
 
 @dataclass
@@ -133,9 +135,17 @@ class ScenarioRunner:
             "Accept": "application/vnd.github.v3+json"
         }
 
+        # Initialize workflow tracker
+        self.tracker = WorkflowTracker(
+            github_token=github_token,
+            owner=environment.github_owner,
+            repo=environment.github_repo
+        )
+
         # Test control flags
         self.test_running = False
         self.abort_requested = False
+        self.polling_task = None
 
     async def run_test_profile(self, profile_name: str) -> TestMetrics:
         """
@@ -160,6 +170,9 @@ class ScenarioRunner:
         self.metrics = TestMetrics()
         self.metrics.start_time = datetime.now()
 
+        # Start polling task for workflow status updates
+        self.polling_task = asyncio.create_task(self._poll_workflow_status())
+
         try:
             if profile.dispatch_pattern == "steady":
                 await self._run_steady_load(profile)
@@ -172,6 +185,15 @@ class ScenarioRunner:
         finally:
             self.test_running = False
             self.metrics.end_time = datetime.now()
+
+            # Stop polling and wait for final updates
+            if self.polling_task:
+                await asyncio.sleep(5)  # Give time for final updates
+                self.polling_task.cancel()
+                try:
+                    await self.polling_task
+                except asyncio.CancelledError:
+                    pass
 
         # Calculate final statistics
         stats = self.metrics.calculate_statistics()
@@ -324,6 +346,10 @@ class ScenarioRunner:
             self.metrics.total_workflows += 1
             logger.info(f"Workflow dispatched successfully: {workflow_name}")
 
+            # Track the workflow for status updates
+            tracking_id = await self.tracker.track_workflow(workflow_name, run.queued_at)
+            run.tracking_id = tracking_id
+
         except Exception as e:
             run.status = "failed"
             run.error = str(e)
@@ -332,20 +358,42 @@ class ScenarioRunner:
 
         return run
 
+    async def _poll_workflow_status(self) -> None:
+        """Poll GitHub API for workflow status updates"""
+        while self.test_running:
+            try:
+                # Update all tracked workflows
+                summary = await self.tracker.update_all_workflows()
+
+                # Get metrics from tracker
+                tracker_metrics = self.tracker.get_metrics()
+
+                # Update our metrics
+                self.metrics.queue_times = tracker_metrics["queue_times"]
+                self.metrics.execution_times = tracker_metrics["execution_times"]
+                self.metrics.successful_workflows = tracker_metrics["successful"]
+                self.metrics.failed_workflows = tracker_metrics["failed"]
+
+                # Get active jobs count
+                active_count = await self.tracker.get_active_jobs_count()
+                utilization = min(active_count / self.environment.runner_count, 1.0)
+                self.metrics.runner_utilization.append(utilization)
+                self.metrics.concurrent_jobs.append(active_count)
+
+                # Log status
+                logger.info(f"Status - Queued: {summary['queued']}, Running: {summary['in_progress']}, "
+                          f"Completed: {summary['completed']}, Utilization: {utilization:.1%}")
+
+            except Exception as e:
+                logger.error(f"Error polling workflow status: {e}")
+
+            # Poll every 30 seconds
+            await asyncio.sleep(30)
+
     async def _update_metrics(self) -> None:
         """Update metrics based on current state"""
-        # Calculate runner utilization
-        active_count = len(self.active_workflows)
-        utilization = min(active_count / self.environment.runner_count, 1.0)
-        self.metrics.runner_utilization.append(utilization)
-
-        # Track concurrent jobs
-        self.metrics.concurrent_jobs.append(active_count)
-
-        # Log current state
-        logger.info(f"Active workflows: {active_count}, "
-                   f"Runner utilization: {utilization:.1%}, "
-                   f"Completed: {len(self.completed_workflows)}")
+        # This is now handled by _poll_workflow_status
+        pass
 
     def abort_test(self) -> None:
         """Request test abortion"""
