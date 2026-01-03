@@ -6,11 +6,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository contains a GitHub Runner Performance Testing Harness designed to comprehensively test the performance, scalability, and capacity of GitHub workflow runners.
 
-### Current Status (Dec 31, 2024)
-- **Phase**: Transitioning from public runners to ECS Fargate deployment
-- **Key Decision**: Using ECS Fargate instead of OpenShift for self-hosted runners
-- **Architecture**: 4 ECS Fargate tasks (hard limit) as GitHub runners
-- **Testing Method**: Sleep-based workflows for controlled timing
+### Project Goal
+
+**Primary Objective**: Build a portable testing harness to evaluate GitHub runners in an OpenShift production environment with a 4-server constraint.
+
+**Production Context**:
+- **Target Environment**: OpenShift with 4 GitHub runners
+- **Real Workload**: CI/CD pipeline operations including:
+  - Building software
+  - Creating artifacts
+  - Running security scans
+  - Packaging applications
+  - Pushing artifacts (including Docker in Docker)
+
+**Testing Strategy**:
+1. **AWS Environment**: Used as a test bed to develop and validate the harness
+2. **Simulation Method**: Use sleep-based workflows to simulate build times without actual compilation
+3. **Portability**: Harness must be environment-agnostic to run in both AWS (testing) and OpenShift (production)
+4. **End Goal**: Deploy this harness to OpenShift to measure real capacity and performance metrics
+
+### Current Status (Jan 3, 2025)
+- **Development Environment**: AWS ECS Fargate with 4 runners (mimics OpenShift constraint)
+- **Production Environment**: OpenShift with 4 servers (target for testing)
+- **Phase**: Harness development and validation in AWS
+- **Architecture**: 4 ECS Fargate tasks to simulate OpenShift's 4-server limit
+- **Testing Method**: Sleep-based workflows to simulate CI/CD build times
 
 ### Critical Constraints
 - **4 Runner Limit**: Both OpenShift and ECS environments limited to exactly 4 runners
@@ -18,20 +38,66 @@ This repository contains a GitHub Runner Performance Testing Harness designed to
 - **Repository**: Currently using `Devopulence/test-workflows` for testing
 
 ### Testing Scope
-The harness enables the following types of performance testing:
+The harness enables the following types of performance testing to evaluate OpenShift capacity:
+
 - **Performance Testing**: Baseline performance metrics
+  - Establish normal CI/CD pipeline completion times
+  - Identify optimal job sizes for the 4-server constraint
+
 - **Scalability Testing**: How runners handle increasing workloads
+  - Determine how build queues grow with increased demand
+  - Find the point where 4 servers become insufficient
+
 - **Load Testing**: Behavior under expected load conditions
+  - Simulate typical daily CI/CD patterns
+  - Measure performance during peak development hours
+
 - **Spike Testing**: Response to sudden load increases
+  - Test behavior during release rushes
+  - Evaluate recovery time after spike events
+
 - **Stress Testing**: Breaking point identification
+  - Find maximum sustainable CI/CD load
+  - Identify when to scale beyond 4 servers
+
 - **Volume Testing**: Large-scale data processing capabilities
+  - Test with varying build sizes and complexities
+  - Determine optimal batch sizes for artifact processing
+
 - **Capacity Testing**: Maximum concurrent workflow handling
+  - Establish hard limits for parallel builds
+  - Define queue management strategies
 
 ### Implementation Strategy
-1. **Current**: Testing on public GitHub runners with artificial 4-runner limit
-2. **Next**: Deploy 4 ECS Fargate runners via Terraform
-3. **Testing**: Use `runner_test.yml` with configurable sleep durations
-4. **Metrics**: Queue time, execution time, throughput analysis
+1. **Phase 1 (Current)**: Develop test harness in AWS ECS environment
+   - 4 ECS Fargate runners simulate OpenShift's 4-server constraint
+   - Use sleep-based workflows to simulate CI/CD build times
+   - Validate harness functionality and metrics collection
+
+2. **Phase 2**: Deploy harness to OpenShift production environment
+   - Run same test suite against actual OpenShift runners
+   - Measure real CI/CD performance under various load conditions
+   - Compare results with AWS baseline to validate simulation accuracy
+
+3. **Testing Method**: Use `runner_test.yml` with configurable sleep durations
+   - Sleep duration represents actual build/compile/scan times
+   - Job count simulates concurrent CI/CD pipeline requests
+
+4. **Metrics Collection**:
+   - Queue time (how long builds wait)
+   - Execution time (actual build duration)
+   - Throughput (builds completed per hour)
+   - Capacity utilization (% of runners busy)
+
+### Portability Requirements
+
+The test harness MUST be environment-agnostic to run in both AWS and OpenShift:
+
+- **No Cloud-Specific Dependencies**: Use only GitHub API and standard Python
+- **Configurable Endpoints**: Support different GitHub Enterprise instances
+- **Environment Variables**: All environment-specific settings via config
+- **Network Flexibility**: Support proxies and custom CA certificates
+- **Workflow Compatibility**: Test workflows must run on any Linux runner
 
 ### Core Component
 The `main.py` script provides the foundation for triggering GitHub Actions workflows via the workflow_dispatch REST API, serving as the primary mechanism for generating test load on runners.

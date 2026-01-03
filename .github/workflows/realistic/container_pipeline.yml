@@ -1,0 +1,358 @@
+name: Realistic Container Build & Push
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Type of container build'
+        required: true
+        type: choice
+        default: 'microservices'
+        options:
+          - single        # Single container
+          - microservices # Multiple microservices (3-5 containers)
+          - full-stack    # Full application stack (6-8 containers)
+      registry_type:
+        description: 'Container registry to simulate'
+        required: true
+        type: choice
+        default: 'ecr'
+        options:
+          - ecr
+          - dockerhub
+          - ghcr
+      enable_randomization:
+        description: 'Add random variance to duration'
+        required: false
+        type: boolean
+        default: true
+      include_scanning:
+        description: 'Include container security scanning'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  container-build-push:
+    name: Container Build - ${{ inputs.build_type }}
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+
+    steps:
+      - name: Build Pipeline Initialization
+        run: |
+          echo "🐳 Starting container build pipeline"
+          echo "Build Type: ${{ inputs.build_type }}"
+          echo "Registry: ${{ inputs.registry_type }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Runner: ${{ runner.name }}"
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Calculate Build Parameters
+        id: params
+        run: |
+          # Determine number of containers and base duration
+          case "${{ inputs.build_type }}" in
+            single)
+              CONTAINER_COUNT=1
+              BASE_DURATION=420   # 7 minutes
+              MIN_DURATION=360    # 6 minutes
+              MAX_DURATION=540    # 9 minutes
+              ;;
+            microservices)
+              CONTAINER_COUNT=4
+              BASE_DURATION=900   # 15 minutes
+              MIN_DURATION=720    # 12 minutes
+              MAX_DURATION=1200   # 20 minutes
+              ;;
+            full-stack)
+              CONTAINER_COUNT=7
+              BASE_DURATION=1500  # 25 minutes
+              MIN_DURATION=1200   # 20 minutes
+              MAX_DURATION=1800   # 30 minutes
+              ;;
+          esac
+
+          # Apply randomization if enabled
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            RANGE=$((MAX_DURATION - MIN_DURATION))
+            RANDOM_OFFSET=$((RANDOM % RANGE))
+            DURATION=$((MIN_DURATION + RANDOM_OFFSET))
+          else
+            DURATION=$BASE_DURATION
+          fi
+
+          # Calculate per-container build time
+          PER_CONTAINER_TIME=$((DURATION * 70 / 100 / CONTAINER_COUNT))
+
+          echo "container_count=${CONTAINER_COUNT}" >> $GITHUB_OUTPUT
+          echo "total_duration=${DURATION}" >> $GITHUB_OUTPUT
+          echo "per_container_time=${PER_CONTAINER_TIME}" >> $GITHUB_OUTPUT
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Total build duration: ${MINUTES}m ${SECONDS}s"
+          echo "Containers to build: ${CONTAINER_COUNT}"
+
+      - name: Setup Build Environment
+        run: |
+          echo "🔧 Setting up Docker build environment..."
+          SETUP_TIME=$((45 + RANDOM % 30))  # 45-75 seconds
+
+          echo "Configuring Docker daemon..."
+          sleep $((SETUP_TIME / 3))
+          echo "  ✓ Docker daemon configured"
+
+          echo "Setting up build cache..."
+          sleep $((SETUP_TIME / 3))
+          echo "  ✓ Build cache initialized"
+
+          echo "Authenticating with registry (${{ inputs.registry_type }})..."
+          sleep $((SETUP_TIME / 3))
+          echo "  ✓ Registry authentication successful"
+
+          echo "✅ Build environment ready"
+
+      - name: Source Code Preparation
+        run: |
+          echo "📥 Preparing source code for containerization..."
+          PREP_TIME=$((60 + RANDOM % 60))  # 1-2 minutes
+
+          echo "Analyzing Dockerfiles..."
+          sleep $((PREP_TIME / 3))
+          echo "  Found ${{ steps.params.outputs.container_count }} Dockerfiles"
+
+          echo "Resolving build contexts..."
+          sleep $((PREP_TIME / 3))
+          echo "  ✓ Build contexts prepared"
+
+          echo "Optimizing layer caching strategy..."
+          sleep $((PREP_TIME / 3))
+          echo "  ✓ Cache strategy optimized"
+
+          echo "✅ Source preparation complete"
+
+      - name: Build Containers
+        run: |
+          echo "🔨 Building container images..."
+          CONTAINER_COUNT=${{ steps.params.outputs.container_count }}
+          PER_CONTAINER=${{ steps.params.outputs.per_container_time }}
+
+          # Define container names based on build type
+          case "${{ inputs.build_type }}" in
+            single)
+              CONTAINERS="application"
+              ;;
+            microservices)
+              CONTAINERS="auth-service api-gateway user-service notification-service"
+              ;;
+            full-stack)
+              CONTAINERS="frontend backend auth-service api-gateway database-proxy cache-service worker-service"
+              ;;
+          esac
+
+          # Build each container
+          COUNTER=1
+          for CONTAINER in $CONTAINERS; do
+            echo ""
+            echo "Building container ${COUNTER}/${CONTAINER_COUNT}: ${CONTAINER}"
+            echo "================================================"
+
+            # Add variance to individual container builds
+            if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+              VARIANCE=$((PER_CONTAINER * 20 / 100))
+              OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+              BUILD_TIME=$((PER_CONTAINER + OFFSET))
+            else
+              BUILD_TIME=$PER_CONTAINER
+            fi
+
+            # Simulate multi-stage build process
+            echo "  Stage 1/3: Base image preparation..."
+            sleep $((BUILD_TIME * 30 / 100))
+            SIZE=$((50 + RANDOM % 100))
+            echo "    ✓ Base layer: ${SIZE}MB"
+
+            echo "  Stage 2/3: Dependencies and compilation..."
+            sleep $((BUILD_TIME * 40 / 100))
+            SIZE=$((100 + RANDOM % 200))
+            echo "    ✓ Application layer: ${SIZE}MB"
+
+            echo "  Stage 3/3: Optimization and finalization..."
+            sleep $((BUILD_TIME * 30 / 100))
+            FINAL_SIZE=$((80 + RANDOM % 150))
+            echo "    ✓ Final image size: ${FINAL_SIZE}MB"
+
+            echo "  ✅ Successfully built ${CONTAINER}:latest"
+            COUNTER=$((COUNTER + 1))
+          done
+
+          echo ""
+          echo "✅ All container images built successfully"
+
+      - name: Container Security Scanning
+        if: inputs.include_scanning == true
+        run: |
+          echo "🔐 Scanning container images for vulnerabilities..."
+          CONTAINER_COUNT=${{ steps.params.outputs.container_count }}
+          SCAN_TIME=$((60 * CONTAINER_COUNT))  # 1 minute per container
+
+          echo "Running Trivy security scans..."
+
+          for i in $(seq 1 $CONTAINER_COUNT); do
+            echo "  Scanning container ${i}/${CONTAINER_COUNT}..."
+            sleep $((SCAN_TIME / CONTAINER_COUNT))
+            VULNS=$((RANDOM % 10))
+            echo "    Low: ${VULNS}, Medium: $((VULNS / 2)), High: 0, Critical: 0"
+          done
+
+          echo "✅ Security scanning complete - No critical issues found"
+
+      - name: Tag Container Images
+        run: |
+          echo "🏷️ Tagging container images..."
+          TAG_TIME=$((30 + RANDOM % 30))  # 30-60 seconds
+
+          # Generate tags
+          VERSION="v1.0.${GITHUB_RUN_NUMBER}"
+          COMMIT_SHA="${GITHUB_SHA:0:7}"
+
+          sleep $TAG_TIME
+
+          echo "Applied tags:"
+          echo "  - latest"
+          echo "  - ${VERSION}"
+          echo "  - ${COMMIT_SHA}"
+          echo "  - ${{ inputs.build_type }}-$(date +%Y%m%d)"
+
+          echo "✅ Tagging complete"
+
+      - name: Push to Container Registry
+        run: |
+          echo "📤 Pushing images to ${{ inputs.registry_type }}..."
+          CONTAINER_COUNT=${{ steps.params.outputs.container_count }}
+
+          # Calculate push time (30% of build time)
+          PUSH_TIME=$((${{ steps.params.outputs.total_duration }} * 30 / 100))
+          PER_PUSH=$((PUSH_TIME / CONTAINER_COUNT))
+
+          # Determine registry URL
+          case "${{ inputs.registry_type }}" in
+            ecr)
+              REGISTRY="123456789.dkr.ecr.us-east-1.amazonaws.com"
+              ;;
+            dockerhub)
+              REGISTRY="docker.io/myorg"
+              ;;
+            ghcr)
+              REGISTRY="ghcr.io/myorg"
+              ;;
+          esac
+
+          echo "Registry: ${REGISTRY}"
+          echo ""
+
+          # Push each container
+          for i in $(seq 1 $CONTAINER_COUNT); do
+            echo "Pushing image ${i}/${CONTAINER_COUNT}..."
+
+            # Add variance to push times
+            if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+              VARIANCE=$((PER_PUSH * 30 / 100))
+              OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+              PUSH_DURATION=$((PER_PUSH + OFFSET))
+            else
+              PUSH_DURATION=$PER_PUSH
+            fi
+
+            # Simulate layer upload
+            echo "  Uploading layers..."
+            sleep $((PUSH_DURATION * 60 / 100))
+            LAYERS=$((3 + RANDOM % 5))
+            echo "    ✓ ${LAYERS} layers uploaded"
+
+            echo "  Uploading manifest..."
+            sleep $((PUSH_DURATION * 40 / 100))
+            echo "    ✓ Manifest uploaded"
+
+            SIZE=$((80 + RANDOM % 150))
+            echo "  ✅ Pushed successfully (${SIZE}MB transferred)"
+          done
+
+          echo ""
+          echo "✅ All images pushed to registry"
+
+      - name: Generate SBOM (Software Bill of Materials)
+        if: inputs.build_type != 'single'
+        run: |
+          echo "📋 Generating Software Bill of Materials..."
+          SBOM_TIME=$((60 + RANDOM % 60))  # 1-2 minutes
+
+          echo "Analyzing container contents..."
+          sleep $((SBOM_TIME / 2))
+          echo "  Packages identified: $((200 + RANDOM % 300))"
+
+          echo "Creating SBOM documents..."
+          sleep $((SBOM_TIME / 2))
+          echo "  ✓ SBOM generated in SPDX format"
+          echo "  ✓ SBOM generated in CycloneDX format"
+
+          echo "✅ SBOM generation complete"
+
+      - name: Update Deployment Manifests
+        run: |
+          echo "📝 Updating deployment manifests..."
+          UPDATE_TIME=$((45 + RANDOM % 45))  # 45-90 seconds
+
+          VERSION="v1.0.${GITHUB_RUN_NUMBER}"
+
+          echo "Updating Kubernetes manifests..."
+          sleep $((UPDATE_TIME / 2))
+          echo "  ✓ Updated image tags to ${VERSION}"
+
+          echo "Updating Helm values..."
+          sleep $((UPDATE_TIME / 2))
+          echo "  ✓ Helm charts updated"
+
+          echo "✅ Deployment manifests updated"
+
+      - name: Container Pipeline Summary
+        if: always()
+        run: |
+          echo ""
+          echo "==============================================="
+          echo "CONTAINER PIPELINE SUMMARY"
+          echo "==============================================="
+          echo "Build Type: ${{ inputs.build_type }}"
+          echo "Registry: ${{ inputs.registry_type }}"
+          echo "Containers Built: ${{ steps.params.outputs.container_count }}"
+          echo ""
+          echo "Pipeline Metrics:"
+          echo "-----------------"
+          DURATION=${{ steps.params.outputs.total_duration }}
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Total Duration: ${MINUTES}m ${SECONDS}s"
+          echo "Average per container: $(($DURATION / ${{ steps.params.outputs.container_count }}))s"
+          echo ""
+
+          if [ "${{ inputs.build_type }}" = "full-stack" ]; then
+            echo "Full Stack Components:"
+            echo "  - Frontend (React)"
+            echo "  - Backend (Node.js)"
+            echo "  - Auth Service (Go)"
+            echo "  - API Gateway (Kong)"
+            echo "  - Database Proxy (ProxySQL)"
+            echo "  - Cache Service (Redis)"
+            echo "  - Worker Service (Python)"
+          fi
+
+          echo ""
+          echo "Registry: ${{ inputs.registry_type }}"
+          echo "Version: v1.0.${GITHUB_RUN_NUMBER}"
+          echo "Status: ${{ job.status }}"
+          echo ""
+          echo "This workflow simulates Docker-in-Docker operations"
+          echo "similar to your production OpenShift environment."
+          echo ""
+          echo "Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "==============================================="

@@ -1,0 +1,181 @@
+# AWS ECS Environment Configuration
+# This configuration is for testing the harness on AWS ECS Fargate runners
+
+environment:
+  name: aws-ecs
+  description: AWS ECS Fargate GitHub Runners
+  type: test
+  region: us-east-1
+
+github:
+  owner: Devopulence
+  repo: pythonProject  # Update this to your actual repo name
+  # Runner labels must match your ECS task definition
+  runner_labels:
+    - self-hosted
+    - ecs-fargate
+    - aws
+    - linux
+
+runners:
+  count: 4  # Hard limit - exactly 4 runners
+  type: fargate
+  cpu: 1024    # 1 vCPU
+  memory: 2048 # 2GB RAM
+
+  # Expected startup time for runners (seconds)
+  startup_time: 60
+
+  # Maximum job duration before timeout (seconds)
+  max_job_duration: 3600  # 1 hour
+
+workflows:
+  directory: .github/workflows/realistic
+
+  # Available workflows for testing
+  available:
+    - name: build_job
+      file: build_job.yml
+      description: Simulates CI build process
+      default_inputs:
+        workload_type: standard
+        enable_randomization: true
+
+    - name: deployment_pipeline
+      file: deployment_pipeline.yml
+      description: Simulates deployment to environments
+      default_inputs:
+        environment: staging
+        deployment_size: medium
+        enable_randomization: true
+
+    - name: security_scan
+      file: security_scan.yml
+      description: Simulates security scanning
+      default_inputs:
+        scan_depth: standard
+        enable_randomization: true
+
+    - name: multi_stage_pipeline
+      file: multi_stage_pipeline.yml
+      description: Complex multi-job pipeline
+      default_inputs:
+        pipeline_complexity: standard
+        parallelism_strategy: mixed
+        enable_randomization: true
+
+    - name: container_pipeline
+      file: container_pipeline.yml
+      description: Container build and push simulation
+      default_inputs:
+        build_type: microservices
+        registry_type: ecr
+        enable_randomization: true
+
+test_profiles:
+  # Performance baseline test
+  performance:
+    duration_minutes: 30
+    workflows:
+      - build_job
+    dispatch_pattern: steady  # Steady rate of job submissions
+    jobs_per_minute: 0.5      # 1 job every 2 minutes
+
+  # Capacity test - maximum throughput
+  capacity:
+    duration_minutes: 60
+    workflows:
+      - build_job
+      - deployment_pipeline
+    dispatch_pattern: steady
+    jobs_per_minute: 1.0      # Will queue jobs since only 4 runners
+
+  # Stress test - sudden load
+  stress:
+    duration_minutes: 45
+    workflows:
+      - multi_stage_pipeline
+    dispatch_pattern: burst
+    burst_size: 8             # Send 8 jobs at once (double capacity)
+    burst_interval: 900       # Every 15 minutes
+
+  # Load test - sustained load
+  load:
+    duration_minutes: 120
+    workflows:
+      - build_job
+      - deployment_pipeline
+      - security_scan
+    dispatch_pattern: steady
+    jobs_per_minute: 0.8      # Slightly below capacity
+
+  # Spike test - sudden traffic spike
+  spike:
+    duration_minutes: 60
+    workflows:
+      - build_job
+    dispatch_pattern: spike
+    normal_rate: 0.2          # Normal: 1 job every 5 minutes
+    spike_rate: 2.0           # Spike: 2 jobs per minute
+    spike_duration: 600       # Spike lasts 10 minutes
+    spike_start: 1200         # Spike starts at 20 minutes
+
+# Metrics to collect
+metrics:
+  collection_interval: 30     # Collect metrics every 30 seconds
+
+  github_api:
+    enabled: true
+    endpoints:
+      - workflow_runs
+      - jobs
+      - runners
+
+  custom_metrics:
+    - queue_time            # Time job waits for runner
+    - execution_time        # Time job takes to complete
+    - runner_utilization    # % of time runners are busy
+    - throughput           # Jobs completed per hour
+    - failure_rate         # % of failed jobs
+
+# Reporting configuration
+reporting:
+  format: json
+  output_directory: test_results/aws_ecs
+
+  report_types:
+    - summary              # Overall test summary
+    - detailed            # Detailed metrics over time
+    - comparison          # Compare with baseline
+
+  visualization:
+    enabled: true
+    charts:
+      - queue_time_histogram
+      - runner_utilization_timeline
+      - throughput_chart
+      - job_duration_distribution
+
+# Network configuration (if needed)
+network:
+  proxy:
+    enabled: false
+
+  ssl:
+    verify: true
+
+  timeout:
+    api_call: 30
+    workflow_dispatch: 60
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/aws_ecs_test.log
+  console: true
+
+  # Rotate logs
+  rotation:
+    max_bytes: 10485760    # 10MB
+    backup_count: 5

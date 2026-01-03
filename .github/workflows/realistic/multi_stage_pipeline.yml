@@ -1,0 +1,453 @@
+name: Realistic Multi-Stage Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      pipeline_complexity:
+        description: 'Pipeline complexity level'
+        required: true
+        type: choice
+        default: 'standard'
+        options:
+          - simple    # 3-4 jobs
+          - standard  # 5-6 jobs
+          - complex   # 7-8 jobs
+      parallelism_strategy:
+        description: 'Job parallelism strategy'
+        required: true
+        type: choice
+        default: 'mixed'
+        options:
+          - sequential  # All jobs run one after another
+          - parallel    # Maximum parallelism (tests 4-runner limit)
+          - mixed       # Some parallel, some sequential
+      enable_randomization:
+        description: 'Add random variance to duration'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  # Stage 1: Initial validation (always runs)
+  validation:
+    name: Pipeline Validation
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    outputs:
+      base_duration: ${{ steps.calc.outputs.base_duration }}
+
+    steps:
+      - name: Initialize Pipeline
+        run: |
+          echo "🚀 Multi-Stage Pipeline Started"
+          echo "Complexity: ${{ inputs.pipeline_complexity }}"
+          echo "Parallelism: ${{ inputs.parallelism_strategy }}"
+          echo "Runner: ${{ runner.name }}"
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Calculate Base Duration
+        id: calc
+        run: |
+          # Set base duration for jobs based on complexity
+          case "${{ inputs.pipeline_complexity }}" in
+            simple)
+              BASE_DURATION=300  # 5 minutes per job
+              ;;
+            standard)
+              BASE_DURATION=480  # 8 minutes per job
+              ;;
+            complex)
+              BASE_DURATION=600  # 10 minutes per job
+              ;;
+          esac
+
+          echo "base_duration=${BASE_DURATION}" >> $GITHUB_OUTPUT
+          echo "Base job duration: ${BASE_DURATION} seconds"
+
+      - name: Validate Configuration
+        run: |
+          echo "🔍 Validating pipeline configuration..."
+          VALIDATION_TIME=$((60 + RANDOM % 60))  # 1-2 minutes
+
+          echo "Checking prerequisites..."
+          sleep $((VALIDATION_TIME / 3))
+          echo "  ✓ Prerequisites met"
+
+          echo "Validating inputs..."
+          sleep $((VALIDATION_TIME / 3))
+          echo "  ✓ Inputs valid"
+
+          echo "Checking dependencies..."
+          sleep $((VALIDATION_TIME / 3))
+          echo "  ✓ Dependencies available"
+
+          echo "✅ Validation complete"
+
+  # Stage 2: Parallel build jobs (tests 4-runner limit)
+  build-backend:
+    name: Build Backend
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: validation
+    if: inputs.parallelism_strategy != 'sequential' || success()
+
+    steps:
+      - name: Build Backend Services
+        run: |
+          echo "🔨 Building backend services..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=${{ needs.validation.outputs.base_duration }}
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Build duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate build phases
+          echo "Compiling backend code..."
+          sleep $((DURATION * 40 / 100))
+          echo "  ✓ Compilation complete"
+
+          echo "Building service containers..."
+          sleep $((DURATION * 35 / 100))
+          echo "  ✓ 3 service containers built"
+
+          echo "Creating artifacts..."
+          sleep $((DURATION * 25 / 100))
+          echo "  ✓ Artifacts created: backend-services.tar.gz (247MB)"
+
+          echo "✅ Backend build complete"
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: validation
+    if: inputs.parallelism_strategy != 'sequential' || success()
+
+    steps:
+      - name: Build Frontend Application
+        run: |
+          echo "🎨 Building frontend application..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=${{ needs.validation.outputs.base_duration }}
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Build duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate frontend build
+          echo "Installing dependencies..."
+          sleep $((DURATION * 20 / 100))
+          echo "  ✓ Dependencies installed"
+
+          echo "Transpiling TypeScript..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ TypeScript compiled"
+
+          echo "Building production bundle..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ Bundle optimized: 4.7MB"
+
+          echo "Generating static assets..."
+          sleep $((DURATION * 20 / 100))
+          echo "  ✓ Assets generated"
+
+          echo "✅ Frontend build complete"
+
+  build-mobile:
+    name: Build Mobile Apps
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: validation
+    if: inputs.pipeline_complexity != 'simple' && (inputs.parallelism_strategy != 'sequential' || success())
+
+    steps:
+      - name: Build Mobile Applications
+        run: |
+          echo "📱 Building mobile applications..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=${{ needs.validation.outputs.base_duration }}
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Build duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate mobile builds
+          echo "Building iOS app..."
+          sleep $((DURATION * 50 / 100))
+          echo "  ✓ iOS app built: app.ipa (87MB)"
+
+          echo "Building Android app..."
+          sleep $((DURATION * 50 / 100))
+          echo "  ✓ Android app built: app.apk (62MB)"
+
+          echo "✅ Mobile builds complete"
+
+  build-documentation:
+    name: Build Documentation
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: validation
+    if: inputs.pipeline_complexity == 'complex' && (inputs.parallelism_strategy != 'sequential' || success())
+
+    steps:
+      - name: Generate Documentation
+        run: |
+          echo "📚 Building documentation..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization (shorter for docs)
+          BASE=$((${{ needs.validation.outputs.base_duration }} * 70 / 100))
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Build duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate doc generation
+          echo "Generating API documentation..."
+          sleep $((DURATION * 40 / 100))
+          echo "  ✓ API docs generated"
+
+          echo "Building user guides..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ User guides built"
+
+          echo "Creating diagrams..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ Diagrams rendered"
+
+          echo "✅ Documentation complete"
+
+  # Stage 3: Sequential testing (after builds complete)
+  integration-tests:
+    name: Integration Tests
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: [build-backend, build-frontend]
+    if: always() && (needs.build-backend.result == 'success' || needs.build-frontend.result == 'success')
+
+    steps:
+      - name: Run Integration Tests
+        run: |
+          echo "🧪 Running integration tests..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=${{ needs.validation.outputs.base_duration }}
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Test duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate integration testing
+          echo "Setting up test environment..."
+          sleep $((DURATION * 20 / 100))
+          echo "  ✓ Test environment ready"
+
+          echo "Running API integration tests..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ 147 API tests passed"
+
+          echo "Running service integration tests..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ 89 service tests passed"
+
+          echo "Running end-to-end scenarios..."
+          sleep $((DURATION * 20 / 100))
+          echo "  ✓ 23 E2E scenarios passed"
+
+          echo "✅ All integration tests passed"
+
+  # Stage 4: Performance testing (if enabled)
+  performance-tests:
+    name: Performance Tests
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: integration-tests
+    if: inputs.pipeline_complexity != 'simple'
+
+    steps:
+      - name: Run Performance Tests
+        run: |
+          echo "📊 Running performance tests..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=${{ needs.validation.outputs.base_duration }}
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Test duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate performance testing
+          echo "Running load tests..."
+          sleep $((DURATION * 40 / 100))
+          echo "  ✓ Load test complete: 2000 req/s sustained"
+
+          echo "Running stress tests..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ Stress test complete: System stable at 150% load"
+
+          echo "Running memory leak detection..."
+          sleep $((DURATION * 30 / 100))
+          echo "  ✓ No memory leaks detected"
+
+          echo "✅ Performance tests passed"
+
+  # Stage 5: Security scanning
+  security-scan:
+    name: Security Scanning
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: integration-tests
+    if: inputs.pipeline_complexity == 'complex'
+
+    steps:
+      - name: Security Analysis
+        run: |
+          echo "🔐 Running security scans..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=$((${{ needs.validation.outputs.base_duration }} * 80 / 100))
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Scan duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate security scanning
+          echo "Scanning for vulnerabilities..."
+          sleep $((DURATION * 50 / 100))
+          echo "  ✓ No critical vulnerabilities"
+
+          echo "Checking compliance..."
+          sleep $((DURATION * 50 / 100))
+          echo "  ✓ Compliance check passed"
+
+          echo "✅ Security scan complete"
+
+  # Final Stage: Deployment (conditional)
+  deployment:
+    name: Deploy to Staging
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    needs: [integration-tests, performance-tests, security-scan]
+    if: |
+      always() &&
+      needs.integration-tests.result == 'success' &&
+      (needs.performance-tests.result == 'success' || needs.performance-tests.result == 'skipped') &&
+      (needs.security-scan.result == 'success' || needs.security-scan.result == 'skipped')
+
+    steps:
+      - name: Deploy Application
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          echo "Runner: ${{ runner.name }}"
+
+          # Calculate duration with randomization
+          BASE=${{ needs.validation.outputs.base_duration }}
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            VARIANCE=$((BASE * 20 / 100))
+            OFFSET=$((RANDOM % (VARIANCE * 2) - VARIANCE))
+            DURATION=$((BASE + OFFSET))
+          else
+            DURATION=$BASE
+          fi
+
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "Deployment duration: ${MINUTES}m ${SECONDS}s"
+
+          # Simulate deployment
+          echo "Preparing deployment package..."
+          sleep $((DURATION * 25 / 100))
+          echo "  ✓ Package prepared"
+
+          echo "Deploying to staging servers..."
+          sleep $((DURATION * 50 / 100))
+          echo "  ✓ Deployed to 4 servers"
+
+          echo "Running smoke tests..."
+          sleep $((DURATION * 25 / 100))
+          echo "  ✓ Smoke tests passed"
+
+          echo "✅ Deployment successful"
+
+      - name: Pipeline Summary
+        if: always()
+        run: |
+          echo ""
+          echo "==============================================="
+          echo "MULTI-STAGE PIPELINE COMPLETE"
+          echo "==============================================="
+          echo "Complexity: ${{ inputs.pipeline_complexity }}"
+          echo "Parallelism: ${{ inputs.parallelism_strategy }}"
+          echo "Total jobs executed: $(echo '${{ toJSON(needs) }}' | grep -o '"result"' | wc -l)"
+          echo ""
+          echo "Job Results:"
+          echo "  Validation: ${{ needs.validation.result }}"
+          echo "  Build Backend: ${{ needs.build-backend.result }}"
+          echo "  Build Frontend: ${{ needs.build-frontend.result }}"
+          echo "  Integration Tests: ${{ needs.integration-tests.result }}"
+
+          if [ "${{ inputs.pipeline_complexity }}" != "simple" ]; then
+            echo "  Performance Tests: ${{ needs.performance-tests.result }}"
+          fi
+
+          if [ "${{ inputs.pipeline_complexity }}" = "complex" ]; then
+            echo "  Security Scan: ${{ needs.security-scan.result }}"
+          fi
+
+          echo "  Deployment: ${{ job.status }}"
+          echo ""
+          echo "Runner utilization: This pipeline tested parallel execution"
+          echo "with the 4-runner constraint in your environment."
+          echo ""
+          echo "Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "==============================================="
