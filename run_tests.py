@@ -85,7 +85,7 @@ class TestHarness:
             logger.error(f"Setup failed: {e}")
             return False
 
-    async def run_test(self, test_type: str) -> bool:
+    async def run_test(self, test_type: str, workload_override: str = None) -> bool:
         """
         Run a specific test type
 
@@ -101,6 +101,34 @@ class TestHarness:
 
         try:
             logger.info(f"Starting {test_type} test")
+
+            # Apply workload override if specified
+            if workload_override:
+                print(f"🔧 Overriding workload type: {workload_override}")
+
+                # Get the profile that will be used
+                profile_name = test_type
+                if test_type in ['performance', 'capacity', 'stress', 'load', 'spike']:
+                    # These are built-in test types that map to profiles
+                    profile_name = test_type
+
+                # Override the workload inputs for this profile
+                if profile_name in self.runner.environment.test_profiles:
+                    profile = self.runner.environment.test_profiles[profile_name]
+                    if not hasattr(profile, 'workload_inputs') or profile.workload_inputs is None:
+                        profile.workload_inputs = {}
+                    profile.workload_inputs['workload_type'] = workload_override
+                    profile.workload_inputs['enable_randomization'] = True
+
+                    # Log the override
+                    workload_times = {
+                        'test': '30-60 seconds',
+                        'light': '2-3 minutes',
+                        'standard': '3-5 minutes',
+                        'heavy': '5-8 minutes'
+                    }
+                    print(f"  Workload duration: {workload_times.get(workload_override, 'unknown')}")
+
             print(f"\n🚀 Running {test_type} test...")
             print("Press Ctrl+C to abort\n")
 
@@ -438,6 +466,11 @@ def main():
         help='Test profile name from environment config'
     )
     parser.add_argument(
+        '-w', '--workload',
+        choices=['test', 'light', 'standard', 'heavy'],
+        help='Override workload type (test=30-60s, light=2-3m, standard=3-5m, heavy=5-8m)'
+    )
+    parser.add_argument(
         '-l', '--list',
         action='store_true',
         help='List available tests for environment'
@@ -480,10 +513,10 @@ def main():
 
     # Run specific test
     if args.test:
-        success = asyncio.run(harness.run_test(args.test))
+        success = asyncio.run(harness.run_test(args.test, args.workload))
         sys.exit(0 if success else 1)
     elif args.profile:
-        success = asyncio.run(harness.run_test(args.profile))
+        success = asyncio.run(harness.run_test(args.profile, args.workload))
         sys.exit(0 if success else 1)
     else:
         # Default to interactive if no test specified

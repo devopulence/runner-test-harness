@@ -40,6 +40,7 @@ class TestProfile:
     spike_rate: Optional[float] = None
     spike_duration: Optional[int] = None
     spike_start: Optional[int] = None
+    workload_inputs: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -217,7 +218,8 @@ class EnvironmentSwitcher:
                 normal_rate=profile_config.get('normal_rate'),
                 spike_rate=profile_config.get('spike_rate'),
                 spike_duration=profile_config.get('spike_duration'),
-                spike_start=profile_config.get('spike_start')
+                spike_start=profile_config.get('spike_start'),
+                workload_inputs=profile_config.get('workload_inputs')
             )
 
         return EnvironmentConfig(

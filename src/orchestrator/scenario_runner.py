@@ -185,6 +185,13 @@ class ScenarioRunner:
         )
         logger.info(f"Test Run ID: {self.test_run_tracker.test_run_id}")
 
+        # Set the test_run_id on the workflow tracker for job_name matching
+        self.tracker.set_test_run_id(self.test_run_tracker.test_run_id)
+
+        # Initialize workflow tracker baseline BEFORE dispatching any workflows
+        logger.info("Initializing workflow tracker baseline...")
+        await self.tracker.initialize_baseline()
+
         # Start polling task for workflow status updates
         self.polling_task = asyncio.create_task(self._poll_workflow_status())
 
@@ -209,6 +216,24 @@ class ScenarioRunner:
                     await self.polling_task
                 except asyncio.CancelledError:
                     pass
+
+            # Do one final poll to catch any remaining completed workflows
+            logger.info("Final workflow status update...")
+            try:
+                await self.tracker.update_all_workflows()
+                tracker_metrics = self.tracker.get_metrics()
+                self.metrics.queue_times = tracker_metrics["queue_times"]
+                self.metrics.execution_times = tracker_metrics["execution_times"]
+                self.metrics.successful_workflows = tracker_metrics["successful"]
+                self.metrics.failed_workflows = tracker_metrics["failed"]
+                logger.info(f"Final metrics: matched={tracker_metrics['matched']}, "
+                           f"pending={tracker_metrics['pending']}, "
+                           f"successful={tracker_metrics['successful']}")
+            except Exception as e:
+                logger.error(f"Error in final update: {e}")
+
+            # Close tracker session
+            await self.tracker.close()
 
             # Save test run tracking data
             if self.test_run_tracker:
@@ -238,8 +263,8 @@ class ScenarioRunner:
             workflow_name = profile.workflows[workflow_index % len(profile.workflows)]
             workflow_index += 1
 
-            # Dispatch workflow
-            await self._dispatch_workflow(workflow_name)
+            # Dispatch workflow with profile's workload inputs
+            await self._dispatch_workflow(workflow_name, profile.workload_inputs)
 
             # Wait for next dispatch
             await asyncio.sleep(interval)
@@ -260,7 +285,7 @@ class ScenarioRunner:
             tasks = []
             for i in range(burst_size):
                 workflow_name = profile.workflows[i % len(profile.workflows)]
-                tasks.append(self._dispatch_workflow(workflow_name))
+                tasks.append(self._dispatch_workflow(workflow_name, profile.workload_inputs))
 
             # Dispatch all in parallel
             await asyncio.gather(*tasks)
@@ -296,7 +321,7 @@ class ScenarioRunner:
 
             # Dispatch workflow
             workflow_name = profile.workflows[workflow_index % len(profile.workflows)]
-            await self._dispatch_workflow(workflow_name)
+            await self._dispatch_workflow(workflow_name, profile.workload_inputs)
             workflow_index += 1
 
             # Wait for next dispatch
@@ -306,12 +331,13 @@ class ScenarioRunner:
             if not in_spike and elapsed > (spike_start + spike_duration) and workflow_index == 1:
                 logger.info(f"SPIKE ENDED - Returning to normal rate: {normal_rate} jobs/minute")
 
-    async def _dispatch_workflow(self, workflow_name: str) -> Optional[WorkflowRun]:
+    async def _dispatch_workflow(self, workflow_name: str, profile_inputs: Dict[str, Any] = None) -> Optional[WorkflowRun]:
         """
         Dispatch a single workflow
 
         Args:
             workflow_name: Name of workflow to dispatch
+            profile_inputs: Optional inputs from test profile to override defaults
 
         Returns:
             WorkflowRun object or None if failed
@@ -327,8 +353,11 @@ class ScenarioRunner:
             logger.error(f"Workflow '{workflow_name}' not found in environment")
             return None
 
-        # Prepare inputs
+        # Prepare inputs - start with defaults, then override with profile inputs
         inputs = workflow_config.default_inputs.copy()
+        if profile_inputs:
+            inputs.update(profile_inputs)
+            logger.info(f"Using profile workload inputs: {profile_inputs}")
 
         # Create workflow run object
         run = WorkflowRun(
