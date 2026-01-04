@@ -68,10 +68,6 @@ resource "aws_ecs_task_definition" "github_runner" {
           value = "true"  # Keep runners registered
         },
         {
-          name  = "EPHEMERAL"
-          value = "false"  # Persistent runners
-        },
-        {
           name  = "DISABLE_AUTO_UPDATE"
           value = "true"  # Prevent runner from auto-updating and restarting
         },

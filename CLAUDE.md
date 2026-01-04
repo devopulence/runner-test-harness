@@ -25,12 +25,13 @@ This repository contains a GitHub Runner Performance Testing Harness designed to
 3. **Portability**: Harness must be environment-agnostic to run in both AWS (testing) and OpenShift (production)
 4. **End Goal**: Deploy this harness to OpenShift to measure real capacity and performance metrics
 
-### Current Status (Jan 3, 2025)
+### Current Status (Jan 4, 2025)
 - **Development Environment**: AWS ECS Fargate with 4 runners (mimics OpenShift constraint)
 - **Production Environment**: OpenShift with 4 servers (target for testing)
-- **Phase**: Harness development and validation in AWS
+- **Phase**: Performance testing with working persistent runners
 - **Architecture**: 4 ECS Fargate tasks to simulate OpenShift's 4-server limit
-- **Testing Method**: Sleep-based workflows to simulate CI/CD build times
+- **Testing Method**: Sleep-based workflows (3-5 min) to simulate CI/CD build times
+- **Runner Status**: ✅ FIXED - Persistent mode working (no EPHEMERAL variable set)
 
 ### Critical Constraints
 - **4 Runner Limit**: Both OpenShift and ECS environments limited to exactly 4 runners
