@@ -84,9 +84,23 @@ test_profiles:
   validation:
     duration_minutes: 5
     workflows:
-      - build_job_test  # Uses test workload (30-60 seconds)
+      - build_job  # Use the actual build_job.yml
     dispatch_pattern: steady
     jobs_per_minute: 1.0      # 1 job per minute
+    workload_inputs:
+      workload_type: test  # This makes it use 30-60 second jobs!
+      enable_randomization: true
+
+  # Performance test with fast workload - 10 minutes
+  performance_fast:
+    duration_minutes: 10
+    workflows:
+      - build_job
+    dispatch_pattern: steady
+    jobs_per_minute: 1.2      # Same rate as full performance test
+    workload_inputs:
+      workload_type: test  # 30-60 second jobs for fast completion!
+      enable_randomization: true
 
   # Quick test - 5 minutes (jobs won't complete in time)
   quick:

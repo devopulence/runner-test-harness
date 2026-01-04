@@ -12,10 +12,12 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from src.orchestrator.environment_switcher import EnvironmentSwitcher
 from src.orchestrator.scenario_runner import ScenarioRunner
+from src.analysis.test_specific_analyzer import TestAnalyzerFactory
+from src.orchestrator.test_run_tracker import load_test_run
 
 # Configure logging
 logging.basicConfig(
@@ -124,6 +126,9 @@ class TestHarness:
             # Display results
             self._display_results(metrics)
 
+            # Run test-specific analysis
+            self._run_automatic_analysis(test_type, metrics)
+
             print(f"\n✅ Test complete!")
             print(f"📊 Report saved to: {report_path}")
 
@@ -137,6 +142,176 @@ class TestHarness:
         except Exception as e:
             logger.error(f"Test failed: {e}")
             return False
+
+    def _run_automatic_analysis(self, test_type: str, metrics):
+        """Run test-specific analysis automatically after test completion."""
+        try:
+            print(f"\n🔬 Running {test_type} test analysis...")
+            print("=" * 60)
+
+            # Check if we have completed workflows to analyze
+            if not metrics.queue_times and not metrics.execution_times:
+                print("\n⚠️ No completed workflows to analyze yet")
+                print("Workflows are still running or queued. Analysis requires completed workflows.")
+                print(f"Status: {metrics.successful_workflows} completed, {metrics.failed_workflows} failed, {metrics.total_workflows} total")
+
+                # Still save what tracking info we have
+                if self.runner and self.runner.test_run_tracker:
+                    test_run_id = self.runner.test_run_tracker.test_run_id
+                    print(f"\nTest Run ID: {test_run_id}")
+                    print("Run analysis later with:")
+                    print(f"  python analyze_specific_test.py --test-run-id {test_run_id}")
+                return
+
+            # Get the appropriate analyzer
+            analyzer = TestAnalyzerFactory.get_analyzer(test_type)
+
+            # Prepare metrics for analysis
+            stats = metrics.calculate_statistics()
+            analysis_metrics = {
+                'queue_times': [qt / 60 for qt in metrics.queue_times],  # Convert to minutes
+                'execution_times': [et / 60 for et in metrics.execution_times],  # Convert to minutes
+                'total_times': [(qt + et) / 60 for qt, et in zip(metrics.queue_times, metrics.execution_times)] if metrics.queue_times and metrics.execution_times else [],
+                'job_count': metrics.total_workflows,
+                'total_workflows': metrics.total_workflows,
+                'failed_workflows': metrics.failed_workflows,
+                'duration_minutes': stats.get('duration_minutes', 30),
+                'runner_count': self.switcher.current_environment.runner_count if self.switcher.current_environment else 4,
+                'runner_utilization': [u * 100 for u in metrics.runner_utilization] if metrics.runner_utilization else []
+            }
+
+            # Run analysis
+            analysis = analyzer.analyze(analysis_metrics)
+
+            # Display key findings based on test type
+            self._display_test_analysis(test_type, analysis)
+
+            # Generate recommendations
+            recommendations = analyzer.generate_recommendations(analysis)
+            if recommendations:
+                print("\n📋 Recommendations:")
+                print("-" * 40)
+                for rec in recommendations:
+                    print(f"  {rec}")
+
+            # Save analysis results
+            if self.runner and self.runner.test_run_tracker:
+                analysis_dir = Path(f'test_results/{self.switcher.current_environment.name if self.switcher.current_environment else "aws-ecs"}/analysis')
+                analysis_dir.mkdir(parents=True, exist_ok=True)
+
+                test_run_id = self.runner.test_run_tracker.test_run_id
+                analysis_file = analysis_dir / f"{test_run_id}_analysis.json"
+
+                import json
+                with open(analysis_file, 'w') as f:
+                    json.dump({
+                        'test_run_id': test_run_id,
+                        'test_type': test_type,
+                        'analysis': analysis,
+                        'metrics': analysis_metrics,
+                        'recommendations': recommendations
+                    }, f, indent=2)
+
+                print(f"\n📄 Analysis saved to: {analysis_file}")
+
+        except Exception as e:
+            logger.error(f"Error running automatic analysis: {e}")
+            print(f"\n⚠️ Analysis failed: {e}")
+
+    def _display_test_analysis(self, test_type: str, analysis: Dict[str, Any]):
+        """Display test-specific analysis results."""
+        # Check if analysis has no data
+        if analysis.get("status") == "NO_DATA":
+            print(f"\n⚠️ {analysis.get('message', 'No data available for analysis')}")
+            return
+
+        if test_type == "performance":
+            # Performance test focuses on baseline and consistency
+            print("\n🎯 Performance Analysis:")
+            print("-" * 40)
+            if "overall_rating" in analysis:
+                print(f"Overall Rating: {analysis['overall_rating']}")
+            if "queue_analysis" in analysis:
+                print(f"Queue Health: {analysis['queue_analysis']['health']}")
+            if "execution_analysis" in analysis:
+                print(f"Execution Consistency: {analysis['execution_analysis']['consistency']}")
+            if "predictability" in analysis:
+                print(f"Predictability: {analysis['predictability']['score']}")
+                print(f"  {analysis['predictability']['interpretation']}")
+            if "baseline_metrics" in analysis:
+                sla = analysis['baseline_metrics']['recommended_sla']
+                print(f"\nRecommended SLAs:")
+                print(f"  P50: {sla['p50']:.1f} minutes")
+                print(f"  P95: {sla['p95']:.1f} minutes")
+                print(f"  P99: {sla['p99']:.1f} minutes")
+
+        elif test_type == "load":
+            # Load test focuses on degradation and sustainability
+            print("\n📈 Load Test Analysis:")
+            print("-" * 40)
+            if "degradation_analysis" in analysis:
+                deg = analysis['degradation_analysis']
+                print(f"Performance Degradation: {deg['pattern']}")
+                print(f"  {deg['interpretation']}")
+            if "throughput_analysis" in analysis:
+                tp = analysis['throughput_analysis']
+                print(f"Throughput: {tp['workflows_per_hour']:.1f} workflows/hour")
+                print(f"  Rating: {tp['rating']}")
+            if "sustainability" in analysis:
+                sus = analysis['sustainability']
+                print(f"Load Sustainability: {sus['verdict']}")
+                print(f"  {sus['description']}")
+
+        elif test_type == "stress":
+            # Stress test focuses on breaking points
+            print("\n💥 Stress Test Analysis:")
+            print("-" * 40)
+            if "stress_metrics" in analysis:
+                stress = analysis['stress_metrics']
+                print(f"Max Queue Time: {stress['max_queue_time']:.1f} minutes")
+                print(f"Breaking Point Reached: {'Yes' if stress['breaking_point_reached'] else 'No'}")
+            if "failure_analysis" in analysis:
+                fail = analysis['failure_analysis']
+                print(f"Failure Rate: {fail['failure_rate']:.1f}%")
+                print(f"System Resilience: {fail['system_resilience']}")
+            if "stress_handling" in analysis:
+                handling = analysis['stress_handling']
+                print(f"Stress Handling: {handling['rating']}")
+                print(f"  {handling['description']}")
+
+        elif test_type == "capacity":
+            # Capacity test focuses on maximum throughput
+            print("\n⚡ Capacity Analysis:")
+            print("-" * 40)
+            if "capacity_metrics" in analysis:
+                cap = analysis['capacity_metrics']
+                print(f"Actual Throughput: {cap['actual_throughput']:.2f} workflows/min")
+                print(f"Efficiency: {cap['efficiency_percent']:.1f}%")
+                print(f"Capacity Usage: {cap['capacity_utilized']}")
+            if "saturation_analysis" in analysis:
+                sat = analysis['saturation_analysis']
+                print(f"Average Utilization: {sat['average_utilization']:.1f}%")
+                print(f"Saturation State: {sat['saturation_state']}")
+            if "optimization" in analysis:
+                opt = analysis['optimization']
+                print(f"Runner Optimization: {opt['recommendation']}")
+
+        elif test_type == "spike":
+            # Spike test focuses on elasticity
+            print("\n⚡ Spike Test Analysis:")
+            print("-" * 40)
+            if "spike_response" in analysis:
+                spike = analysis['spike_response']
+                print(f"Spike Impact: {spike['response_multiplier']:.1f}x baseline")
+            if "recovery" in analysis:
+                rec = analysis['recovery']
+                print(f"Recovery Quality: {rec['recovery_quality']}")
+            if "elasticity" in analysis:
+                elast = analysis['elasticity']
+                print(f"System Elasticity: {elast['rating']}")
+                print(f"  {elast['description']}")
+            if "spike_handling_rating" in analysis:
+                print(f"Overall: {analysis['spike_handling_rating']}")
 
     def _display_results(self, metrics):
         """Display test results summary"""

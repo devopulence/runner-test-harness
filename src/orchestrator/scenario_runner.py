@@ -22,6 +22,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from src.orchestrator.environment_switcher import EnvironmentConfig, TestProfile
 from src.orchestrator.workflow_tracker import WorkflowTracker
 from src.orchestrator.enhanced_metrics import EnhancedMetrics
+from src.orchestrator.test_run_tracker import TestRunTracker
 from main import trigger_workflow_dispatch
 
 # Configure logging
@@ -151,6 +152,9 @@ class ScenarioRunner:
         self.abort_requested = False
         self.polling_task = None
 
+        # Test run tracker for identifying workflows
+        self.test_run_tracker = None
+
     async def run_test_profile(self, profile_name: str) -> TestMetrics:
         """
         Run a specific test profile
@@ -173,6 +177,13 @@ class ScenarioRunner:
         self.test_running = True
         self.metrics = TestMetrics()
         self.metrics.start_time = datetime.now()
+
+        # Initialize test run tracker for this test
+        self.test_run_tracker = TestRunTracker(
+            test_type=profile_name,
+            environment=self.environment.name if hasattr(self.environment, 'name') else 'aws-ecs'
+        )
+        logger.info(f"Test Run ID: {self.test_run_tracker.test_run_id}")
 
         # Start polling task for workflow status updates
         self.polling_task = asyncio.create_task(self._poll_workflow_status())
@@ -198,6 +209,10 @@ class ScenarioRunner:
                     await self.polling_task
                 except asyncio.CancelledError:
                     pass
+
+            # Save test run tracking data
+            if self.test_run_tracker:
+                self.test_run_tracker.save_tracking_data()
 
         # Calculate final statistics
         stats = self.metrics.calculate_statistics()
@@ -339,12 +354,17 @@ class ScenarioRunner:
             # Use the workflow file as configured
             workflow_path = workflow_config.file
 
+            # Add job_name with test_run_id to inputs for tracking
+            workflow_inputs = inputs.copy() if inputs else {}
+            if self.test_run_tracker:
+                workflow_inputs['job_name'] = self.test_run_tracker.get_job_name()
+
             trigger_workflow_dispatch(
                 owner=self.environment.github_owner,
                 repo=self.environment.github_repo,
                 workflow_id_or_filename=workflow_path,
                 ref="main",  # Or get from config
-                inputs=inputs if inputs else None,  # Pass dict, not JSON string
+                inputs=workflow_inputs if workflow_inputs else None,  # Pass dict, not JSON string
                 token=self.github_token,
                 proxies=proxies,
                 ca_bundle=self.environment.network.get('ssl', {}).get('ca_bundle')
@@ -359,6 +379,11 @@ class ScenarioRunner:
             # Track the workflow for status updates
             tracking_id = await self.tracker.track_workflow(workflow_name, run.queued_at)
             run.tracking_id = tracking_id
+
+            # Record workflow in test run tracker (we'll get the ID later from GitHub API)
+            if self.test_run_tracker:
+                # For now, record a placeholder - will update with actual ID when polling
+                self.test_run_tracker.add_workflow(0, workflow_name)
 
         except Exception as e:
             run.status = "failed"
