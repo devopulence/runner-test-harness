@@ -118,6 +118,17 @@ test_profiles:
     dispatch_pattern: steady  # Steady rate of job submissions
     jobs_per_minute: 1.2      # 72 jobs/hour - will create some queuing
 
+  # Capacity test (fast) - validate capacity testing with queuing
+  capacity_fast:
+    duration_minutes: 12
+    workflows:
+      - build_job
+    dispatch_pattern: steady
+    jobs_per_minute: 3.0      # 3 jobs/min > 4 runners at ~1min each = queue builds
+    workload_inputs:
+      workload_type: test     # 30-60 second jobs
+      enable_randomization: true
+
   # Capacity test - maximum throughput
   capacity:
     duration_minutes: 60
@@ -135,6 +146,17 @@ test_profiles:
     dispatch_pattern: burst
     burst_size: 8             # Send 8 jobs at once (double capacity)
     burst_interval: 900       # Every 15 minutes
+
+  # Load test (fast) - validate sustained load behavior
+  load_fast:
+    duration_minutes: 10
+    workflows:
+      - build_job
+    dispatch_pattern: steady
+    jobs_per_minute: 0.8      # Slightly below capacity (should not queue)
+    workload_inputs:
+      workload_type: test     # 30-60 second jobs for faster validation
+      enable_randomization: true
 
   # Load test - sustained load
   load:

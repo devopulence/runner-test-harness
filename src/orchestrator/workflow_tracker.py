@@ -379,20 +379,17 @@ class WorkflowTracker:
             workflow_data["status"] = run["status"]
             workflow_data["conclusion"] = run.get("conclusion")
 
-            # Parse timestamps
-            created_at = datetime.fromisoformat(run["created_at"].replace("Z", "+00:00"))
-            workflow_data["queued_at"] = created_at
-
-            if run.get("run_started_at"):
-                started_at = datetime.fromisoformat(run["run_started_at"].replace("Z", "+00:00"))
-                workflow_data["started_at"] = started_at
-                workflow_data["queue_time"] = (started_at - created_at).total_seconds()
+            # Note: Don't set queue_time here - run-level timestamps are inaccurate
+            # Real queue time will be calculated from job-level data in update_workflow_status
 
             logger.info(f"Matched {tracking_id} -> run {run_id} (status: {run['status']})")
 
     async def update_workflow_status(self, tracking_id: str) -> Dict:
         """
-        Update the status of a tracked workflow
+        Update the status of a tracked workflow.
+
+        Fetches job-level data for accurate queue time measurement.
+        Queue time = job.started_at - job.created_at (time waiting for runner)
 
         Args:
             tracking_id: The tracking ID
@@ -413,40 +410,48 @@ class WorkflowTracker:
 
         try:
             session = await self._get_session()
-            url = f"{self.base_url}/actions/runs/{run_id}"
 
+            # Get run status
+            url = f"{self.base_url}/actions/runs/{run_id}"
             async with session.get(url) as resp:
                 if resp.status == 200:
                     run = await resp.json()
-
-                    old_status = workflow_data.get("status")
-                    new_status = run["status"]
-
                     workflow_data["github_run"] = run
-                    workflow_data["status"] = new_status
+                    workflow_data["status"] = run["status"]
                     workflow_data["conclusion"] = run.get("conclusion")
-
-                    # Track state transitions
-                    if run.get("run_started_at") and not workflow_data.get("started_at"):
-                        # Job started
-                        started_at = datetime.fromisoformat(run["run_started_at"].replace("Z", "+00:00"))
-                        workflow_data["started_at"] = started_at
-
-                        if workflow_data.get("queued_at"):
-                            workflow_data["queue_time"] = (started_at - workflow_data["queued_at"]).total_seconds()
-                            logger.info(f"Workflow {run_id} started. Queue time: {workflow_data['queue_time']:.1f}s")
-
-                    if new_status == "completed" and not workflow_data.get("completed_at"):
-                        # Job completed
-                        completed_at = datetime.fromisoformat(run["updated_at"].replace("Z", "+00:00"))
-                        workflow_data["completed_at"] = completed_at
-
-                        if workflow_data.get("started_at"):
-                            workflow_data["execution_time"] = (completed_at - workflow_data["started_at"]).total_seconds()
-                            logger.info(f"Workflow {run_id} completed ({run.get('conclusion')}). "
-                                       f"Execution time: {workflow_data['execution_time']:.1f}s")
                 else:
                     logger.warning(f"Failed to get run {run_id}: HTTP {resp.status}")
+                    return workflow_data
+
+            # Only fetch job-level data when workflow is completed (saves API calls)
+            if run["status"] == "completed" and workflow_data.get("queue_time") is None:
+                url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        jobs_data = await resp.json()
+                        jobs = jobs_data.get("jobs", [])
+
+                        if jobs:
+                            # Use the first/main job for timing
+                            job = jobs[0]
+
+                            # Queue time: job.created_at to job.started_at
+                            if job.get("created_at") and job.get("started_at"):
+                                job_created = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
+                                job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+                                workflow_data["queued_at"] = job_created
+                                workflow_data["started_at"] = job_started
+                                workflow_data["queue_time"] = (job_started - job_created).total_seconds()
+
+                            # Execution time: job.started_at to job.completed_at
+                            if job.get("started_at") and job.get("completed_at"):
+                                job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+                                job_completed = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
+                                workflow_data["completed_at"] = job_completed
+                                workflow_data["execution_time"] = (job_completed - job_started).total_seconds()
+
+                            logger.info(f"Workflow {run_id} completed: queue={workflow_data['queue_time']:.1f}s, "
+                                       f"exec={workflow_data['execution_time']:.1f}s")
 
         except Exception as e:
             logger.error(f"Error updating workflow status: {e}")

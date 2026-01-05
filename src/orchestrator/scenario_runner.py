@@ -217,20 +217,51 @@ class ScenarioRunner:
                 except asyncio.CancelledError:
                     pass
 
-            # Do one final poll to catch any remaining completed workflows
-            logger.info("Final workflow status update...")
-            try:
-                await self.tracker.update_all_workflows()
-                tracker_metrics = self.tracker.get_metrics()
-                self.metrics.queue_times = tracker_metrics["queue_times"]
-                self.metrics.execution_times = tracker_metrics["execution_times"]
-                self.metrics.successful_workflows = tracker_metrics["successful"]
-                self.metrics.failed_workflows = tracker_metrics["failed"]
-                logger.info(f"Final metrics: matched={tracker_metrics['matched']}, "
-                           f"pending={tracker_metrics['pending']}, "
-                           f"successful={tracker_metrics['successful']}")
-            except Exception as e:
-                logger.error(f"Error in final update: {e}")
+            # Wait for all dispatched workflows to complete
+            logger.info("Waiting for all workflows to complete...")
+            max_wait_minutes = 30  # Maximum time to wait for stragglers (longer for standard/heavy workloads)
+            wait_start = datetime.now()
+
+            while True:
+                try:
+                    await self.tracker.update_all_workflows()
+                    tracker_metrics = self.tracker.get_metrics()
+
+                    pending = tracker_metrics['pending']
+                    matched = tracker_metrics['matched']
+                    successful = tracker_metrics['successful']
+                    failed = tracker_metrics['failed']
+                    in_progress = matched - successful - failed
+
+                    logger.info(f"Waiting: {in_progress} still running, {pending} pending match, "
+                               f"{successful} successful, {failed} failed")
+
+                    # All done if no pending and no in-progress
+                    if pending == 0 and in_progress == 0:
+                        logger.info("All workflows completed!")
+                        break
+
+                    # Timeout check
+                    elapsed = (datetime.now() - wait_start).total_seconds() / 60
+                    if elapsed > max_wait_minutes:
+                        logger.warning(f"Timeout waiting for workflows after {max_wait_minutes} minutes")
+                        break
+
+                    await asyncio.sleep(15)  # Poll every 15 seconds while waiting
+
+                except Exception as e:
+                    logger.error(f"Error waiting for workflows: {e}")
+                    break
+
+            # Final metrics update
+            tracker_metrics = self.tracker.get_metrics()
+            self.metrics.queue_times = tracker_metrics["queue_times"]
+            self.metrics.execution_times = tracker_metrics["execution_times"]
+            self.metrics.successful_workflows = tracker_metrics["successful"]
+            self.metrics.failed_workflows = tracker_metrics["failed"]
+            logger.info(f"Final metrics: matched={tracker_metrics['matched']}, "
+                       f"pending={tracker_metrics['pending']}, "
+                       f"successful={tracker_metrics['successful']}")
 
             # Close tracker session
             await self.tracker.close()
