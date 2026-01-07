@@ -138,6 +138,18 @@ test_profiles:
     dispatch_pattern: steady
     jobs_per_minute: 1.0      # Will queue jobs since only 4 runners
 
+  # Stress test (fast) - validate burst handling
+  stress_fast:
+    duration_minutes: 5
+    workflows:
+      - build_job
+    dispatch_pattern: burst
+    burst_size: 8             # Send 8 jobs at once (double capacity)
+    burst_interval: 150       # Every 2.5 minutes (2 bursts in 5 min)
+    workload_inputs:
+      workload_type: test     # 30-60 second jobs for faster validation
+      enable_randomization: true
+
   # Stress test - sudden load
   stress:
     duration_minutes: 45
@@ -146,6 +158,9 @@ test_profiles:
     dispatch_pattern: burst
     burst_size: 8             # Send 8 jobs at once (double capacity)
     burst_interval: 900       # Every 15 minutes
+    workload_inputs:
+      workload_type: standard   # 3-5 minute jobs for realistic testing
+      enable_randomization: true
 
   # Load test (fast) - validate sustained load behavior
   load_fast:
@@ -168,6 +183,20 @@ test_profiles:
     dispatch_pattern: steady
     jobs_per_minute: 0.8      # Slightly below capacity
 
+  # Spike test (medium) - demonstrates spike with queuing and recovery
+  spike_medium:
+    duration_minutes: 15
+    workflows:
+      - build_job
+    dispatch_pattern: spike
+    normal_rate: 0.5          # Normal: 1 job every 2 minutes
+    spike_rate: 4.0           # Spike: 4 jobs per minute (will queue!)
+    spike_duration: 300       # Spike lasts 5 minutes
+    spike_start: 180          # Spike starts at 3 minutes
+    workload_inputs:
+      workload_type: test     # 30-60 second jobs
+      enable_randomization: true
+
   # Spike test - sudden traffic spike
   spike:
     duration_minutes: 60
@@ -178,6 +207,9 @@ test_profiles:
     spike_rate: 2.0           # Spike: 2 jobs per minute
     spike_duration: 600       # Spike lasts 10 minutes
     spike_start: 1200         # Spike starts at 20 minutes
+    workload_inputs:
+      workload_type: standard   # 3-5 minute jobs for realistic testing
+      enable_randomization: true
 
 # Metrics to collect
 metrics:
