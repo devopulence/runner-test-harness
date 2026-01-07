@@ -134,9 +134,11 @@ test_profiles:
     duration_minutes: 60
     workflows:
       - build_job
-      - deployment_pipeline
     dispatch_pattern: steady
     jobs_per_minute: 1.0      # Will queue jobs since only 4 runners
+    workload_inputs:
+      workload_type: standard   # 3-5 minute jobs for realistic testing
+      enable_randomization: true
 
   # Stress test (fast) - validate burst handling
   stress_fast:
@@ -154,7 +156,7 @@ test_profiles:
   stress:
     duration_minutes: 45
     workflows:
-      - multi_stage_pipeline
+      - build_job
     dispatch_pattern: burst
     burst_size: 8             # Send 8 jobs at once (double capacity)
     burst_interval: 900       # Every 15 minutes
@@ -178,10 +180,11 @@ test_profiles:
     duration_minutes: 120
     workflows:
       - build_job
-      - deployment_pipeline
-      - security_scan
     dispatch_pattern: steady
     jobs_per_minute: 0.8      # Slightly below capacity
+    workload_inputs:
+      workload_type: standard   # 3-5 minute jobs for realistic testing
+      enable_randomization: true
 
   # Spike test (medium) - demonstrates spike with queuing and recovery
   spike_medium:
