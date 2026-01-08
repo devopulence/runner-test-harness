@@ -191,8 +191,8 @@ class LoadTestAnalyzer(BaseTestAnalyzer):
                 "mid_avg_queue": mid_avg,
                 "late_avg_queue": late_avg,
                 "degradation_percent": degradation_pct,
-                "pattern": self._classify_degradation(degradation_pct),
-                "interpretation": self._interpret_degradation(degradation_pct)
+                "pattern": self._classify_degradation(degradation_pct, early_avg, late_avg),
+                "interpretation": self._interpret_degradation(degradation_pct, late_avg)
             }
 
         # Throughput analysis
@@ -224,7 +224,16 @@ class LoadTestAnalyzer(BaseTestAnalyzer):
 
         return analysis
 
-    def _classify_degradation(self, degradation_pct: float) -> str:
+    def _classify_degradation(self, degradation_pct: float, early_avg: float = 0, late_avg: float = 0) -> str:
+        # If absolute queue times are low, system is stable regardless of percentage
+        # Queue times under 30 seconds are excellent
+        if late_avg < 30:
+            return "STABLE"
+        # Queue times under 60 seconds with low early avg is still good
+        if late_avg < 60 and early_avg < 30:
+            return "STABLE"
+
+        # For higher queue times, use percentage-based classification
         if degradation_pct < 10:
             return "STABLE"
         elif degradation_pct < 25:
@@ -234,7 +243,13 @@ class LoadTestAnalyzer(BaseTestAnalyzer):
         else:
             return "SEVERE_DEGRADATION"
 
-    def _interpret_degradation(self, degradation_pct: float) -> str:
+    def _interpret_degradation(self, degradation_pct: float, late_avg: float = 0) -> str:
+        # If queue times are low, always positive interpretation
+        if late_avg < 30:
+            return "System maintains excellent performance under sustained load"
+        if late_avg < 60:
+            return "System maintains good performance under sustained load"
+
         if degradation_pct < 10:
             return "System maintains performance under sustained load"
         elif degradation_pct < 25:
@@ -655,8 +670,39 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
         recovery = analysis.get("recovery", {})
 
         multiplier = response.get("response_multiplier", 0)
+        spike_peak = response.get("spike_peak", 0)
+        pre_spike_avg = response.get("pre_spike_avg", 0)
         recovered = recovery.get("recovered", False)
+        recovery_quality = recovery.get("recovery_quality", "UNKNOWN")
 
+        # Use absolute spike peak for assessment when pre-spike is very low
+        # If queue stays under 5 minutes even during spike, that's good
+        if spike_peak < 300:  # Under 5 minutes
+            if recovered or recovery_quality in ["FULL_RECOVERY", "GOOD_RECOVERY"]:
+                return {
+                    "rating": "HIGHLY_ELASTIC",
+                    "description": "System handles spikes excellently with minimal queue impact"
+                }
+            else:
+                return {
+                    "rating": "ELASTIC",
+                    "description": "System handles spikes well"
+                }
+
+        # For higher spike peaks, consider both multiplier and absolute values
+        if spike_peak < 600:  # Under 10 minutes
+            if recovered or recovery_quality in ["FULL_RECOVERY", "GOOD_RECOVERY"]:
+                return {
+                    "rating": "ELASTIC",
+                    "description": "System handles spikes with acceptable queue growth"
+                }
+            elif recovery_quality == "PARTIAL_RECOVERY":
+                return {
+                    "rating": "MODERATELY_ELASTIC",
+                    "description": "System handles spikes but recovery is slow"
+                }
+
+        # For high spike peaks (>10 min), be more critical
         if multiplier < 3 and recovered:
             return {
                 "rating": "HIGHLY_ELASTIC",
@@ -667,7 +713,7 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
                 "rating": "ELASTIC",
                 "description": "System handles spikes well"
             }
-        elif recovered:
+        elif recovered or recovery_quality in ["FULL_RECOVERY", "GOOD_RECOVERY", "PARTIAL_RECOVERY"]:
             return {
                 "rating": "MODERATELY_ELASTIC",
                 "description": "System handles spikes but with strain"
@@ -681,12 +727,21 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
     def _rate_spike_handling(self, analysis: Dict) -> str:
         elasticity = analysis.get("elasticity", {}).get("rating", "")
         recovery = analysis.get("recovery", {}).get("recovery_quality", "")
+        spike_peak = analysis.get("spike_response", {}).get("spike_peak", 0)
+
+        # Consider absolute queue times in rating
+        if spike_peak < 300:  # Queue under 5 minutes during spike
+            return "⭐ EXCELLENT - Handles spikes with minimal queue impact"
 
         if elasticity == "HIGHLY_ELASTIC" and recovery == "FULL_RECOVERY":
             return "⭐ EXCELLENT - Handles spikes seamlessly"
         elif elasticity in ["HIGHLY_ELASTIC", "ELASTIC"] and recovery in ["FULL_RECOVERY", "GOOD_RECOVERY"]:
             return "✅ GOOD - Manages spikes effectively"
-        elif elasticity == "RIGID" or recovery == "POOR_RECOVERY":
+        elif elasticity in ["ELASTIC", "MODERATELY_ELASTIC"] and recovery in ["PARTIAL_RECOVERY", "GOOD_RECOVERY"]:
+            return "✅ GOOD - Handles spikes with acceptable recovery"
+        elif elasticity == "MODERATELY_ELASTIC":
+            return "⚡ FAIR - Some spike handling capability"
+        elif elasticity == "RIGID" and recovery == "POOR_RECOVERY":
             return "⚠️ POOR - Cannot handle sudden load changes"
         else:
             return "⚡ FAIR - Some spike handling capability"
@@ -694,26 +749,32 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
     def generate_recommendations(self, analysis: Dict[str, Any]) -> List[str]:
         recommendations = []
 
+        spike_peak = analysis.get("spike_response", {}).get("spike_peak", 0)
+
+        # If spike peak is under 5 minutes, no critical recommendations needed
+        if spike_peak < 300:
+            recommendations.append("✅ System handles spikes well - no immediate action needed")
+            return recommendations
+
         # Elasticity recommendations
         elasticity = analysis.get("elasticity", {}).get("rating", "")
         if elasticity == "RIGID":
             recommendations.append("🔴 System is rigid - implement auto-scaling or queue management")
         elif elasticity == "MODERATELY_ELASTIC":
-            recommendations.append("🟡 Improve elasticity with better queue handling")
+            recommendations.append("🟡 Consider improving elasticity with better queue handling")
 
         # Recovery recommendations
         recovery = analysis.get("recovery", {}).get("recovery_quality", "")
         if recovery == "POOR_RECOVERY":
             recommendations.append("🔴 Poor recovery from spikes - add burst capacity")
         elif recovery == "PARTIAL_RECOVERY":
-            recommendations.append("🟡 Slow recovery - optimize queue processing")
+            recommendations.append("🟡 Slow recovery - consider optimizing queue processing")
 
-        # Response multiplier recommendations
-        multiplier = analysis.get("spike_response", {}).get("response_multiplier", 0)
-        if multiplier > 10:
-            recommendations.append("🔴 Extreme queue growth during spikes - critical issue")
-        elif multiplier > 5:
-            recommendations.append("🟡 High spike impact - consider dedicated spike handling")
+        # Absolute spike peak recommendations (more meaningful than multiplier)
+        if spike_peak > 900:  # Over 15 minutes
+            recommendations.append("🔴 Very high queue times during spikes - consider adding capacity")
+        elif spike_peak > 600:  # Over 10 minutes
+            recommendations.append("🟡 High queue times during spikes - monitor closely")
 
         return recommendations
 

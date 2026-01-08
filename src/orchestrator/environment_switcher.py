@@ -194,23 +194,42 @@ class EnvironmentSwitcher:
         Returns:
             Parsed EnvironmentConfig
         """
-        # Parse workflows
+        # Parse workflows - support both old 'available' list and new 'primary' config
         workflows = []
-        for wf in config.get('workflows', {}).get('available', []):
+        workflows_config = config.get('workflows', {})
+
+        # New structure: single primary workflow
+        if 'primary' in workflows_config:
+            primary = workflows_config['primary']
             workflows.append(WorkflowConfig(
-                name=wf['name'],
-                file=wf['file'],
-                description=wf.get('description', ''),
-                default_inputs=wf.get('default_inputs', {})
+                name=primary.get('name', 'default'),
+                file=primary['file'],
+                description=primary.get('description', 'Primary test workflow'),
+                default_inputs=workflows_config.get('default_inputs', {})
             ))
+        # Old structure: list of available workflows (backwards compatible)
+        elif 'available' in workflows_config:
+            for wf in workflows_config.get('available', []):
+                workflows.append(WorkflowConfig(
+                    name=wf['name'],
+                    file=wf['file'],
+                    description=wf.get('description', ''),
+                    default_inputs=wf.get('default_inputs', {})
+                ))
+
+        # Get primary workflow name for test profiles that don't specify one
+        primary_workflow_name = workflows[0].name if workflows else 'default'
 
         # Parse test profiles
         test_profiles = {}
         for profile_name, profile_config in config.get('test_profiles', {}).items():
+            # Use primary workflow if not specified in profile
+            profile_workflows = profile_config.get('workflows', [primary_workflow_name])
+
             test_profiles[profile_name] = TestProfile(
                 name=profile_name,
                 duration_minutes=profile_config['duration_minutes'],
-                workflows=profile_config['workflows'],
+                workflows=profile_workflows,
                 dispatch_pattern=profile_config['dispatch_pattern'],
                 jobs_per_minute=profile_config.get('jobs_per_minute'),
                 burst_size=profile_config.get('burst_size'),
@@ -269,7 +288,7 @@ class EnvironmentSwitcher:
             warnings.append(f"Runner count is {env.runner_count}, expected 4 for testing")
 
         # Check workflows exist
-        workflow_dir = Path('.github/workflows/realistic')
+        workflow_dir = Path('.github/workflows')
         for workflow in env.workflows:
             workflow_path = workflow_dir / workflow.file
             if not workflow_path.exists():

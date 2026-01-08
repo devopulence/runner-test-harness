@@ -32,187 +32,135 @@ runners:
 workflows:
   directory: .github/workflows
 
-  # Available workflows for testing
-  available:
-    - name: build_job
-      file: build_job.yml
-      description: Simulates CI build process
-      default_inputs:
-        workload_type: standard
-        enable_randomization: true
+  # Primary workflow configuration - CHANGE THIS FOR DIFFERENT ENVIRONMENTS
+  # For OpenShift: change file to your actual workflow (e.g., openshift_pipeline.yml)
+  primary:
+    name: default                    # Logical name used in test profiles
+    file: build_job.yml              # Actual workflow file to dispatch
+    description: Primary test workflow
 
-    - name: build_job_test
-      file: build_job.yml
-      description: Fast test version (30-60 seconds)
-      default_inputs:
-        workload_type: test
-        enable_randomization: true
+  # Workload types supported by the primary workflow
+  # These map to the workload_type input parameter
+  workload_types:
+    test:
+      description: Fast jobs (30-60 seconds)
+      duration_range: "30-60s"
+    light:
+      description: Light workload (2-3 min)
+      duration_range: "2-3min"
+    standard:
+      description: Standard workload (3-5 min)
+      duration_range: "3-5min"
+    heavy:
+      description: Heavy workload (5-8 min)
+      duration_range: "5-8min"
 
-    - name: deployment_pipeline
-      file: deployment_pipeline.yml
-      description: Simulates deployment to environments
-      default_inputs:
-        environment: staging
-        deployment_size: medium
-        enable_randomization: true
+  # Default inputs applied to all workflow dispatches
+  default_inputs:
+    enable_randomization: true
 
-    - name: security_scan
-      file: security_scan.yml
-      description: Simulates security scanning
-      default_inputs:
-        scan_depth: standard
-        enable_randomization: true
-
-    - name: multi_stage_pipeline
-      file: multi_stage_pipeline.yml
-      description: Complex multi-job pipeline
-      default_inputs:
-        pipeline_complexity: standard
-        parallelism_strategy: mixed
-        enable_randomization: true
-
-    - name: container_pipeline
-      file: container_pipeline.yml
-      description: Container build and push simulation
-      default_inputs:
-        build_type: microservices
-        registry_type: ecr
-        enable_randomization: true
-
+# Test profiles - all use the primary workflow defined above
+# To change the workflow, update workflows.primary.file - no need to edit each profile
 test_profiles:
   # Validation test - 5 minutes with fast jobs (30-60 seconds each)
   validation:
     duration_minutes: 5
-    workflows:
-      - build_job  # Use the actual build_job.yml
     dispatch_pattern: steady
-    jobs_per_minute: 1.0      # 1 job per minute
+    jobs_per_minute: 1.0
     workload_inputs:
-      workload_type: test  # This makes it use 30-60 second jobs!
-      enable_randomization: true
+      workload_type: test
 
   # Performance test with fast workload - 10 minutes
   performance_fast:
     duration_minutes: 10
-    workflows:
-      - build_job
     dispatch_pattern: steady
-    jobs_per_minute: 1.2      # Same rate as full performance test
+    jobs_per_minute: 1.2
     workload_inputs:
-      workload_type: test  # 30-60 second jobs for fast completion!
-      enable_randomization: true
+      workload_type: test
 
-  # Quick test - 5 minutes (jobs won't complete in time)
+  # Quick test - 5 minutes
   quick:
     duration_minutes: 5
-    workflows:
-      - build_job
     dispatch_pattern: steady
-    jobs_per_minute: 1.0      # 1 job per minute
+    jobs_per_minute: 1.0
 
   # Performance baseline test
   performance:
     duration_minutes: 30
-    workflows:
-      - build_job
-    dispatch_pattern: steady  # Steady rate of job submissions
-    jobs_per_minute: 1.2      # 72 jobs/hour - will create some queuing
+    dispatch_pattern: steady
+    jobs_per_minute: 1.2      # 72 jobs/hour
 
   # Capacity test (fast) - validate capacity testing with queuing
   capacity_fast:
     duration_minutes: 12
-    workflows:
-      - build_job
     dispatch_pattern: steady
-    jobs_per_minute: 3.0      # 3 jobs/min > 4 runners at ~1min each = queue builds
+    jobs_per_minute: 3.0      # 3 jobs/min causes queuing
     workload_inputs:
-      workload_type: test     # 30-60 second jobs
-      enable_randomization: true
+      workload_type: test
 
   # Capacity test - maximum throughput
   capacity:
     duration_minutes: 60
-    workflows:
-      - build_job
     dispatch_pattern: steady
-    jobs_per_minute: 1.0      # Will queue jobs since only 4 runners
+    jobs_per_minute: 1.0
     workload_inputs:
-      workload_type: standard   # 3-5 minute jobs for realistic testing
-      enable_randomization: true
+      workload_type: standard
 
   # Stress test (fast) - validate burst handling
   stress_fast:
     duration_minutes: 5
-    workflows:
-      - build_job
     dispatch_pattern: burst
     burst_size: 8             # Send 8 jobs at once (double capacity)
-    burst_interval: 150       # Every 2.5 minutes (2 bursts in 5 min)
+    burst_interval: 150       # Every 2.5 minutes
     workload_inputs:
-      workload_type: test     # 30-60 second jobs for faster validation
-      enable_randomization: true
+      workload_type: test
 
   # Stress test - sudden load
   stress:
     duration_minutes: 45
-    workflows:
-      - build_job
     dispatch_pattern: burst
-    burst_size: 8             # Send 8 jobs at once (double capacity)
+    burst_size: 8
     burst_interval: 900       # Every 15 minutes
     workload_inputs:
-      workload_type: standard   # 3-5 minute jobs for realistic testing
-      enable_randomization: true
+      workload_type: standard
 
   # Load test (fast) - validate sustained load behavior
   load_fast:
     duration_minutes: 10
-    workflows:
-      - build_job
     dispatch_pattern: steady
-    jobs_per_minute: 0.8      # Slightly below capacity (should not queue)
+    jobs_per_minute: 0.8      # Below capacity - no queuing
     workload_inputs:
-      workload_type: test     # 30-60 second jobs for faster validation
-      enable_randomization: true
+      workload_type: test
 
   # Load test - sustained load
   load:
     duration_minutes: 120
-    workflows:
-      - build_job
     dispatch_pattern: steady
-    jobs_per_minute: 0.8      # Slightly below capacity
+    jobs_per_minute: 0.8
     workload_inputs:
-      workload_type: standard   # 3-5 minute jobs for realistic testing
-      enable_randomization: true
+      workload_type: standard
 
   # Spike test (medium) - demonstrates spike with queuing and recovery
   spike_medium:
     duration_minutes: 15
-    workflows:
-      - build_job
     dispatch_pattern: spike
-    normal_rate: 0.5          # Normal: 1 job every 2 minutes
-    spike_rate: 4.0           # Spike: 4 jobs per minute (will queue!)
-    spike_duration: 300       # Spike lasts 5 minutes
-    spike_start: 180          # Spike starts at 3 minutes
+    normal_rate: 0.5
+    spike_rate: 4.0
+    spike_duration: 300
+    spike_start: 180
     workload_inputs:
-      workload_type: test     # 30-60 second jobs
-      enable_randomization: true
+      workload_type: test
 
   # Spike test - sudden traffic spike
   spike:
     duration_minutes: 60
-    workflows:
-      - build_job
     dispatch_pattern: spike
-    normal_rate: 0.2          # Normal: 1 job every 5 minutes
-    spike_rate: 2.0           # Spike: 2 jobs per minute
-    spike_duration: 600       # Spike lasts 10 minutes
-    spike_start: 1200         # Spike starts at 20 minutes
+    normal_rate: 0.2
+    spike_rate: 2.0
+    spike_duration: 600
+    spike_start: 1200
     workload_inputs:
-      workload_type: standard   # 3-5 minute jobs for realistic testing
-      enable_randomization: true
+      workload_type: standard
 
 # Metrics to collect
 metrics:
