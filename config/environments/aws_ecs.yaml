@@ -10,6 +10,7 @@ environment:
 github:
   owner: devopulence  # Changed to lowercase
   repo: pythonProject
+  ref: main
   # Runner labels must match your ECS task definition
   runner_labels:
     - self-hosted

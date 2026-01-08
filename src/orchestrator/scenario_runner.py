@@ -423,7 +423,7 @@ class ScenarioRunner:
                 owner=self.environment.github_owner,
                 repo=self.environment.github_repo,
                 workflow_id_or_filename=workflow_path,
-                ref="main",  # Or get from config
+                ref=self.environment.github_ref,
                 inputs=workflow_inputs if workflow_inputs else None,  # Pass dict, not JSON string
                 token=self.github_token,
                 proxies=proxies,

@@ -9,6 +9,7 @@ environment:
 github:
   owner: pnc-sandbox
   repo: ghe-sandbox
+  ref: dind-test
   runner_labels:
     - k8s
 

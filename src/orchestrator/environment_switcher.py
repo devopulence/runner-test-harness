@@ -51,6 +51,7 @@ class EnvironmentConfig:
     type: str
     github_owner: str
     github_repo: str
+    github_ref: str
     runner_labels: List[str]
     runner_count: int
     workflows: List[WorkflowConfig]
@@ -247,6 +248,7 @@ class EnvironmentSwitcher:
             type=config['environment']['type'],
             github_owner=config['github']['owner'],
             github_repo=config['github']['repo'],
+            github_ref=config['github'].get('ref', 'main'),
             runner_labels=config['github']['runner_labels'],
             runner_count=config['runners']['count'],
             workflows=workflows,
