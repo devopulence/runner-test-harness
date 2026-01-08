@@ -10,7 +10,7 @@
     "knowledge-graph": {
       "type": "stdio",
       "command": "mcp-knowledge-graph",
-      "args": ["--memory-path", "/Users/johndesposito/pnc-work/pythonProjec/.aim"],
+      "args": ["--memory-path", "/Users/johndesposito/xxx-work/pythonProjec/.aim"],
       "env": {}
     }
   }

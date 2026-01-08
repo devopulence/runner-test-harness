@@ -69,7 +69,7 @@ jobs:
           echo "Job: ${{ inputs.job_name || 'manual' }}"
           sleep $DURATION
   ci:
-    uses: pnc-actions/workflows/.github/workflows/reusable-workflow.yml@main
+    uses: xxx-actions/workflows/.github/workflows/reusable-workflow.yml@main
     with:
       mnemonic: ghe
       build-type: npm

@@ -93,7 +93,7 @@ def trigger_workflow_dispatch(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Trigger GitHub Actions workflow_dispatch")
-    parser.add_argument("--owner", required=True, help="Repository owner/org (e.g., pnc-sandbox)")
+    parser.add_argument("--owner", required=True, help="Repository owner/org (e.g., xxx-sandbox)")
     parser.add_argument("--repo", required=True, help="Repository name (e.g., ghe-test)")
     parser.add_argument("--workflow", required=True, help="Workflow file name or numeric ID (e.g., k8s.yml)")
     parser.add_argument("--ref", default="main", help="Branch or tag containing the workflow file (default: main)")

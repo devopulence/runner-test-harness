@@ -135,14 +135,14 @@ Located in `terraform/` directory:
 python main.py --owner <org_or_user> --repo <repository> --workflow <workflow_file.yml>
 
 # With custom branch/tag
-python main.py --owner pnc-sandbox --repo ghe-test --workflow k8s.yml --ref develop
+python main.py --owner xxx-sandbox --repo ghe-test --workflow k8s.yml --ref develop
 
 # With workflow inputs (JSON format)
-python main.py --owner pnc-sandbox --repo ghe-test --workflow deploy.yml --inputs '{"environment":"staging","version":"1.2.3"}'
+python main.py --owner xxx-sandbox --repo ghe-test --workflow deploy.yml --inputs '{"environment":"staging","version":"1.2.3"}'
 
 # Using environment token instead of CLI arg
 export GITHUB_TOKEN="your_pat_token"
-python main.py --owner pnc-sandbox --repo ghe-test --workflow build.yml
+python main.py --owner xxx-sandbox --repo ghe-test --workflow build.yml
 ```
 
 ### Environment Configuration
