@@ -1,0 +1,201 @@
+# OpenShift Sandbox Environment Configuration
+# Target: pnc-sandbox/ghe-sandbox with k8s.yml workflow
+
+environment:
+  name: openshift-sandbox
+  description: OpenShift Sandbox GitHub Runners
+  type: sandbox
+
+github:
+  owner: pnc-sandbox
+  repo: ghe-sandbox
+  runner_labels:
+    - k8s
+
+runners:
+  count: 4  # 4 runner constraint
+  type: openshift-pod
+  startup_time: 90
+  max_job_duration: 3600
+
+workflows:
+  directory: .github/workflows
+
+  # Primary workflow - k8s.yml in ghe-sandbox repo
+  primary:
+    name: default
+    file: k8s.yml
+    description: OpenShift k8s workflow
+
+  workload_types:
+    test:
+      description: Fast jobs (30-60 seconds)
+      duration_range: "30-60s"
+    light:
+      description: Light workload (2-3 min)
+      duration_range: "2-3min"
+    standard:
+      description: Standard workload (3-5 min)
+      duration_range: "3-5min"
+    heavy:
+      description: Heavy workload (5-8 min)
+      duration_range: "5-8min"
+
+  default_inputs:
+    enable_randomization: true
+
+# Test profiles - all use k8s.yml automatically
+test_profiles:
+  # Quick validation
+  validation:
+    duration_minutes: 5
+    dispatch_pattern: steady
+    jobs_per_minute: 1.0
+    workload_inputs:
+      workload_type: test
+
+  # Performance baseline
+  performance:
+    duration_minutes: 30
+    dispatch_pattern: steady
+    jobs_per_minute: 1.2
+    workload_inputs:
+      workload_type: standard
+
+  # Fast performance test
+  performance_fast:
+    duration_minutes: 10
+    dispatch_pattern: steady
+    jobs_per_minute: 1.2
+    workload_inputs:
+      workload_type: test
+
+  # Capacity test
+  capacity:
+    duration_minutes: 60
+    dispatch_pattern: steady
+    jobs_per_minute: 1.0
+    workload_inputs:
+      workload_type: standard
+
+  # Fast capacity test
+  capacity_fast:
+    duration_minutes: 12
+    dispatch_pattern: steady
+    jobs_per_minute: 3.0
+    workload_inputs:
+      workload_type: test
+
+  # Load test - sustained
+  load:
+    duration_minutes: 120
+    dispatch_pattern: steady
+    jobs_per_minute: 0.8
+    workload_inputs:
+      workload_type: standard
+
+  # Fast load test
+  load_fast:
+    duration_minutes: 10
+    dispatch_pattern: steady
+    jobs_per_minute: 0.8
+    workload_inputs:
+      workload_type: test
+
+  # Stress test - burst
+  stress:
+    duration_minutes: 45
+    dispatch_pattern: burst
+    burst_size: 8
+    burst_interval: 900
+    workload_inputs:
+      workload_type: standard
+
+  # Fast stress test
+  stress_fast:
+    duration_minutes: 5
+    dispatch_pattern: burst
+    burst_size: 8
+    burst_interval: 150
+    workload_inputs:
+      workload_type: test
+
+  # Spike test
+  spike:
+    duration_minutes: 60
+    dispatch_pattern: spike
+    normal_rate: 0.2
+    spike_rate: 2.0
+    spike_duration: 600
+    spike_start: 1200
+    workload_inputs:
+      workload_type: standard
+
+  # Medium spike test
+  spike_medium:
+    duration_minutes: 15
+    dispatch_pattern: spike
+    normal_rate: 0.5
+    spike_rate: 4.0
+    spike_duration: 300
+    spike_start: 180
+    workload_inputs:
+      workload_type: test
+
+# Metrics
+metrics:
+  collection_interval: 30
+  github_api:
+    enabled: true
+    endpoints:
+      - workflow_runs
+      - jobs
+      - runners
+  custom_metrics:
+    - queue_time
+    - execution_time
+    - runner_utilization
+    - throughput
+    - failure_rate
+
+# Reporting
+reporting:
+  format: json
+  output_directory: test_results/openshift-sandbox
+  report_types:
+    - summary
+    - detailed
+    - comparison
+  visualization:
+    enabled: true
+    charts:
+      - queue_time_histogram
+      - runner_utilization_timeline
+      - throughput_chart
+      - job_duration_distribution
+
+# Network - update if behind proxy
+network:
+  proxy:
+    enabled: false
+    # http_proxy: "http://proxy.company.com:8080"
+    # https_proxy: "http://proxy.company.com:8080"
+    # no_proxy: "localhost,127.0.0.1"
+
+  ssl:
+    verify: true
+    # ca_bundle: "/path/to/ca-bundle.crt"
+
+  timeout:
+    api_call: 30
+    workflow_dispatch: 60
+
+# Logging
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/openshift_sandbox_test.log
+  console: true
+  rotation:
+    max_bytes: 10485760
+    backup_count: 5

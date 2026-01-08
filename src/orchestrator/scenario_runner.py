@@ -437,7 +437,9 @@ class ScenarioRunner:
             logger.info(f"Workflow dispatched successfully: {workflow_name}")
 
             # Track the workflow for status updates
-            tracking_id = await self.tracker.track_workflow(workflow_name, run.queued_at)
+            # Use workflow file name (without extension) for matching with GitHub API
+            workflow_file_for_tracking = workflow_config.file.replace('.yml', '').replace('.yaml', '')
+            tracking_id = await self.tracker.track_workflow(workflow_file_for_tracking, run.queued_at)
             run.tracking_id = tracking_id
 
             # Record workflow in test run tracker (we'll get the ID later from GitHub API)

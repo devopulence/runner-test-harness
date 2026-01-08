@@ -14,6 +14,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+# Load .env file if it exists
+from dotenv import load_dotenv
+load_dotenv()
+
 from src.orchestrator.environment_switcher import EnvironmentSwitcher
 from src.orchestrator.scenario_runner import ScenarioRunner
 from src.analysis.test_specific_analyzer import TestAnalyzerFactory
