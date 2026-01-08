@@ -64,8 +64,19 @@ class WorkflowTracker:
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session with proper SSL certificates"""
         if self._session is None or self._session.closed:
-            # Create SSL context using certifi's certificate bundle
-            ssl_context = ssl.create_default_context(cafile=certifi.where())
+            # Use exact same CA bundle as requests library
+            import os
+            try:
+                import requests.certs
+                ca_bundle = requests.certs.where()
+            except ImportError:
+                ca_bundle = (
+                    os.environ.get('REQUESTS_CA_BUNDLE') or
+                    os.environ.get('SSL_CERT_FILE') or
+                    os.environ.get('CURL_CA_BUNDLE') or
+                    certifi.where()
+                )
+            ssl_context = ssl.create_default_context(cafile=ca_bundle)
             connector = aiohttp.TCPConnector(ssl=ssl_context)
             self._session = aiohttp.ClientSession(headers=self.headers, connector=connector)
         return self._session
