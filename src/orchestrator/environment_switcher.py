@@ -289,12 +289,12 @@ class EnvironmentSwitcher:
         if env.runner_count != 4:
             warnings.append(f"Runner count is {env.runner_count}, expected 4 for testing")
 
-        # Check workflows exist
+        # Check workflows exist locally (optional - workflow only needs to exist in target repo)
         workflow_dir = Path('.github/workflows')
         for workflow in env.workflows:
             workflow_path = workflow_dir / workflow.file
             if not workflow_path.exists():
-                errors.append(f"Workflow file not found: {workflow_path}")
+                warnings.append(f"Workflow file not found locally: {workflow_path} (must exist in target repo)")
 
         # Check required configurations
         if not env.github_owner or not env.github_repo:

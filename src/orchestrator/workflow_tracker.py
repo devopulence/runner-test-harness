@@ -5,6 +5,8 @@ Tracks GitHub workflow runs and collects metrics using job_name input matching.
 
 import asyncio
 import logging
+import ssl
+import certifi
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Set
 import aiohttp
@@ -60,9 +62,12 @@ class WorkflowTracker:
         logger.info(f"Workflow tracker will match job_name={test_run_id}")
 
     async def _get_session(self) -> aiohttp.ClientSession:
-        """Get or create aiohttp session"""
+        """Get or create aiohttp session with proper SSL certificates"""
         if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession(headers=self.headers)
+            # Create SSL context using certifi's certificate bundle
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+            connector = aiohttp.TCPConnector(ssl=ssl_context)
+            self._session = aiohttp.ClientSession(headers=self.headers, connector=connector)
         return self._session
 
     async def close(self):
