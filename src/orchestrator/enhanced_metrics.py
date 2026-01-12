@@ -123,7 +123,7 @@ class EnhancedMetrics:
 
         return stats
 
-    def generate_report(self, test_name: str, output_dir: str = "test_results/aws-ecs") -> str:
+    def generate_report(self, test_name: str, output_dir: str = "test_results") -> str:
         """Generate enhanced metrics report"""
         stats = self.calculate_statistics()
 
@@ -169,9 +169,15 @@ class EnhancedMetrics:
         print("\n📊 QUEUE TIME (waiting for runner):")
         if "queue_time" in stats and "mean_minutes" in stats["queue_time"]:
             qt = stats["queue_time"]
-            print(f"  Average: {qt['mean_minutes']:.1f} minutes")
-            print(f"  Max: {qt['max_minutes']:.1f} minutes")
-            print(f"  Min: {qt['min_minutes']:.1f} minutes")
+            # Show seconds if queue times are under 1 minute
+            if qt['mean_seconds'] < 60:
+                print(f"  Average: {qt['mean_seconds']:.1f} seconds")
+                print(f"  Max: {qt['max_seconds']:.1f} seconds")
+                print(f"  Min: {qt['min_seconds']:.1f} seconds")
+            else:
+                print(f"  Average: {qt['mean_minutes']:.1f} minutes")
+                print(f"  Max: {qt['max_minutes']:.1f} minutes")
+                print(f"  Min: {qt['min_minutes']:.1f} minutes")
 
         print("\n⚙️ EXECUTION TIME (on runner):")
         if "execution_time" in stats and "mean_minutes" in stats["execution_time"]:
@@ -196,8 +202,15 @@ class EnhancedMetrics:
         if "queue_growth" in stats:
             print("\n📈 QUEUE TREND:")
             qg = stats["queue_growth"]
-            print(f"  First half avg: {qg['first_half_avg_minutes']:.1f} minutes")
-            print(f"  Second half avg: {qg['second_half_avg_minutes']:.1f} minutes")
+            # Show seconds if values are under 1 minute
+            first_half_sec = qg['first_half_avg_minutes'] * 60
+            second_half_sec = qg['second_half_avg_minutes'] * 60
+            if first_half_sec < 60 and second_half_sec < 60:
+                print(f"  First half avg: {first_half_sec:.1f} seconds")
+                print(f"  Second half avg: {second_half_sec:.1f} seconds")
+            else:
+                print(f"  First half avg: {qg['first_half_avg_minutes']:.1f} minutes")
+                print(f"  Second half avg: {qg['second_half_avg_minutes']:.1f} minutes")
             print(f"  Trend: {qg['trend'].upper()}")
 
         print("\n" + "="*60)

@@ -119,9 +119,12 @@ class PerformanceTestAnalyzer(BaseTestAnalyzer):
         exec_consistency = analysis["execution_analysis"]["consistency"]
         predictability = analysis.get("predictability", {}).get("score", "UNKNOWN")
 
-        if queue_health == "EXCELLENT" and exec_consistency == "CONSISTENT" and predictability == "EXCELLENT":
+        # Good consistency values
+        good_consistency = ["CONSISTENT", "MOSTLY_CONSISTENT", "HIGHLY_CONSISTENT"]
+
+        if queue_health == "EXCELLENT" and exec_consistency in good_consistency and predictability == "EXCELLENT":
             return "⭐ EXCELLENT - Production ready"
-        elif queue_health in ["EXCELLENT", "GOOD"] and exec_consistency in ["CONSISTENT", "MOSTLY_CONSISTENT"]:
+        elif queue_health in ["EXCELLENT", "GOOD"] and exec_consistency in good_consistency:
             return "✅ GOOD - Minor optimizations needed"
         elif queue_health == "POOR" or exec_consistency == "HIGH_VARIATION":
             return "⚠️ NEEDS IMPROVEMENT - Address issues before production"
@@ -286,6 +289,10 @@ class LoadTestAnalyzer(BaseTestAnalyzer):
         elif degradation == "SEVERE_DEGRADATION" or reliability == "POOR":
             verdict = "NOT_SUSTAINABLE"
             description = "System cannot sustain this load level"
+        elif degradation == "UNKNOWN" and reliability == "EXCELLENT" and throughput in ["EXCELLENT", "GOOD"]:
+            # Not enough data for degradation analysis, but other metrics are good
+            verdict = "SUSTAINABLE"
+            description = "System handles load well (insufficient data for degradation analysis)"
         else:
             verdict = "MARGINALLY_SUSTAINABLE"
             description = "System can handle load but with concerns"
@@ -455,12 +462,17 @@ class CapacityTestAnalyzer(BaseTestAnalyzer):
         workflow_count = metrics.get('job_count', 0)
         duration = metrics.get('duration_minutes', 30)
         utilization = metrics.get('runner_utilization', [])
+        exec_times = metrics.get('execution_times', [])
 
         # Throughput analysis
         if duration > 0:
             actual_throughput = workflow_count / duration
-            theoretical_max = runner_count / 4  # Assuming 4-min average job
+            # Use actual average execution time if available, otherwise assume 4 min
+            avg_exec_min = statistics.mean(exec_times) if exec_times else 4
+            theoretical_max = runner_count / avg_exec_min if avg_exec_min > 0 else runner_count
             efficiency = (actual_throughput / theoretical_max * 100) if theoretical_max > 0 else 0
+            # Cap efficiency at reasonable bounds
+            efficiency = min(efficiency, 150)  # Can exceed 100% slightly due to job overlap
 
             analysis["capacity_metrics"] = {
                 "actual_throughput": actual_throughput,
@@ -471,15 +483,25 @@ class CapacityTestAnalyzer(BaseTestAnalyzer):
 
         # Saturation analysis
         if utilization:
+            # Utilization values may already be percentages (0-100) or decimals (0-1)
+            # Normalize to percentages
             avg_util = statistics.mean(utilization)
             max_util = max(utilization)
-            time_at_max = sum(1 for u in utilization if u > 0.95) / len(utilization) * 100
+            # If values are already percentages (>1), don't multiply
+            if avg_util <= 1:
+                avg_util_pct = avg_util * 100
+                max_util_pct = max_util * 100
+                time_at_max = sum(1 for u in utilization if u > 0.95) / len(utilization) * 100
+            else:
+                avg_util_pct = avg_util
+                max_util_pct = max_util
+                time_at_max = sum(1 for u in utilization if u > 95) / len(utilization) * 100
 
             analysis["saturation_analysis"] = {
-                "average_utilization": avg_util * 100,
-                "peak_utilization": max_util * 100,
+                "average_utilization": avg_util_pct,
+                "peak_utilization": max_util_pct,
                 "time_at_saturation_pct": time_at_max,
-                "saturation_state": self._classify_saturation(avg_util, time_at_max)
+                "saturation_state": self._classify_saturation(avg_util_pct / 100, time_at_max)
             }
 
         # Optimal runner calculation
@@ -492,10 +514,13 @@ class CapacityTestAnalyzer(BaseTestAnalyzer):
             else:
                 suggested_runners = runner_count
 
+            # Get avg utilization for recommendation
+            avg_util_pct = analysis.get("saturation_analysis", {}).get("average_utilization", 50)
+
             analysis["optimization"] = {
                 "current_runners": runner_count,
                 "optimal_runners": suggested_runners,
-                "recommendation": self._runner_recommendation(runner_count, suggested_runners, avg_queue)
+                "recommendation": self._runner_recommendation(runner_count, suggested_runners, avg_queue, avg_util_pct)
             }
 
         # Overall capacity assessment
@@ -523,11 +548,14 @@ class CapacityTestAnalyzer(BaseTestAnalyzer):
         else:
             return "COMFORTABLE"
 
-    def _runner_recommendation(self, current: int, optimal: int, avg_queue: float) -> str:
+    def _runner_recommendation(self, current: int, optimal: int, avg_queue: float, avg_util_pct: float = 50) -> str:
         if optimal > current:
             return f"Add {optimal - current} runners to eliminate queue bottleneck"
+        elif avg_queue < 0.1 and avg_util_pct < 30:
+            # Only suggest reducing if both queue is very low AND utilization is low
+            return f"Consider reducing to {current - 1} runners (low utilization)"
         elif avg_queue < 0.5:
-            return f"Consider reducing to {current - 1} runners (overcapacity)"
+            return "Current capacity is adequate with headroom"
         else:
             return "Current runner count is optimal"
 

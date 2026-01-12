@@ -195,8 +195,12 @@ class TestHarness:
                     print(f"  python analyze_specific_test.py --test-run-id {test_run_id}")
                 return
 
-            # Get the appropriate analyzer
-            analyzer = TestAnalyzerFactory.get_analyzer(test_type)
+            # Get the appropriate analyzer (normalize test type for variants like performance_fast)
+            base_test_type = test_type.split('_')[0] if '_' in test_type else test_type
+            # Map validation/quick to performance analyzer
+            if base_test_type in ['validation', 'quick']:
+                base_test_type = 'performance'
+            analyzer = TestAnalyzerFactory.get_analyzer(base_test_type)
 
             # Prepare metrics for analysis
             stats = metrics.calculate_statistics()
@@ -257,7 +261,13 @@ class TestHarness:
             print(f"\n⚠️ {analysis.get('message', 'No data available for analysis')}")
             return
 
-        if test_type == "performance":
+        # Normalize test type to base type (strip _fast, _medium, etc.)
+        base_test_type = test_type.split('_')[0] if '_' in test_type else test_type
+        # Map validation/quick to performance
+        if base_test_type in ['validation', 'quick']:
+            base_test_type = 'performance'
+
+        if base_test_type == "performance":
             # Performance test focuses on baseline and consistency
             print("\n🎯 Performance Analysis:")
             print("-" * 40)
@@ -277,7 +287,7 @@ class TestHarness:
                 print(f"  P95: {sla['p95']:.1f} minutes")
                 print(f"  P99: {sla['p99']:.1f} minutes")
 
-        elif test_type == "load":
+        elif base_test_type == "load":
             # Load test focuses on degradation and sustainability
             print("\n📈 Load Test Analysis:")
             print("-" * 40)
@@ -294,7 +304,7 @@ class TestHarness:
                 print(f"Load Sustainability: {sus['verdict']}")
                 print(f"  {sus['description']}")
 
-        elif test_type == "stress":
+        elif base_test_type == "stress":
             # Stress test focuses on breaking points
             print("\n💥 Stress Test Analysis:")
             print("-" * 40)
@@ -311,7 +321,7 @@ class TestHarness:
                 print(f"Stress Handling: {handling['rating']}")
                 print(f"  {handling['description']}")
 
-        elif test_type == "capacity":
+        elif base_test_type == "capacity":
             # Capacity test focuses on maximum throughput
             print("\n⚡ Capacity Analysis:")
             print("-" * 40)
@@ -328,22 +338,35 @@ class TestHarness:
                 opt = analysis['optimization']
                 print(f"Runner Optimization: {opt['recommendation']}")
 
-        elif test_type == "spike":
+        elif base_test_type == "spike":
             # Spike test focuses on elasticity
             print("\n⚡ Spike Test Analysis:")
             print("-" * 40)
+
+            # Get spike peak for context
+            spike_peak = analysis.get('spike_response', {}).get('spike_peak', 0)
+            overall_rating = analysis.get('spike_handling_rating', '')
+
             if "spike_response" in analysis:
                 spike = analysis['spike_response']
-                print(f"Spike Impact: {spike['response_multiplier']:.1f}x baseline")
-            if "recovery" in analysis:
+                # Only show multiplier if it's meaningful (spike peak was significant)
+                if spike_peak > 60:  # More than 1 minute queue during spike
+                    print(f"Spike Impact: {spike['response_multiplier']:.1f}x baseline")
+                else:
+                    print(f"Max Queue During Spike: {spike_peak:.0f} seconds")
+
+            # Only show recovery quality if spike had significant impact
+            if "recovery" in analysis and spike_peak > 60:
                 rec = analysis['recovery']
                 print(f"Recovery Quality: {rec['recovery_quality']}")
+
             if "elasticity" in analysis:
                 elast = analysis['elasticity']
                 print(f"System Elasticity: {elast['rating']}")
                 print(f"  {elast['description']}")
-            if "spike_handling_rating" in analysis:
-                print(f"Overall: {analysis['spike_handling_rating']}")
+
+            if overall_rating:
+                print(f"Overall: {overall_rating}")
 
     def _display_results(self, metrics):
         """Display test results summary"""

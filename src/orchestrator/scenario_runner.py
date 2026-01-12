@@ -253,6 +253,13 @@ class ScenarioRunner:
                     logger.error(f"Error waiting for workflows: {e}")
                     break
 
+            # Final sync of enhanced metrics (catch any workflows completed during wait phase)
+            for workflow in self.tracker.tracked_workflows.values():
+                if (workflow.get("status") == "completed" and
+                    workflow.get("run_id") and
+                    workflow.get("run_id") not in [w.get("id") for w in self.enhanced_metrics.workflows]):
+                    self.enhanced_metrics.add_workflow(workflow)
+
             # Final metrics update
             tracker_metrics = self.tracker.get_metrics()
             self.metrics.queue_times = tracker_metrics["queue_times"]
