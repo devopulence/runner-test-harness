@@ -632,16 +632,30 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
             # Find the spike point (where queue suddenly increases)
             spike_index = self._find_spike_point(queue_times)
 
-            if spike_index:
-                pre_spike = queue_times[:spike_index]
-                spike_period = queue_times[spike_index:spike_index + 10] if spike_index + 10 < len(queue_times) else queue_times[spike_index:]
-                post_spike = queue_times[spike_index + 10:] if spike_index + 10 < len(queue_times) else []
+            if spike_index is not None:
+                # Find max queue time index to determine spike period extent
+                max_queue = max(queue_times)
+                max_index = queue_times.index(max_queue)
+
+                # Pre-spike is everything before the spike starts
+                pre_spike = queue_times[:spike_index] if spike_index > 0 else queue_times[:3]
+
+                # Spike period extends from spike start through the peak and a bit after
+                # Ensure we capture the actual maximum
+                spike_end = min(max_index + 5, len(queue_times))
+                spike_period = queue_times[spike_index:spike_end]
+
+                # Post-spike is everything after the spike period
+                post_spike = queue_times[spike_end:] if spike_end < len(queue_times) else []
+
+                # Ensure spike_period has the maximum
+                actual_spike_peak = max(queue_times)  # Use overall max for accuracy
 
                 analysis["spike_response"] = {
                     "pre_spike_avg": statistics.mean(pre_spike) if pre_spike else 0,
-                    "spike_peak": max(spike_period) if spike_period else 0,
+                    "spike_peak": actual_spike_peak,
                     "spike_avg": statistics.mean(spike_period) if spike_period else 0,
-                    "response_multiplier": max(spike_period) / statistics.mean(pre_spike) if pre_spike and statistics.mean(pre_spike) > 0 else 0
+                    "response_multiplier": actual_spike_peak / statistics.mean(pre_spike) if pre_spike and statistics.mean(pre_spike) > 0 else 0
                 }
 
                 # Recovery analysis
@@ -663,10 +677,31 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
         return analysis
 
     def _find_spike_point(self, queue_times: List[float]) -> Optional[int]:
-        """Find where the spike occurs (sudden increase in queue times)."""
-        for i in range(1, len(queue_times) - 1):
-            if queue_times[i] > queue_times[i-1] * 2:  # Sudden doubling
-                return i
+        """Find where the spike occurs based on maximum queue time location.
+
+        Note: queue_times are in MINUTES (converted before analysis).
+        """
+        if not queue_times or len(queue_times) < 3:
+            return None
+
+        # Find the index of the maximum queue time - this is the spike peak
+        max_queue = max(queue_times)
+        max_index = queue_times.index(max_queue)
+
+        # Calculate an early baseline from first 20% of data
+        early_count = max(3, len(queue_times) // 5)
+        early_avg = statistics.mean(queue_times[:early_count])
+
+        # If max queue is significantly higher than early baseline, there's a spike
+        # Values are in MINUTES: 1 = 1 minute, 0.5 = 30 seconds
+        if max_queue > early_avg * 2 or max_queue > 1:  # At least 2x baseline or > 1 minute
+            # Find where queue times start rising (first time they exceed 2x early avg before max)
+            threshold = max(early_avg * 2, 0.5)  # At least 30 seconds (0.5 min) threshold
+            for i in range(early_count, max_index + 1):
+                if queue_times[i] > threshold:
+                    return i
+            return max_index
+
         return None
 
     def _calculate_recovery_time(self, post_spike: List[float], pre_spike: List[float]) -> int:
@@ -694,18 +729,22 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
             return "POOR_RECOVERY"
 
     def _assess_elasticity(self, analysis: Dict) -> Dict[str, str]:
+        """Assess system elasticity based on spike response.
+
+        Note: spike_peak and pre_spike_avg are in MINUTES.
+        """
         response = analysis.get("spike_response", {})
         recovery = analysis.get("recovery", {})
 
         multiplier = response.get("response_multiplier", 0)
-        spike_peak = response.get("spike_peak", 0)
-        pre_spike_avg = response.get("pre_spike_avg", 0)
+        spike_peak = response.get("spike_peak", 0)  # In MINUTES
+        pre_spike_avg = response.get("pre_spike_avg", 0)  # In MINUTES
         recovered = recovery.get("recovered", False)
         recovery_quality = recovery.get("recovery_quality", "UNKNOWN")
 
         # Use absolute spike peak for assessment when pre-spike is very low
         # If queue stays under 5 minutes even during spike, that's good
-        if spike_peak < 300:  # Under 5 minutes
+        if spike_peak < 5:  # Under 5 minutes
             if recovered or recovery_quality in ["FULL_RECOVERY", "GOOD_RECOVERY"]:
                 return {
                     "rating": "HIGHLY_ELASTIC",
@@ -718,7 +757,7 @@ class SpikeTestAnalyzer(BaseTestAnalyzer):
                 }
 
         # For higher spike peaks, consider both multiplier and absolute values
-        if spike_peak < 600:  # Under 10 minutes
+        if spike_peak < 10:  # Under 10 minutes
             if recovered or recovery_quality in ["FULL_RECOVERY", "GOOD_RECOVERY"]:
                 return {
                     "rating": "ELASTIC",

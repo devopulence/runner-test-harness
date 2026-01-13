@@ -349,14 +349,16 @@ class TestHarness:
 
             if "spike_response" in analysis:
                 spike = analysis['spike_response']
+                # spike_peak is in MINUTES (converted before analysis)
                 # Only show multiplier if it's meaningful (spike peak was significant)
-                if spike_peak > 60:  # More than 1 minute queue during spike
+                if spike_peak > 1:  # More than 1 minute queue during spike
+                    print(f"Max Queue During Spike: {spike_peak:.1f} minutes")
                     print(f"Spike Impact: {spike['response_multiplier']:.1f}x baseline")
                 else:
-                    print(f"Max Queue During Spike: {spike_peak:.0f} seconds")
+                    print(f"Max Queue During Spike: {spike_peak * 60:.0f} seconds")
 
             # Only show recovery quality if spike had significant impact
-            if "recovery" in analysis and spike_peak > 60:
+            if "recovery" in analysis and spike_peak > 1:
                 rec = analysis['recovery']
                 print(f"Recovery Quality: {rec['recovery_quality']}")
 

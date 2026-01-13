@@ -31,8 +31,8 @@ class EnhancedMetrics:
 
     def add_workflow(self, workflow_data: Dict):
         """Add a completed workflow's metrics"""
-        queue_time = workflow_data.get("queue_time", 0)
-        execution_time = workflow_data.get("execution_time", 0)
+        queue_time = workflow_data.get("queue_time") or 0
+        execution_time = workflow_data.get("execution_time") or 0
         total_time = queue_time + execution_time
 
         self.workflows.append({
