@@ -1,0 +1,4 @@
+  config/environments/aws_ecs.yaml
+        modified:   config/environments/openshift_sandbox.yaml
+        modified:   run_tests.py
+        modified:   src/orchestrator/scenario_runner.py

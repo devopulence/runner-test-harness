@@ -109,6 +109,14 @@ class TestMetrics:
                 "mean": statistics.mean(self.runner_utilization)
             }
 
+        # Concurrent jobs (max runners observed)
+        if self.concurrent_jobs:
+            stats["concurrent_jobs"] = {
+                "max": max(self.concurrent_jobs),
+                "mean": statistics.mean(self.concurrent_jobs),
+                "min": min(self.concurrent_jobs)
+            }
+
         return stats
 
 

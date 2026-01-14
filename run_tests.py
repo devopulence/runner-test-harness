@@ -413,6 +413,12 @@ class TestHarness:
             print(f"  Average: {ru['mean']:.1%}")
             print(f"  Peak: {ru['max']:.1%}")
 
+        if 'concurrent_jobs' in stats:
+            print(f"\nConcurrent Jobs (Runners Active):")
+            cj = stats['concurrent_jobs']
+            print(f"  Max Observed: {cj['max']}")
+            print(f"  Average: {cj['mean']:.1f}")
+
         print(f"\nTest Duration: {stats['duration_minutes']:.1f} minutes")
 
     def list_tests(self):

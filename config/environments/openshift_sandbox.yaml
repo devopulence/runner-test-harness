@@ -143,6 +143,24 @@ test_profiles:
     workload_inputs:
       workload_type: test
 
+  # Concurrency discovery - find max concurrent runners
+  concurrency_discovery:
+    duration_minutes: 10
+    dispatch_pattern: burst
+    burst_size: 20          # Dispatch 20 jobs at once
+    burst_interval: 300     # Wait 5 min between bursts
+    workload_inputs:
+      workload_type: test   # Short jobs (30-60s) to cycle quickly
+
+  # Aggressive concurrency test - push harder
+  concurrency_max:
+    duration_minutes: 15
+    dispatch_pattern: burst
+    burst_size: 30          # Dispatch 30 jobs at once
+    burst_interval: 300     # Wait 5 min between bursts
+    workload_inputs:
+      workload_type: test
+
 # Metrics
 metrics:
   collection_interval: 30
