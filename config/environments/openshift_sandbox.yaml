@@ -14,7 +14,6 @@ github:
     - k8s
 
 runners:
-  count: 4  # 4 runner constraint
   type: openshift-pod
   startup_time: 90
   max_job_duration: 3600

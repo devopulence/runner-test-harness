@@ -19,7 +19,6 @@ github:
     - linux
 
 runners:
-  count: 4  # Hard limit - exactly 4 runners
   type: fargate
   cpu: 1024    # 1 vCPU
   memory: 2048 # 2GB RAM
@@ -37,8 +36,9 @@ workflows:
   # For OpenShift: change file to your actual workflow (e.g., openshift_pipeline.yml)
   primary:
     name: default                    # Logical name used in test profiles
-    file: build_job.yml              # Actual workflow file to dispatch
-    description: Primary test workflow
+    file: build_job_multiple.yml     # Multi-job workflow (2 sequential jobs per workflow)
+    description: Primary test workflow with multiple jobs
+    jobs_per_workflow: 2             # Track: each workflow dispatches 2 sequential jobs
 
   # Workload types supported by the primary workflow
   # These map to the workload_type input parameter

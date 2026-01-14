@@ -292,6 +292,9 @@ class ScenarioRunner:
         # Generate enhanced metrics report
         if self.enhanced_metrics.workflows:
             logger.info("Generating enhanced metrics report...")
+            # Pass observed runner count (max concurrent jobs seen)
+            if self.metrics.concurrent_jobs:
+                self.enhanced_metrics.observed_runner_count = max(self.metrics.concurrent_jobs)
             report_path = self.enhanced_metrics.generate_report(profile_name, f"test_results/{self.environment.name}")
             logger.info(f"Enhanced report saved to: {report_path}")
 
@@ -493,11 +496,14 @@ class ScenarioRunner:
                         workflow.get("run_id") not in [w.get("id") for w in self.enhanced_metrics.workflows]):
                         self.enhanced_metrics.add_workflow(workflow)
 
-                # Get active jobs count
+                # Get active jobs count (actual runners in use)
                 active_count = await self.tracker.get_active_jobs_count()
-                utilization = min(active_count / self.environment.runner_count, 1.0)
-                self.metrics.runner_utilization.append(utilization)
                 self.metrics.concurrent_jobs.append(active_count)
+
+                # Calculate utilization based on observed max (not hardcoded config)
+                observed_max = max(self.metrics.concurrent_jobs) if self.metrics.concurrent_jobs else 1
+                utilization = active_count / observed_max if observed_max > 0 else 0
+                self.metrics.runner_utilization.append(utilization)
 
                 # Log status with enhanced metrics
                 if self.enhanced_metrics.workflows:
@@ -568,11 +574,12 @@ class ScenarioRunner:
         report_file = output_path / f"test_report_{timestamp}.json"
 
         # Prepare report data
+        observed_runners = max(metrics.concurrent_jobs) if metrics.concurrent_jobs else 0
         report = {
             "environment": {
                 "name": self.environment.name,
                 "type": self.environment.type,
-                "runner_count": self.environment.runner_count,
+                "observed_runners": observed_runners,  # Dynamically discovered
                 "runner_labels": self.environment.runner_labels
             },
             "test_execution": {

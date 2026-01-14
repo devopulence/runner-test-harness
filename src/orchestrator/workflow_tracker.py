@@ -513,23 +513,44 @@ class WorkflowTracker:
 
     async def get_active_jobs_count(self) -> int:
         """
-        Get the count of currently running jobs
+        Get the count of currently running JOBS (not workflows).
+
+        Only counts jobs from workflows we are tracking in this test,
+        not other workflows that may be running in the repo.
 
         Returns:
-            Number of active jobs
+            Number of active jobs (actual runner count)
         """
         try:
-            session = await self._get_session()
-            url = f"{self.base_url}/actions/runs"
-            params = {
-                "status": "in_progress",
-                "per_page": 100
-            }
+            # Get run IDs of workflows we're tracking that are still in progress
+            tracked_run_ids = set()
+            for workflow in self.tracked_workflows.values():
+                run_id = workflow.get("run_id")
+                status = workflow.get("status")
+                if run_id and status in ["queued", "in_progress"]:
+                    tracked_run_ids.add(run_id)
 
-            async with session.get(url, params=params) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    return len(data.get("workflow_runs", []))
+            if not tracked_run_ids:
+                return 0
+
+            session = await self._get_session()
+            total_active_jobs = 0
+
+            # Query jobs for each tracked workflow run
+            for run_id in tracked_run_ids:
+                jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+
+                async with session.get(jobs_url) as jobs_resp:
+                    if jobs_resp.status == 200:
+                        jobs_data = await jobs_resp.json()
+                        jobs = jobs_data.get("jobs", [])
+
+                        # Count jobs that are actually running (in_progress)
+                        for job in jobs:
+                            if job.get("status") == "in_progress":
+                                total_active_jobs += 1
+
+            return total_active_jobs
 
         except Exception as e:
             logger.error(f"Error getting active jobs: {e}")

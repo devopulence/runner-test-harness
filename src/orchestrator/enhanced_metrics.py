@@ -62,10 +62,15 @@ class EnhancedMetrics:
         # Calculate capacity insights
         if self.execution_times:
             avg_execution = statistics.mean(self.execution_times)
+            # Use observed runner count if available, otherwise estimate from workflow count
+            observed_runners = getattr(self, 'observed_runner_count', None)
+            if not observed_runners:
+                observed_runners = 4  # fallback
             stats["capacity_insights"] = {
                 "avg_execution_minutes": avg_execution / 60,
                 "theoretical_throughput_per_runner_per_hour": 3600 / avg_execution if avg_execution > 0 else 0,
-                "theoretical_throughput_4_runners_per_hour": (3600 / avg_execution * 4) if avg_execution > 0 else 0
+                "theoretical_throughput_total_per_hour": (3600 / avg_execution * observed_runners) if avg_execution > 0 else 0,
+                "observed_runners": observed_runners
             }
 
         # Calculate queue growth rate
@@ -196,8 +201,10 @@ class EnhancedMetrics:
         if "capacity_insights" in stats:
             print("\n🎯 CAPACITY INSIGHTS:")
             ci = stats["capacity_insights"]
+            observed = ci.get('observed_runners', 4)
+            print(f"  Observed Runners: {observed}")
             print(f"  Avg execution: {ci['avg_execution_minutes']:.1f} minutes")
-            print(f"  Max throughput (4 runners): {ci['theoretical_throughput_4_runners_per_hour']:.1f} jobs/hour")
+            print(f"  Max throughput ({observed} runners): {ci['theoretical_throughput_total_per_hour']:.1f} jobs/hour")
 
         if "queue_growth" in stats:
             print("\n📈 QUEUE TREND:")

@@ -53,7 +53,6 @@ class EnvironmentConfig:
     github_repo: str
     github_ref: str
     runner_labels: List[str]
-    runner_count: int
     workflows: List[WorkflowConfig]
     test_profiles: Dict[str, TestProfile]
     metrics: Dict[str, Any]
@@ -250,7 +249,6 @@ class EnvironmentSwitcher:
             github_repo=config['github']['repo'],
             github_ref=config['github'].get('ref', 'main'),
             runner_labels=config['github']['runner_labels'],
-            runner_count=config['runners']['count'],
             workflows=workflows,
             test_profiles=test_profiles,
             metrics=config.get('metrics', {}),
@@ -284,10 +282,6 @@ class EnvironmentSwitcher:
 
         errors = []
         warnings = []
-
-        # Check runner count
-        if env.runner_count != 4:
-            warnings.append(f"Runner count is {env.runner_count}, expected 4 for testing")
 
         # Check workflows exist locally (optional - workflow only needs to exist in target repo)
         workflow_dir = Path('.github/workflows')
@@ -463,7 +457,7 @@ class EnvironmentSwitcher:
 Environment: {env.name} ({env.type})
 Description: {env.description}
 GitHub: {env.github_owner}/{env.github_repo}
-Runners: {env.runner_count} runners with labels {env.runner_labels}
+Runner Labels: {env.runner_labels}
 Workflows: {len(env.workflows)} available
 Test Profiles: {list(env.test_profiles.keys())}
         """

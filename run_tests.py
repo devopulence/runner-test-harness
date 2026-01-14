@@ -204,6 +204,8 @@ class TestHarness:
 
             # Prepare metrics for analysis
             stats = metrics.calculate_statistics()
+            # Use observed runner count (max concurrent jobs) instead of hardcoded config
+            observed_runners = max(metrics.concurrent_jobs) if metrics.concurrent_jobs else 4
             analysis_metrics = {
                 'queue_times': [qt / 60 for qt in metrics.queue_times],  # Convert to minutes
                 'execution_times': [et / 60 for et in metrics.execution_times],  # Convert to minutes
@@ -212,7 +214,7 @@ class TestHarness:
                 'total_workflows': metrics.total_workflows,
                 'failed_workflows': metrics.failed_workflows,
                 'duration_minutes': stats.get('duration_minutes', 30),
-                'runner_count': self.switcher.current_environment.runner_count if self.switcher.current_environment else 4,
+                'runner_count': observed_runners,  # Now uses observed max, not config
                 'runner_utilization': [u * 100 for u in metrics.runner_utilization] if metrics.runner_utilization else []
             }
 
