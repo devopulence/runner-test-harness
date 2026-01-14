@@ -1,0 +1,263 @@
+name: Realistic Build With Multiple Workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      workload_type:
+        description: 'Type of workload to simulate'
+        required: true
+        type: choice
+        default: 'standard'
+        options:
+          - test      # 30-60 seconds for testing
+          - light
+          - standard
+          - heavy
+      enable_randomization:
+        description: 'Add random variance to duration'
+        required: false
+        type: boolean
+        default: true
+      job_name:
+        description: 'Custom job identifier'
+        required: false
+        type: string
+        default: 'build'
+
+jobs:
+  build-simulation:
+    name: Build Simulation - ${{ inputs.workload_type }}
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+
+    steps:
+      - name: Job Initialization
+        run: |
+          echo "🚀 Starting build simulation"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Job: ${{ inputs.job_name }}"
+          echo "Workload Type: ${{ inputs.workload_type }}"
+          echo "Randomization: ${{ inputs.enable_randomization }}"
+          echo "Runner: ${{ runner.name }}"
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Calculate Workload Duration
+        id: duration
+        run: |
+          # Base durations in seconds - REDUCED FOR FASTER TESTING
+          case "${{ inputs.workload_type }}" in
+            test)
+              BASE=45     # 45 seconds
+              MIN=30      # 30 seconds
+              MAX=60      # 60 seconds
+              ;;
+            light)
+              BASE=150    # 2.5 minutes
+              MIN=120     # 2 minutes
+              MAX=180     # 3 minutes
+              ;;
+            standard)
+              BASE=240    # 4 minutes
+              MIN=180     # 3 minutes
+              MAX=300     # 5 minutes
+              ;;
+            heavy)
+              BASE=390    # 6.5 minutes
+              MIN=300     # 5 minutes
+              MAX=480     # 8 minutes
+              ;;
+          esac
+
+          # Apply randomization if enabled
+          if [ "${{ inputs.enable_randomization }}" = "true" ]; then
+            # Generate random duration within range
+            RANGE=$((MAX - MIN))
+            RANDOM_OFFSET=$((RANDOM % RANGE))
+            DURATION=$((MIN + RANDOM_OFFSET))
+            VARIANCE_PCT=$(( (DURATION - BASE) * 100 / BASE ))
+          else
+            DURATION=$BASE
+            VARIANCE_PCT=0
+          fi
+
+          # Calculate readable format
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+
+          echo "Base Duration: ${BASE}s"
+          echo "Actual Duration: ${DURATION}s (${MINUTES}m ${SECONDS}s)"
+          echo "Variance: ${VARIANCE_PCT}%"
+
+          # Set outputs
+          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
+          echo "duration_minutes=${MINUTES}" >> $GITHUB_OUTPUT
+          echo "duration_seconds=${SECONDS}" >> $GITHUB_OUTPUT
+          echo "variance_pct=${VARIANCE_PCT}" >> $GITHUB_OUTPUT
+
+      - name: Source Code Checkout (Simulated)
+        run: |
+          echo "📥 Simulating source code checkout..."
+          sleep 5
+          echo "✅ Code checkout complete"
+
+      - name: Dependency Resolution (Simulated)
+        run: |
+          echo "📦 Simulating dependency resolution..."
+          # Simulate package manager operations
+          DEPS_TIME=$((15 + RANDOM % 15))  # 15-30 seconds
+          echo "Installing dependencies (${DEPS_TIME}s)..."
+          sleep $DEPS_TIME
+          echo "✅ Dependencies resolved"
+
+      - name: Build Phase 1 - Compilation
+        run: |
+          echo "🔨 Starting compilation phase..."
+          # Take 30% of total duration for compilation
+          COMPILE_TIME=$(( ${{ steps.duration.outputs.duration }} * 30 / 100 ))
+          COMPILE_MIN=$((COMPILE_TIME / 60))
+          COMPILE_SEC=$((COMPILE_TIME % 60))
+
+          echo "Expected compilation time: ${COMPILE_MIN}m ${COMPILE_SEC}s"
+          echo "Compiling source files..."
+
+          # Simulate progress updates
+          for i in 1 2 3; do
+            sleep $((COMPILE_TIME / 3))
+            PROGRESS=$((i * 33))
+            echo "  Progress: ${PROGRESS}%"
+          done
+
+          echo "✅ Compilation complete"
+
+      - name: Build Phase 2 - Testing
+        run: |
+          echo "🧪 Running test suite..."
+          # Take 40% of total duration for testing
+          TEST_TIME=$(( ${{ steps.duration.outputs.duration }} * 40 / 100 ))
+          TEST_MIN=$((TEST_TIME / 60))
+          TEST_SEC=$((TEST_TIME % 60))
+
+          echo "Expected test time: ${TEST_MIN}m ${TEST_SEC}s"
+
+          # Simulate different test phases
+          UNIT_TIME=$((TEST_TIME * 40 / 100))
+          INTEGRATION_TIME=$((TEST_TIME * 35 / 100))
+          E2E_TIME=$((TEST_TIME * 25 / 100))
+
+          echo "Running unit tests..."
+          sleep $UNIT_TIME
+          echo "  ✓ Unit tests passed (${UNIT_TIME}s)"
+
+          echo "Running integration tests..."
+          sleep $INTEGRATION_TIME
+          echo "  ✓ Integration tests passed (${INTEGRATION_TIME}s)"
+
+          echo "Running end-to-end tests..."
+          sleep $E2E_TIME
+          echo "  ✓ E2E tests passed (${E2E_TIME}s)"
+
+          echo "✅ All tests passed"
+
+      - name: Build Phase 3 - Artifact Creation
+        run: |
+          echo "📦 Creating build artifacts..."
+          # Take 25% of total duration for artifact creation
+          ARTIFACT_TIME=$(( ${{ steps.duration.outputs.duration }} * 25 / 100 ))
+          ARTIFACT_MIN=$((ARTIFACT_TIME / 60))
+          ARTIFACT_SEC=$((ARTIFACT_TIME % 60))
+
+          echo "Expected artifact creation time: ${ARTIFACT_MIN}m ${ARTIFACT_SEC}s"
+
+          # Simulate artifact creation phases
+          echo "Bundling application..."
+          sleep $((ARTIFACT_TIME / 3))
+          echo "  Created: app-bundle.tar.gz (152MB)"
+
+          echo "Generating documentation..."
+          sleep $((ARTIFACT_TIME / 3))
+          echo "  Created: docs.zip (8MB)"
+
+          echo "Creating Docker image..."
+          sleep $((ARTIFACT_TIME / 3))
+          echo "  Created: app:latest (387MB)"
+
+          echo "✅ Artifacts created successfully"
+
+      - name: Build Phase 4 - Quality Gates
+        run: |
+          echo "🔍 Running quality checks..."
+          # Use remaining time for quality gates
+          QUALITY_TIME=$(( ${{ steps.duration.outputs.duration }} * 5 / 100 ))
+
+          echo "Code coverage analysis..."
+          sleep $((QUALITY_TIME / 3))
+          echo "  Coverage: 87.3% ✓"
+
+          echo "Security scanning..."
+          sleep $((QUALITY_TIME / 3))
+          echo "  No critical vulnerabilities found ✓"
+
+          echo "License compliance check..."
+          sleep $((QUALITY_TIME / 3))
+          echo "  All licenses compliant ✓"
+
+          echo "✅ Quality gates passed"
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "==============================================="
+          echo "Build Simulation Complete"
+          echo "==============================================="
+          echo "Job: ${{ inputs.job_name }}"
+          echo "Type: ${{ inputs.workload_type }}"
+          echo "Total Duration: ${{ steps.duration.outputs.duration_minutes }}m ${{ steps.duration.outputs.duration_seconds }}s"
+          echo "Variance from baseline: ${{ steps.duration.outputs.variance_pct }}%"
+          echo "Runner: ${{ runner.name }}"
+          echo "Status: ${{ job.status }}"
+          echo "Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "==============================================="
+
+  # Second job - runs AFTER build-simulation completes (sequential)
+  send-results:
+    name: Send Results
+    needs: build-simulation
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+
+    steps:
+      - name: Results Initialization
+        run: |
+          echo "📤 Starting results job"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Runner: ${{ runner.name }}"
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Gather Results
+        run: |
+          echo "📊 Gathering build results..."
+          sleep 10
+          echo "✅ Results gathered"
+
+      - name: Send Notifications
+        run: |
+          echo "📧 Sending notifications..."
+          sleep 5
+          echo "✅ Notifications sent"
+
+      - name: Upload Artifacts
+        run: |
+          echo "☁️ Uploading artifacts to storage..."
+          sleep 15
+          echo "✅ Artifacts uploaded"
+
+      - name: Results Summary
+        if: always()
+        run: |
+          echo "==============================================="
+          echo "Results Job Complete"
+          echo "==============================================="
+          echo "Runner: ${{ runner.name }}"
+          echo "Status: ${{ job.status }}"
+          echo "Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "==============================================="
