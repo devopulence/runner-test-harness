@@ -6,6 +6,7 @@ Executes various performance test scenarios against GitHub runners
 import asyncio
 import json
 import logging
+import math
 import time
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional, Tuple
@@ -163,6 +164,49 @@ class ScenarioRunner:
         # Test run tracker for identifying workflows
         self.test_run_tracker = None
 
+    def _calculate_expected_workflows(self, profile: TestProfile) -> int:
+        """
+        Calculate expected total workflows based on profile configuration.
+        Used to determine if bulk polling mode should be enabled.
+
+        Args:
+            profile: Test profile configuration
+
+        Returns:
+            Expected number of workflows to be dispatched
+        """
+        duration_seconds = profile.duration_minutes * 60
+
+        if profile.dispatch_pattern == "burst":
+            # burst_size workflows every burst_interval seconds
+            burst_interval = profile.burst_interval or 300
+            burst_size = profile.burst_size or 4
+            num_bursts = math.ceil(duration_seconds / burst_interval)
+            expected = num_bursts * burst_size
+            logger.debug(f"Burst pattern: {num_bursts} bursts × {burst_size} = {expected} workflows")
+            return expected
+
+        elif profile.dispatch_pattern == "steady":
+            # jobs_per_minute * duration_minutes
+            jobs_per_minute = profile.jobs_per_minute or 1.0
+            expected = int(jobs_per_minute * profile.duration_minutes)
+            logger.debug(f"Steady pattern: {jobs_per_minute}/min × {profile.duration_minutes}min = {expected} workflows")
+            return expected
+
+        elif profile.dispatch_pattern == "spike":
+            # normal_rate for most of test, spike_rate during spike
+            normal_rate = profile.normal_rate or 0.2
+            spike_rate = profile.spike_rate or 2.0
+            spike_duration = profile.spike_duration or 300
+            normal_time = duration_seconds - spike_duration
+            spike_time = spike_duration
+            expected = int((normal_rate * normal_time + spike_rate * spike_time) / 60)
+            logger.debug(f"Spike pattern: normal {normal_rate}/min + spike {spike_rate}/min = {expected} workflows")
+            return expected
+
+        # Default fallback
+        return 50
+
     async def run_test_profile(self, profile_name: str) -> TestMetrics:
         """
         Run a specific test profile
@@ -195,6 +239,12 @@ class ScenarioRunner:
 
         # Set the test_run_id on the workflow tracker for job_name matching
         self.tracker.set_test_run_id(self.test_run_tracker.test_run_id)
+
+        # Calculate expected workflows and set bulk mode if high concurrency
+        expected_workflows = self._calculate_expected_workflows(profile)
+        use_bulk_mode = expected_workflows >= 50
+        logger.info(f"Expected workflows: {expected_workflows}, bulk_mode: {use_bulk_mode}")
+        self.tracker.set_bulk_mode(use_bulk_mode)
 
         # Initialize workflow tracker baseline BEFORE dispatching any workflows
         logger.info("Initializing workflow tracker baseline...")
@@ -521,8 +571,9 @@ class ScenarioRunner:
             except Exception as e:
                 logger.error(f"Error polling workflow status: {e}")
 
-            # Poll every 30 seconds
-            await asyncio.sleep(30)
+            # Poll interval from config (default 30 seconds)
+            poll_interval = self.environment.raw_config.get('metrics', {}).get('collection_interval', 30)
+            await asyncio.sleep(poll_interval)
 
     async def _update_metrics(self) -> None:
         """Update metrics based on current state"""

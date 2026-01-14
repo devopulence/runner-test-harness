@@ -6,9 +6,10 @@ Tracks GitHub workflow runs and collects metrics using job_name input matching.
 import asyncio
 import logging
 import ssl
+import time
 import certifi
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 import aiohttp
 
 logger = logging.getLogger(__name__)
@@ -51,6 +52,27 @@ class WorkflowTracker:
         # Test run ID for job_name matching
         self.test_run_id: Optional[str] = None
 
+        # Bulk mode for high-concurrency tests (reduces API calls)
+        self.bulk_mode: bool = False
+
+        # Cache for completed workflow run IDs (skip re-fetching)
+        self.completed_cache: Set[int] = set()
+
+        # Rate limit tracking
+        self.rate_limit_remaining: int = 5000
+        self.rate_limit_reset: int = 0
+
+    def set_bulk_mode(self, enabled: bool) -> None:
+        """
+        Set bulk polling mode for high-concurrency tests.
+        When enabled, uses optimized API calls to avoid rate limiting.
+
+        Args:
+            enabled: Whether to enable bulk mode
+        """
+        self.bulk_mode = enabled
+        logger.info(f"Bulk polling mode: {'enabled' if enabled else 'disabled'}")
+
     def set_test_run_id(self, test_run_id: str):
         """
         Set the test run ID used for job_name matching.
@@ -89,6 +111,67 @@ class WorkflowTracker:
         """Close the aiohttp session"""
         if self._session and not self._session.closed:
             await self._session.close()
+
+    def _update_rate_limit(self, response: aiohttp.ClientResponse) -> None:
+        """Update rate limit tracking from response headers"""
+        try:
+            self.rate_limit_remaining = int(response.headers.get('X-RateLimit-Remaining', 5000))
+            self.rate_limit_reset = int(response.headers.get('X-RateLimit-Reset', 0))
+        except (ValueError, TypeError):
+            pass
+
+    async def _check_rate_limit(self) -> bool:
+        """
+        Check if rate limit is low and pause if needed.
+
+        Returns:
+            True if we had to wait, False otherwise
+        """
+        if self.rate_limit_remaining < 100:
+            wait_seconds = max(self.rate_limit_reset - time.time(), 60)
+            logger.warning(f"Rate limit low ({self.rate_limit_remaining} remaining), waiting {wait_seconds:.0f}s")
+            await asyncio.sleep(min(wait_seconds, 120))  # Cap at 2 minutes
+            return True
+        return False
+
+    async def _api_get_with_backoff(self, url: str, params: dict = None) -> Tuple[Optional[dict], int]:
+        """
+        Make GET API call with rate limit backoff handling.
+
+        Args:
+            url: API endpoint URL
+            params: Query parameters
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        session = await self._get_session()
+
+        for attempt in range(5):
+            try:
+                async with session.get(url, params=params) as resp:
+                    self._update_rate_limit(resp)
+
+                    if resp.status == 403:
+                        # Rate limited - wait and retry
+                        wait_seconds = max(self.rate_limit_reset - time.time(), 60)
+                        logger.warning(f"Rate limited (403), waiting {wait_seconds:.0f}s (attempt {attempt + 1}/5)")
+                        await asyncio.sleep(min(wait_seconds, 120))
+                        continue
+
+                    if resp.status == 200:
+                        data = await resp.json()
+                        return data, resp.status
+
+                    # Other error
+                    return None, resp.status
+
+            except Exception as e:
+                logger.error(f"API call error (attempt {attempt + 1}/5): {e}")
+                await asyncio.sleep(5 * (attempt + 1))
+
+        logger.error(f"Failed to complete API call after 5 attempts: {url}")
+        return None, 0
 
     async def initialize_baseline(self):
         """
@@ -482,20 +565,31 @@ class WorkflowTracker:
         """
         Update status of all tracked workflows
 
+        Behavior depends on bulk_mode:
+        - bulk_mode=False: Per-workflow status updates (accurate, more API calls)
+        - bulk_mode=True: Single list call, only individual fetches for completions
+
         Returns:
             Summary of workflow states
         """
         # First, try to match any pending workflows using job_name
         await self.match_pending_workflows()
 
-        # Then update status of all matched workflows
-        tasks = []
-        for tracking_id in self.tracked_workflows:
-            if self.tracked_workflows[tracking_id].get("run_id"):
-                tasks.append(self.update_workflow_status(tracking_id))
+        # Check rate limit before making API calls
+        await self._check_rate_limit()
 
-        if tasks:
-            await asyncio.gather(*tasks)
+        if self.bulk_mode:
+            # BULK MODE: Single API call to get all runs, update status from list data
+            await self._bulk_update_workflow_status()
+        else:
+            # ACCURATE MODE: Per-workflow status updates (existing behavior)
+            tasks = []
+            for tracking_id in self.tracked_workflows:
+                if self.tracked_workflows[tracking_id].get("run_id"):
+                    tasks.append(self.update_workflow_status(tracking_id))
+
+            if tasks:
+                await asyncio.gather(*tasks)
 
         # Calculate summary
         summary = {
@@ -511,12 +605,103 @@ class WorkflowTracker:
         logger.info(f"Workflow status: {summary}")
         return summary
 
+    async def _bulk_update_workflow_status(self) -> None:
+        """
+        Bulk update workflow status using a single API call.
+        Only fetches individual job details for newly completed workflows.
+        """
+        # Build map of run_id -> tracking_id for quick lookup
+        run_id_to_tracking: Dict[int, str] = {}
+        for tracking_id, workflow in self.tracked_workflows.items():
+            run_id = workflow.get("run_id")
+            if run_id and run_id not in self.completed_cache:
+                run_id_to_tracking[run_id] = tracking_id
+
+        if not run_id_to_tracking:
+            return
+
+        # Single API call to get all recent runs
+        runs_url = f"{self.base_url}/actions/runs"
+        params = {"per_page": 100}
+
+        data, status = await self._api_get_with_backoff(runs_url, params)
+        if not data or status != 200:
+            return
+
+        runs = data.get("workflow_runs", [])
+
+        # Update status from list data
+        newly_completed = []
+        for run in runs:
+            run_id = run.get("id")
+            if run_id in run_id_to_tracking:
+                tracking_id = run_id_to_tracking[run_id]
+                workflow_data = self.tracked_workflows[tracking_id]
+
+                old_status = workflow_data.get("status")
+                workflow_data["status"] = run["status"]
+                workflow_data["conclusion"] = run.get("conclusion")
+
+                # Track newly completed workflows for job detail fetch
+                if run["status"] == "completed" and old_status != "completed":
+                    newly_completed.append(tracking_id)
+
+        # Fetch job details only for newly completed workflows (for timing data)
+        for tracking_id in newly_completed:
+            await self._fetch_completion_details(tracking_id)
+
+    async def _fetch_completion_details(self, tracking_id: str) -> None:
+        """
+        Fetch job-level details for a completed workflow.
+        Called only once per workflow when it completes.
+        """
+        workflow_data = self.tracked_workflows.get(tracking_id)
+        if not workflow_data:
+            return
+
+        run_id = workflow_data.get("run_id")
+        if not run_id or run_id in self.completed_cache:
+            return
+
+        jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+        data, status = await self._api_get_with_backoff(jobs_url)
+
+        if data and status == 200:
+            jobs = data.get("jobs", [])
+            if jobs:
+                job = jobs[0]
+
+                # Queue time: job.created_at to job.started_at
+                if job.get("created_at") and job.get("started_at"):
+                    job_created = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
+                    job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+                    workflow_data["queued_at"] = job_created
+                    workflow_data["started_at"] = job_started
+                    workflow_data["queue_time"] = (job_started - job_created).total_seconds()
+
+                # Execution time: job.started_at to job.completed_at
+                if job.get("started_at") and job.get("completed_at"):
+                    job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+                    job_completed = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
+                    workflow_data["completed_at"] = job_completed
+                    workflow_data["execution_time"] = (job_completed - job_started).total_seconds()
+
+                logger.info(f"Workflow {run_id} completed: queue={workflow_data.get('queue_time', 0):.1f}s, "
+                           f"exec={workflow_data.get('execution_time', 0):.1f}s")
+
+        # Add to cache to skip future fetches
+        self.completed_cache.add(run_id)
+
     async def get_active_jobs_count(self) -> int:
         """
         Get the count of currently running JOBS (not workflows).
 
         Only counts jobs from workflows we are tracking in this test,
         not other workflows that may be running in the repo.
+
+        Behavior depends on bulk_mode:
+        - bulk_mode=False: Accurate per-workflow job counting (more API calls)
+        - bulk_mode=True: Single API call, counts in-progress workflows
 
         Returns:
             Number of active jobs (actual runner count)
@@ -533,24 +718,39 @@ class WorkflowTracker:
             if not tracked_run_ids:
                 return 0
 
-            session = await self._get_session()
-            total_active_jobs = 0
+            # Check rate limit before making API calls
+            await self._check_rate_limit()
 
-            # Query jobs for each tracked workflow run
-            for run_id in tracked_run_ids:
-                jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+            if self.bulk_mode:
+                # BULK MODE: Single API call - count in-progress runs from our tracked list
+                # For sequential multi-job workflows, each run = 1 active job at a time
+                runs_url = f"{self.base_url}/actions/runs"
+                params = {"status": "in_progress", "per_page": 100}
 
-                async with session.get(jobs_url) as jobs_resp:
-                    if jobs_resp.status == 200:
-                        jobs_data = await jobs_resp.json()
-                        jobs = jobs_data.get("jobs", [])
+                data, status = await self._api_get_with_backoff(runs_url, params)
+                if data and status == 200:
+                    runs = data.get("workflow_runs", [])
+                    # Count only runs that we're tracking
+                    active_count = sum(1 for run in runs if run.get("id") in tracked_run_ids)
+                    return active_count
+                return 0
 
+            else:
+                # ACCURATE MODE: Per-workflow job counting (existing behavior)
+                total_active_jobs = 0
+
+                for run_id in tracked_run_ids:
+                    jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+                    data, status = await self._api_get_with_backoff(jobs_url)
+
+                    if data and status == 200:
+                        jobs = data.get("jobs", [])
                         # Count jobs that are actually running (in_progress)
                         for job in jobs:
                             if job.get("status") == "in_progress":
                                 total_active_jobs += 1
 
-            return total_active_jobs
+                return total_active_jobs
 
         except Exception as e:
             logger.error(f"Error getting active jobs: {e}")
