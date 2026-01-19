@@ -52,7 +52,7 @@ class WorkflowTracker:
         # Test run ID for job_name matching
         self.test_run_id: Optional[str] = None
 
-        # Bulk mode for high-concurrency tests (reduces API calls)
+        # Bulk mode for high-concurrency tests (reduces API calls for status updates)
         self.bulk_mode: bool = False
 
         # Cache for completed workflow run IDs (skip re-fetching)
@@ -181,22 +181,23 @@ class WorkflowTracker:
         self.test_start_time = datetime.now(timezone.utc)
 
         try:
-            session = await self._get_session()
             url = f"{self.base_url}/actions/runs"
             params = {"per_page": 1}
 
-            async with session.get(url, params=params) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    runs = data.get("workflow_runs", [])
-                    if runs:
-                        self.baseline_run_id = runs[0]["id"]
-                        logger.info(f"Baseline established: run_id={self.baseline_run_id}, time={self.test_start_time}")
-                    else:
-                        self.baseline_run_id = 0
-                        logger.info(f"No existing runs, baseline_run_id=0")
+            # Use backoff wrapper for rate limit handling
+            data, status = await self._api_get_with_backoff(url, params)
+
+            if data and status == 200:
+                runs = data.get("workflow_runs", [])
+                if runs:
+                    self.baseline_run_id = runs[0]["id"]
+                    logger.info(f"Baseline established: run_id={self.baseline_run_id}, time={self.test_start_time}")
                 else:
-                    logger.error(f"Failed to get baseline: HTTP {resp.status}")
+                    self.baseline_run_id = 0
+                    logger.info(f"No existing runs, baseline_run_id=0")
+            else:
+                logger.error(f"Failed to get baseline: HTTP {status}")
+                self.baseline_run_id = 0
         except Exception as e:
             logger.error(f"Error getting baseline: {e}")
             self.baseline_run_id = 0
@@ -313,38 +314,39 @@ class WorkflowTracker:
         new_runs = []
 
         try:
-            session = await self._get_session()
+            # Check rate limit before API call
+            await self._check_rate_limit()
+
             url = f"{self.base_url}/actions/runs"
             params = {"per_page": 100}
 
-            async with session.get(url, params=params) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
+            # Use backoff wrapper for rate limit handling
+            data, status = await self._api_get_with_backoff(url, params)
 
-                    for run in data.get("workflow_runs", []):
-                        run_id = run["id"]
+            if data and status == 200:
+                for run in data.get("workflow_runs", []):
+                    run_id = run["id"]
 
-                        # Skip if we've already matched this run
-                        if run_id in self.matched_run_ids:
+                    # Skip if we've already matched this run
+                    if run_id in self.matched_run_ids:
+                        continue
+
+                    # Skip if this run existed before our test
+                    if self.baseline_run_id and run_id <= self.baseline_run_id:
+                        continue
+
+                    # Filter by workflow file if specified
+                    if workflow_file:
+                        run_path = run.get("path", "")
+                        run_file = run_path.split("/")[-1].replace(".yml", "").replace(".yaml", "")
+                        if run_file.lower() != workflow_file.lower():
                             continue
 
-                        # Skip if this run existed before our test
-                        if self.baseline_run_id and run_id <= self.baseline_run_id:
-                            continue
+                    new_runs.append(run)
 
-                        # Filter by workflow file if specified
-                        if workflow_file:
-                            run_path = run.get("path", "")
-                            run_file = run_path.split("/")[-1].replace(".yml", "").replace(".yaml", "")
-                            if run_file.lower() != workflow_file.lower():
-                                continue
-
-                        new_runs.append(run)
-
-                    logger.info(f"Found {len(new_runs)} new unmatched runs (baseline={self.baseline_run_id})")
-                else:
-                    text = await resp.text()
-                    logger.error(f"API error {resp.status}: {text[:200]}")
+                logger.info(f"Found {len(new_runs)} new unmatched runs (baseline={self.baseline_run_id})")
+            else:
+                logger.error(f"API error getting runs: status={status}")
 
         except Exception as e:
             logger.error(f"Error getting new runs: {e}")
@@ -512,49 +514,47 @@ class WorkflowTracker:
         run_id = workflow_data["run_id"]
 
         try:
-            session = await self._get_session()
-
-            # Get run status
+            # Get run status using backoff wrapper
             url = f"{self.base_url}/actions/runs/{run_id}"
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    run = await resp.json()
-                    workflow_data["github_run"] = run
-                    workflow_data["status"] = run["status"]
-                    workflow_data["conclusion"] = run.get("conclusion")
-                else:
-                    logger.warning(f"Failed to get run {run_id}: HTTP {resp.status}")
-                    return workflow_data
+            data, status = await self._api_get_with_backoff(url)
+
+            if data and status == 200:
+                workflow_data["github_run"] = data
+                workflow_data["status"] = data["status"]
+                workflow_data["conclusion"] = data.get("conclusion")
+            else:
+                logger.warning(f"Failed to get run {run_id}: HTTP {status}")
+                return workflow_data
 
             # Only fetch job-level data when workflow is completed (saves API calls)
-            if run["status"] == "completed" and workflow_data.get("queue_time") is None:
-                url = f"{self.base_url}/actions/runs/{run_id}/jobs"
-                async with session.get(url) as resp:
-                    if resp.status == 200:
-                        jobs_data = await resp.json()
-                        jobs = jobs_data.get("jobs", [])
+            if data["status"] == "completed" and workflow_data.get("queue_time") is None:
+                jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+                jobs_data, jobs_status = await self._api_get_with_backoff(jobs_url)
 
-                        if jobs:
-                            # Use the first/main job for timing
-                            job = jobs[0]
+                if jobs_data and jobs_status == 200:
+                    jobs = jobs_data.get("jobs", [])
 
-                            # Queue time: job.created_at to job.started_at
-                            if job.get("created_at") and job.get("started_at"):
-                                job_created = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
-                                job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
-                                workflow_data["queued_at"] = job_created
-                                workflow_data["started_at"] = job_started
-                                workflow_data["queue_time"] = (job_started - job_created).total_seconds()
+                    if jobs:
+                        # Use the first/main job for timing
+                        job = jobs[0]
 
-                            # Execution time: job.started_at to job.completed_at
-                            if job.get("started_at") and job.get("completed_at"):
-                                job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
-                                job_completed = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
-                                workflow_data["completed_at"] = job_completed
-                                workflow_data["execution_time"] = (job_completed - job_started).total_seconds()
+                        # Queue time: job.created_at to job.started_at
+                        if job.get("created_at") and job.get("started_at"):
+                            job_created = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
+                            job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+                            workflow_data["queued_at"] = job_created
+                            workflow_data["started_at"] = job_started
+                            workflow_data["queue_time"] = (job_started - job_created).total_seconds()
 
-                            logger.info(f"Workflow {run_id} completed: queue={workflow_data['queue_time']:.1f}s, "
-                                       f"exec={workflow_data['execution_time']:.1f}s")
+                        # Execution time: job.started_at to job.completed_at
+                        if job.get("started_at") and job.get("completed_at"):
+                            job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+                            job_completed = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
+                            workflow_data["completed_at"] = job_completed
+                            workflow_data["execution_time"] = (job_completed - job_started).total_seconds()
+
+                        logger.info(f"Workflow {run_id} completed: queue={workflow_data['queue_time']:.1f}s, "
+                                   f"exec={workflow_data['execution_time']:.1f}s")
 
         except Exception as e:
             logger.error(f"Error updating workflow status: {e}")
@@ -694,63 +694,56 @@ class WorkflowTracker:
 
     async def get_active_jobs_count(self) -> int:
         """
-        Get the count of currently running JOBS (not workflows).
+        Get the exact count of currently running JOBS.
 
-        Only counts jobs from workflows we are tracking in this test,
-        not other workflows that may be running in the repo.
+        Queries our in-progress runs and counts jobs with status="in_progress".
+        This reveals actual runner capacity through observation:
+        - 1 runner can only run 1 job at a time
+        - Max observed concurrent = actual runner count
 
-        Behavior depends on bulk_mode:
-        - bulk_mode=False: Accurate per-workflow job counting (more API calls)
-        - bulk_mode=True: Single API call, counts in-progress workflows
+        Called every ~30 seconds to sample concurrency.
+        At test end, samples give: max, average, median concurrency.
 
         Returns:
-            Number of active jobs (actual runner count)
+            Exact number of jobs currently executing on runners
         """
         try:
-            # Get run IDs of workflows we're tracking that are still in progress
-            tracked_run_ids = set()
-            for workflow in self.tracked_workflows.values():
-                run_id = workflow.get("run_id")
-                status = workflow.get("status")
-                if run_id and status in ["queued", "in_progress"]:
-                    tracked_run_ids.add(run_id)
+            # Get list of in_progress runs (1 API call)
+            runs_url = f"{self.base_url}/actions/runs"
+            params = {"status": "in_progress", "per_page": 100}
 
-            if not tracked_run_ids:
+            data, resp_status = await self._api_get_with_backoff(runs_url, params)
+            if not data or resp_status != 200:
                 return 0
 
-            # Check rate limit before making API calls
-            await self._check_rate_limit()
+            # Filter to only runs we're tracking
+            tracked_run_ids = set(
+                w.get("run_id") for w in self.tracked_workflows.values()
+                if w.get("run_id")
+            )
 
-            if self.bulk_mode:
-                # BULK MODE: Single API call - count in-progress runs from our tracked list
-                # For sequential multi-job workflows, each run = 1 active job at a time
-                runs_url = f"{self.base_url}/actions/runs"
-                params = {"status": "in_progress", "per_page": 100}
+            in_progress_runs = [
+                run for run in data.get("workflow_runs", [])
+                if run.get("id") in tracked_run_ids
+            ]
 
-                data, status = await self._api_get_with_backoff(runs_url, params)
-                if data and status == 200:
-                    runs = data.get("workflow_runs", [])
-                    # Count only runs that we're tracking
-                    active_count = sum(1 for run in runs if run.get("id") in tracked_run_ids)
-                    return active_count
+            if not in_progress_runs:
                 return 0
 
-            else:
-                # ACCURATE MODE: Per-workflow job counting (existing behavior)
-                total_active_jobs = 0
+            # Query jobs for each in-progress run, count running jobs
+            total_active_jobs = 0
 
-                for run_id in tracked_run_ids:
-                    jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
-                    data, status = await self._api_get_with_backoff(jobs_url)
+            for run in in_progress_runs:
+                run_id = run["id"]
+                jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+                jobs_data, jobs_status = await self._api_get_with_backoff(jobs_url)
 
-                    if data and status == 200:
-                        jobs = data.get("jobs", [])
-                        # Count jobs that are actually running (in_progress)
-                        for job in jobs:
-                            if job.get("status") == "in_progress":
-                                total_active_jobs += 1
+                if jobs_data and jobs_status == 200:
+                    for job in jobs_data.get("jobs", []):
+                        if job.get("status") == "in_progress":
+                            total_active_jobs += 1
 
-                return total_active_jobs
+            return total_active_jobs
 
         except Exception as e:
             logger.error(f"Error getting active jobs: {e}")

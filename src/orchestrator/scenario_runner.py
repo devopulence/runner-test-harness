@@ -24,6 +24,7 @@ from src.orchestrator.environment_switcher import EnvironmentConfig, TestProfile
 from src.orchestrator.workflow_tracker import WorkflowTracker
 from src.orchestrator.enhanced_metrics import EnhancedMetrics
 from src.orchestrator.test_run_tracker import TestRunTracker
+from src.orchestrator.post_hoc_analyzer import PostHocAnalyzer, PostHocAnalysis
 from main import trigger_workflow_dispatch
 
 # Configure logging
@@ -335,6 +336,70 @@ class ScenarioRunner:
             if self.test_run_tracker:
                 self.test_run_tracker.save_tracking_data()
 
+        # === POST-HOC ANALYSIS ===
+        # Now that all workflows are complete, do detailed analysis with accurate metrics
+        post_hoc_analysis = None
+        if self.test_run_tracker:
+            logger.info("=" * 60)
+            logger.info("Starting post-hoc analysis (accurate metrics from completed jobs)...")
+            logger.info("=" * 60)
+
+            try:
+                analyzer = PostHocAnalyzer(
+                    github_token=self.github_token,
+                    owner=self.environment.github_owner,
+                    repo=self.environment.github_repo
+                )
+
+                # Get run IDs we already tracked during the test
+                tracked_run_ids = [
+                    w["run_id"] for w in self.tracker.tracked_workflows.values()
+                    if w.get("run_id")
+                ]
+
+                post_hoc_analysis = await analyzer.analyze(
+                    job_name=self.test_run_tracker.test_run_id,
+                    created_after=self.metrics.start_time,
+                    delay_between_calls=0.2,  # Be nice to the API
+                    run_ids=tracked_run_ids  # Use already-matched run IDs
+                )
+
+                await analyzer.close()
+
+                # Log post-hoc results
+                if post_hoc_analysis.total_jobs > 0:
+                    ph_stats = post_hoc_analysis.calculate_statistics()
+                    logger.info(f"Post-hoc analysis complete:")
+                    logger.info(f"  Total runs: {post_hoc_analysis.total_runs}")
+                    logger.info(f"  Total jobs: {post_hoc_analysis.total_jobs}")
+                    logger.info(f"  Successful: {post_hoc_analysis.successful_jobs}")
+                    logger.info(f"  Failed: {post_hoc_analysis.failed_jobs}")
+                    logger.info(f"  Max concurrent jobs: {post_hoc_analysis.max_concurrent_jobs}")
+                    logger.info(f"  Avg concurrent jobs: {post_hoc_analysis.avg_concurrent_jobs:.1f}")
+                    logger.info(f"  Unique runners used: {len(post_hoc_analysis.runners_used)}")
+                    if post_hoc_analysis.runners_used:
+                        logger.info(f"  Runners: {post_hoc_analysis.runners_used}")
+
+                    # Update metrics with accurate post-hoc timing data
+                    # Note: Keep workflow counts separate from job counts
+                    if post_hoc_analysis.queue_times:
+                        self.metrics.queue_times = post_hoc_analysis.queue_times
+                    if post_hoc_analysis.execution_times:
+                        self.metrics.execution_times = post_hoc_analysis.execution_times
+
+                    # Replace real-time concurrent job estimates with accurate post-hoc data
+                    if post_hoc_analysis.max_concurrent_jobs > 0:
+                        # Post-hoc is accurate (from timestamp overlaps), real-time was estimated
+                        self.metrics.concurrent_jobs = [post_hoc_analysis.max_concurrent_jobs]
+                        if post_hoc_analysis.avg_concurrent_jobs > 0:
+                            # Add avg to give better stats (will show max=4, avg close to actual)
+                            self.metrics.concurrent_jobs.append(int(post_hoc_analysis.avg_concurrent_jobs))
+
+            except Exception as e:
+                logger.error(f"Post-hoc analysis failed: {e}")
+                import traceback
+                traceback.print_exc()
+
         # Calculate final statistics
         stats = self.metrics.calculate_statistics()
         logger.info(f"Test complete. Results: {json.dumps(stats, indent=2)}")
@@ -342,11 +407,17 @@ class ScenarioRunner:
         # Generate enhanced metrics report
         if self.enhanced_metrics.workflows:
             logger.info("Generating enhanced metrics report...")
-            # Pass observed runner count (max concurrent jobs seen)
-            if self.metrics.concurrent_jobs:
+            # Pass observed runner count from post-hoc analysis (most accurate)
+            if post_hoc_analysis and post_hoc_analysis.max_concurrent_jobs > 0:
+                self.enhanced_metrics.observed_runner_count = post_hoc_analysis.max_concurrent_jobs
+            elif self.metrics.concurrent_jobs:
                 self.enhanced_metrics.observed_runner_count = max(self.metrics.concurrent_jobs)
             report_path = self.enhanced_metrics.generate_report(profile_name, f"test_results/{self.environment.name}")
             logger.info(f"Enhanced report saved to: {report_path}")
+
+        # Save post-hoc analysis report
+        if post_hoc_analysis and post_hoc_analysis.total_jobs > 0:
+            self._save_post_hoc_report(post_hoc_analysis, profile_name)
 
         return self.metrics
 
@@ -653,6 +724,81 @@ class ScenarioRunner:
             json.dump(report, f, indent=2, default=str)
 
         logger.info(f"Report saved to: {report_file}")
+        return str(report_file)
+
+    def _save_post_hoc_report(self, analysis: PostHocAnalysis, profile_name: str) -> str:
+        """
+        Save detailed post-hoc analysis report.
+
+        Args:
+            analysis: PostHocAnalysis results
+            profile_name: Name of test profile
+
+        Returns:
+            Path to saved report
+        """
+        output_path = Path(f"test_results/{self.environment.name}")
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        report_file = output_path / f"post_hoc_{profile_name}_{timestamp}.json"
+
+        # Build detailed report
+        report = {
+            "test_run_id": analysis.test_run_id,
+            "profile": profile_name,
+            "environment": self.environment.name,
+            "summary": {
+                "total_runs": analysis.total_runs,
+                "total_jobs": analysis.total_jobs,
+                "successful_jobs": analysis.successful_jobs,
+                "failed_jobs": analysis.failed_jobs,
+                "success_rate": analysis.successful_jobs / analysis.total_jobs if analysis.total_jobs > 0 else 0
+            },
+            "concurrency": {
+                "max_concurrent_jobs": analysis.max_concurrent_jobs,
+                "avg_concurrent_jobs": round(analysis.avg_concurrent_jobs, 2)
+            },
+            "timing": {
+                "queue_time": {
+                    "min": min(analysis.queue_times) if analysis.queue_times else 0,
+                    "max": max(analysis.queue_times) if analysis.queue_times else 0,
+                    "mean": statistics.mean(analysis.queue_times) if analysis.queue_times else 0,
+                    "median": statistics.median(analysis.queue_times) if analysis.queue_times else 0
+                },
+                "execution_time": {
+                    "min": min(analysis.execution_times) if analysis.execution_times else 0,
+                    "max": max(analysis.execution_times) if analysis.execution_times else 0,
+                    "mean": statistics.mean(analysis.execution_times) if analysis.execution_times else 0,
+                    "median": statistics.median(analysis.execution_times) if analysis.execution_times else 0
+                }
+            },
+            "runners": {
+                "unique_count": len(analysis.runners_used),
+                "jobs_per_runner": analysis.runners_used,
+                "busy_time_per_runner": {k: round(v, 1) for k, v in analysis.runner_busy_time.items()}
+            },
+            "jobs": [
+                {
+                    "job_id": job.job_id,
+                    "job_name": job.job_name,
+                    "run_id": job.run_id,
+                    "status": job.status,
+                    "conclusion": job.conclusion,
+                    "runner_name": job.runner_name,
+                    "queue_time_sec": round(job.queue_time, 2) if job.queue_time else None,
+                    "execution_time_sec": round(job.execution_time, 2) if job.execution_time else None,
+                    "started_at": job.started_at.isoformat() if job.started_at else None,
+                    "completed_at": job.completed_at.isoformat() if job.completed_at else None
+                }
+                for job in analysis.jobs
+            ]
+        }
+
+        with open(report_file, 'w') as f:
+            json.dump(report, f, indent=2)
+
+        logger.info(f"Post-hoc analysis report saved to: {report_file}")
         return str(report_file)
 
 

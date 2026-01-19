@@ -62,10 +62,8 @@ class EnhancedMetrics:
         # Calculate capacity insights
         if self.execution_times:
             avg_execution = statistics.mean(self.execution_times)
-            # Use observed runner count if available, otherwise estimate from workflow count
-            observed_runners = getattr(self, 'observed_runner_count', None)
-            if not observed_runners:
-                observed_runners = 4  # fallback
+            # Use observed runner count - must come from actual measurement, no assumptions
+            observed_runners = getattr(self, 'observed_runner_count', None) or 0
             stats["capacity_insights"] = {
                 "avg_execution_minutes": avg_execution / 60,
                 "theoretical_throughput_per_runner_per_hour": 3600 / avg_execution if avg_execution > 0 else 0,
@@ -201,7 +199,7 @@ class EnhancedMetrics:
         if "capacity_insights" in stats:
             print("\n🎯 CAPACITY INSIGHTS:")
             ci = stats["capacity_insights"]
-            observed = ci.get('observed_runners', 4)
+            observed = ci.get('observed_runners', 0)  # No assumptions - must be measured
             print(f"  Observed Runners: {observed}")
             print(f"  Avg execution: {ci['avg_execution_minutes']:.1f} minutes")
             print(f"  Max throughput ({observed} runners): {ci['theoretical_throughput_total_per_hour']:.1f} jobs/hour")

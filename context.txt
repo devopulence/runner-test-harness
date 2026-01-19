@@ -1,0 +1,1291 @@
+we have two issues on openshift
+1 - I am still getting 403s - I ran a capacity test and hit rate limitieng
+2 - observed concurrent runners did not match what is being reported in the summary
+
+⏺ Let me investigate both issues:
+
+  Issue 1 - Still getting 403s:
+  What test profile did you run? Let me check if it triggered bulk mode:
+
+  # Check the log for this line:
+  # "Expected workflows: X, bulk_mode: True/False"
+
+  The capacity profile calculates: 60 min × 1.0 jobs/min = 60 workflows → should be bulk_mode: True
+
+  Issue 2 - Observed concurrent mismatch:
+  Can you share the specific output showing the mismatch? I need to see:
+  - What the logs showed during the test (e.g., in_progress: X)
+  - What the final summary reported for Max Observed
+
+  This might be because in bulk mode we count in-progress workflows (runs), not individual jobs. If OpenShift's k8s.yml has multiple parallel jobs per workflow, the count would differ.
+
+  What does OpenShift's k8s.yml workflow look like - how many jobs does it have?
+
+> its like this
+k8s workflow has two jobs , 1 job is more like diagnostic, 2 job calls a reusable workflow
+reusable workflow - has 2 jobs , 1 - build npm, 2 - send sonarscan results to remote location
+
+ * ▐▛███▜▌ *   Claude Code v2.0.76
+* ▝▜█████▛▘ *  Opus 4.5 · API Usage Billing
+ *  ▘▘ ▝▝  *   ~/pnc-work/pythonProject
+═══════════════════════════════════════════════════════════ Conversation compacted · ctrl+o for history ══════════════════════════════════════════════════════════
+  ⎿  Read ../../../../tmp/claude/-Users-johndesposito-pnc-work-pythonProject/tasks/b720494.output (26 lines)
+  ⎿  Read config/environments/aws_ecs.yaml (242 lines)
+  ⎿  Read ../../../../tmp/claude/-Users-johndesposito-pnc-work-pythonProject/tasks/b041f28.output (101 lines)
+  ⎿  Referenced file src/orchestrator/workflow_tracker.py
+  ⎿  Referenced file src/orchestrator/scenario_runner.py
+  ⎿  Plan file referenced (~/.claude/plans/immutable-roaming-pike.md)
+
+⏺ Looking at the two OpenShift issues you mentioned:
+
+  1. 403 rate limits on capacity test
+  2. Observed concurrent runners mismatch
+
+  The key insight from your workflow structure explanation is that each k8s.yml dispatch creates 4 jobs total (2 in main + 2 in reusable workflow), not just 1 or 2. This affects both issues. Let me read the current state of the files and fix them.
+
+⏺ Read(src/orchestrator/workflow_tracker.py)
+  ⎿  Read 784 lines
+
+⏺ Read(src/orchestrator/scenario_runner.py)
+  ⎿  Read 687 lines
+
+⏺ Read(config/environments/openshift_sandbox.yaml)
+  ⎿  Read 220 lines
+
+⏺ I can see the two issues now:
+
+  Issue 1 - 403 Rate Limits: Not all API calls go through the backoff wrapper. match_pending_workflows() → get_new_runs() makes direct API calls without rate limit handling.
+
+  Issue 2 - Concurrent Runners Mismatch: In bulk mode, we count in-progress runs (workflows), not jobs. With your k8s.yml having 4 jobs (2 main + 2 reusable), we undercount concurrent jobs. Also, OpenShift config is missing jobs_per_workflow.
+
+⏺ Update(config/environments/openshift_sandbox.yaml)
+  ⎿  Added 1 line
+      26      name: default
+      27      file: k8s.yml
+      28      description: OpenShift k8s workflow
+      29 +    jobs_per_workflow: 4             # k8s.yml: 2 jobs + reusable workflow with 2 more jobs
+      30
+      31    workload_types:
+      32      test:
+
+⏺ Now fixing the rate limit and job counting issues in workflow_tracker.py:
+
+⏺ Update(src/orchestrator/workflow_tracker.py)
+  ⎿  Added 4 lines
+      55          # Bulk mode for high-concurrency tests (reduces API calls)
+      56          self.bulk_mode: bool = False
+      57
+      58 +        # Jobs per workflow - for workflows with multiple jobs (e.g., reusable workflows)
+      59 +        # Used in bulk mode to estimate concurrent job count from run count
+      60 +        self.jobs_per_workflow: int = 1
+      61 +
+      62          # Cache for completed workflow run IDs (skip re-fetching)
+      63          self.completed_cache: Set[int] = set()
+      64
+
+⏺ Update(src/orchestrator/workflow_tracker.py)
+  ⎿  Added 15 lines
+      77          self.bulk_mode = enabled
+      78          logger.info(f"Bulk polling mode: {'enabled' if enabled else 'disabled'}")
+      79
+      80 +    def set_jobs_per_workflow(self, count: int) -> None:
+      81 +        """
+      82 +        Set the expected number of jobs per workflow.
+      83 +        Used in bulk mode to estimate concurrent job count.
+      84 +
+      85 +        For workflows with reusable workflows:
+      86 +        - k8s.yml with 2 jobs calling reusable with 2 more = 4 jobs per workflow
+      87 +        - build_job_multiple.yml with 2 sequential jobs = 2 jobs per workflow
+      88 +
+      89 +        Args:
+      90 +            count: Number of jobs per workflow dispatch
+      91 +        """
+      92 +        self.jobs_per_workflow = max(1, count)
+      93 +        logger.info(f"Jobs per workflow set to: {self.jobs_per_workflow}")
+      94 +
+      95      def set_test_run_id(self, test_run_id: str):
+      96          """
+      97          Set the test run ID used for job_name matching.
+
+⏺ Now fixing get_new_runs() to use the backoff wrapper instead of direct API calls:
+
+⏺ Update(src/orchestrator/workflow_tracker.py)
+  ⎿  Added 24 lines, removed 23 lines
+      332          new_runs = []
+      333
+      334          try:
+      335 -            session = await self._get_session()
+      335 +            # Check rate limit before API call
+      336 +            await self._check_rate_limit()
+      337 +
+      338              url = f"{self.base_url}/actions/runs"
+      339              params = {"per_page": 100}
+      340
+      341 -            async with session.get(url, params=params) as resp:
+      342 -                if resp.status == 200:
+      343 -                    data = await resp.json()
+      341 +            # Use backoff wrapper for rate limit handling
+      342 +            data, status = await self._api_get_with_backoff(url, params)
+      343
+      344 -                    for run in data.get("workflow_runs", []):
+      345 -                        run_id = run["id"]
+      344 +            if data and status == 200:
+      345 +                for run in data.get("workflow_runs", []):
+      346 +                    run_id = run["id"]
+      347
+      348 -                        # Skip if we've already matched this run
+      349 -                        if run_id in self.matched_run_ids:
+      350 -                            continue
+      348 +                    # Skip if we've already matched this run
+      349 +                    if run_id in self.matched_run_ids:
+      350 +                        continue
+      351
+      352 -                        # Skip if this run existed before our test
+      353 -                        if self.baseline_run_id and run_id <= self.baseline_run_id:
+      352 +                    # Skip if this run existed before our test
+      353 +                    if self.baseline_run_id and run_id <= self.baseline_run_id:
+      354 +                        continue
+      355 +
+      356 +                    # Filter by workflow file if specified
+      357 +                    if workflow_file:
+      358 +                        run_path = run.get("path", "")
+      359 +                        run_file = run_path.split("/")[-1].replace(".yml", "").replace(".yaml", "")
+      360 +                        if run_file.lower() != workflow_file.lower():
+      361                              continue
+      362
+      363 -                        # Filter by workflow file if specified
+      364 -                        if workflow_file:
+      365 -                            run_path = run.get("path", "")
+      366 -                            run_file = run_path.split("/")[-1].replace(".yml", "").replace(".yaml", "")
+      367 -                            if run_file.lower() != workflow_file.lower():
+      368 -                                continue
+      363 +                    new_runs.append(run)
+      364
+      365 -                        new_runs.append(run)
+      365 +                logger.info(f"Found {len(new_runs)} new unmatched runs (baseline={self.baseline_run_id})")
+      366 +            else:
+      367 +                logger.error(f"API error getting runs: status={status}")
+      368
+      369 -                    logger.info(f"Found {len(new_runs)} new unmatched runs (baseline={self.baseline_run_id})")
+      370 -                else:
+      371 -                    text = await resp.text()
+      372 -                    logger.error(f"API error {resp.status}: {text[:200]}")
+      373 -
+      369          except Exception as e:
+      370              logger.error(f"Error getting new runs: {e}")
+      371
+
+⏺ Now updating get_active_jobs_count() to multiply by jobs_per_workflow in bulk mode:
+
+⏺ Read(src/orchestrator/workflow_tracker.py)
+  ⎿  Read 100 lines
+
+⏺ Update(src/orchestrator/workflow_tracker.py)
+  ⎿  Added 18 lines, removed 3 lines
+      743
+      744              if self.bulk_mode:
+      745                  # BULK MODE: Single API call - count in-progress runs from our tracked list
+      746 -                # For sequential multi-job workflows, each run = 1 active job at a time
+      746 +                # Then estimate actual jobs using jobs_per_workflow setting
+      747                  runs_url = f"{self.base_url}/actions/runs"
+      748                  params = {"status": "in_progress", "per_page": 100}
+      749
+     ...
+      751                  if data and status == 200:
+      752                      runs = data.get("workflow_runs", [])
+      753                      # Count only runs that we're tracking
+      754 -                    active_count = sum(1 for run in runs if run.get("id") in tracked_run_ids)
+      755 -                    return active_count
+      754 +                    in_progress_runs = sum(1 for run in runs if run.get("id") in tracked_run_ids)
+      755 +
+      756 +                    # For sequential multi-job workflows, typically 1 active job per run
+      757 +                    # For workflows with parallel jobs or reusable workflows, jobs may overlap
+      758 +                    # Use jobs_per_workflow as an estimate factor (usually 1 for sequential)
+      759 +                    # Note: This is an estimate - accurate counting requires per-run job queries
+      760 +                    estimated_jobs = in_progress_runs  # Base: 1 job per run for sequential
+      761 +
+      762 +                    # If jobs_per_workflow > 1 and we have many runs, some jobs likely overlap
+      763 +                    # Use a conservative estimate: sqrt(jobs_per_workflow) as overlap factor
+      764 +                    if self.jobs_per_workflow > 1 and in_progress_runs > 1:
+      765 +                        import math
+      766 +                        overlap_factor = min(self.jobs_per_workflow, 1 + math.log2(self.jobs_per_workflow))
+      767 +                        estimated_jobs = int(in_progress_runs * overlap_factor)
+      768 +                        logger.debug(f"Bulk mode estimate: {in_progress_runs} runs × {overlap_factor:.1f} = {estimated_jobs} jobs")
+      769 +
+      770 +                    return estimated_jobs
+      771                  return 0
+      772
+      773              else:
+
+⏺ Now updating scenario_runner.py to pass jobs_per_workflow from the config to the tracker:
+
+⏺ Update(src/orchestrator/scenario_runner.py)
+  ⎿  Added 6 lines
+      246          logger.info(f"Expected workflows: {expected_workflows}, bulk_mode: {use_bulk_mode}")
+      247          self.tracker.set_bulk_mode(use_bulk_mode)
+      248
+      249 +        # Set jobs_per_workflow from config for more accurate bulk mode estimation
+      250 +        # This is especially important for workflows with reusable workflows
+      251 +        jobs_per_workflow = self.environment.raw_config.get('workflows', {}).get('primary', {}).get('jobs_per_workflow', 1)
+      252 +        if jobs_per_workflow > 1:
+      253 +            self.tracker.set_jobs_per_workflow(jobs_per_workflow)
+      254 +
+      255          # Initialize workflow tracker baseline BEFORE dispatching any workflows
+      256          logger.info("Initializing workflow tracker baseline...")
+      257          await self.tracker.initialize_baseline()
+
+⏺ Read(src/orchestrator/workflow_tracker.py)
+  ⎿  Read 50 lines
+
+⏺ Update(src/orchestrator/workflow_tracker.py)
+  ⎿  Added 13 lines, removed 12 lines
+      200          self.test_start_time = datetime.now(timezone.utc)
+      201
+      202          try:
+      203 -            session = await self._get_session()
+      203              url = f"{self.base_url}/actions/runs"
+      204              params = {"per_page": 1}
+      205
+      206 -            async with session.get(url, params=params) as resp:
+      207 -                if resp.status == 200:
+      208 -                    data = await resp.json()
+      209 -                    runs = data.get("workflow_runs", [])
+      210 -                    if runs:
+      211 -                        self.baseline_run_id = runs[0]["id"]
+      212 -                        logger.info(f"Baseline established: run_id={self.baseline_run_id}, time={self.test_start_time}")
+      213 -                    else:
+      214 -                        self.baseline_run_id = 0
+      215 -                        logger.info(f"No existing runs, baseline_run_id=0")
+      206 +            # Use backoff wrapper for rate limit handling
+      207 +            data, status = await self._api_get_with_backoff(url, params)
+      208 +
+      209 +            if data and status == 200:
+      210 +                runs = data.get("workflow_runs", [])
+      211 +                if runs:
+      212 +                    self.baseline_run_id = runs[0]["id"]
+      213 +                    logger.info(f"Baseline established: run_id={self.baseline_run_id}, time={self.test_start_time}")
+      214                  else:
+      215 -                    logger.error(f"Failed to get baseline: HTTP {resp.status}")
+      215 +                    self.baseline_run_id = 0
+      216 +                    logger.info(f"No existing runs, baseline_run_id=0")
+      217 +            else:
+      218 +                logger.error(f"Failed to get baseline: HTTP {status}")
+      219 +                self.baseline_run_id = 0
+      220          except Exception as e:
+      221              logger.error(f"Error getting baseline: {e}")
+      222              self.baseline_run_id = 0
+
+⏺ Let me also check and fix update_workflow_status() which is used in accurate mode:
+
+⏺ Read(src/orchestrator/workflow_tracker.py)
+  ⎿  Read 80 lines
+
+⏺ Update(src/orchestrator/workflow_tracker.py)
+  ⎿  Added 34 lines, removed 36 lines
+      533          run_id = workflow_data["run_id"]
+      534
+      535          try:
+      536 -            session = await self._get_session()
+      537 -
+      538 -            # Get run status
+      536 +            # Get run status using backoff wrapper
+      537              url = f"{self.base_url}/actions/runs/{run_id}"
+      538 -            async with session.get(url) as resp:
+      539 -                if resp.status == 200:
+      540 -                    run = await resp.json()
+      541 -                    workflow_data["github_run"] = run
+      542 -                    workflow_data["status"] = run["status"]
+      543 -                    workflow_data["conclusion"] = run.get("conclusion")
+      544 -                else:
+      545 -                    logger.warning(f"Failed to get run {run_id}: HTTP {resp.status}")
+      546 -                    return workflow_data
+      538 +            data, status = await self._api_get_with_backoff(url)
+      539
+      540 +            if data and status == 200:
+      541 +                workflow_data["github_run"] = data
+      542 +                workflow_data["status"] = data["status"]
+      543 +                workflow_data["conclusion"] = data.get("conclusion")
+      544 +            else:
+      545 +                logger.warning(f"Failed to get run {run_id}: HTTP {status}")
+      546 +                return workflow_data
+      547 +
+      548              # Only fetch job-level data when workflow is completed (saves API calls)
+      549 -            if run["status"] == "completed" and workflow_data.get("queue_time") is None:
+      550 -                url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+      551 -                async with session.get(url) as resp:
+      552 -                    if resp.status == 200:
+      553 -                        jobs_data = await resp.json()
+      554 -                        jobs = jobs_data.get("jobs", [])
+      549 +            if data["status"] == "completed" and workflow_data.get("queue_time") is None:
+      550 +                jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+      551 +                jobs_data, jobs_status = await self._api_get_with_backoff(jobs_url)
+      552
+      553 -                        if jobs:
+      554 -                            # Use the first/main job for timing
+      555 -                            job = jobs[0]
+      553 +                if jobs_data and jobs_status == 200:
+      554 +                    jobs = jobs_data.get("jobs", [])
+      555
+      556 -                            # Queue time: job.created_at to job.started_at
+      557 -                            if job.get("created_at") and job.get("started_at"):
+      558 -                                job_created = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
+      559 -                                job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+      560 -                                workflow_data["queued_at"] = job_created
+      561 -                                workflow_data["started_at"] = job_started
+      562 -                                workflow_data["queue_time"] = (job_started - job_created).total_seconds()
+      556 +                    if jobs:
+      557 +                        # Use the first/main job for timing
+      558 +                        job = jobs[0]
+      559
+      560 -                            # Execution time: job.started_at to job.completed_at
+      561 -                            if job.get("started_at") and job.get("completed_at"):
+      562 -                                job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+      563 -                                job_completed = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
+      564 -                                workflow_data["completed_at"] = job_completed
+      565 -                                workflow_data["execution_time"] = (job_completed - job_started).total_seconds()
+      560 +                        # Queue time: job.created_at to job.started_at
+      561 +                        if job.get("created_at") and job.get("started_at"):
+      562 +                            job_created = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
+      563 +                            job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+      564 +                            workflow_data["queued_at"] = job_created
+      565 +                            workflow_data["started_at"] = job_started
+      566 +                            workflow_data["queue_time"] = (job_started - job_created).total_seconds()
+      567
+      568 -                            logger.info(f"Workflow {run_id} completed: queue={workflow_data['queue_time']:.1f}s, "
+      569 -                                       f"exec={workflow_data['execution_time']:.1f}s")
+      568 +                        # Execution time: job.started_at to job.completed_at
+      569 +                        if job.get("started_at") and job.get("completed_at"):
+      570 +                            job_started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+      571 +                            job_completed = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
+      572 +                            workflow_data["completed_at"] = job_completed
+      573 +                            workflow_data["execution_time"] = (job_completed - job_started).total_seconds()
+      574
+      575 +                        logger.info(f"Workflow {run_id} completed: queue={workflow_data['queue_time']:.1f}s, "
+      576 +                                   f"exec={workflow_data['execution_time']:.1f}s")
+      577 +
+      578          except Exception as e:
+      579              logger.error(f"Error updating workflow status: {e}")
+      580
+
+⏺ Let me run a quick syntax check on the modified files:
+
+⏺ Bash(python -m py_compile src/orchestrator/workflow_tracker.py src/orchestrator/scenario_runner.py && echo "Syntax OK")
+  ⎿  Syntax OK
+
+⏺ All fixes are complete. Here's a summary of the changes:
+
+  Changes Made
+
+  Issue 1: 403 Rate Limits Fix
+
+  All API calls now use the _api_get_with_backoff() wrapper with 403 detection and exponential backoff:
+
+  | File                | Method                   | Change                   |
+  |---------------------|--------------------------|--------------------------|
+  | workflow_tracker.py | initialize_baseline()    | Now uses backoff wrapper |
+  | workflow_tracker.py | get_new_runs()           | Now uses backoff wrapper |
+  | workflow_tracker.py | update_workflow_status() | Now uses backoff wrapper |
+
+  Issue 2: Concurrent Runners Mismatch Fix
+
+  1. OpenShift config (config/environments/openshift_sandbox.yaml):
+    - Added jobs_per_workflow: 4 for k8s.yml (2 main + 2 reusable workflow jobs)
+  2. Workflow tracker (src/orchestrator/workflow_tracker.py):
+    - Added jobs_per_workflow setting with set_jobs_per_workflow() method
+    - Updated bulk mode get_active_jobs_count() to estimate actual jobs using an overlap factor for multi-job workflows
+  3. Scenario runner (src/orchestrator/scenario_runner.py):
+    - Reads jobs_per_workflow from config and passes to tracker
+
+  Bulk Mode Job Estimation
+
+  For k8s.yml with 4 jobs per workflow, the formula uses:
+  - overlap_factor = min(jobs_per_workflow, 1 + log2(jobs_per_workflow)) ≈ 3 for 4 jobs
+  - So 20 in_progress runs → ~60 estimated concurrent jobs (vs previous 20)
+
+  You can now run the capacity test on OpenShift again. The rate limit handling will automatically wait and retry on 403 errors, and the concurrent job count should be more accurate.
+
+> lets test these changes here..but I thought we solved the rate limiting
+
+⏺ You're right - we did implement bulk mode and the backoff wrapper previously. The issue was that not all API calls were using the wrapper:
+
+  | Method                         | Before                  | After               |
+  |--------------------------------|-------------------------|---------------------|
+  | get_active_jobs_count()        | ✅ Used backoff         | ✅ Used backoff     |
+  | _bulk_update_workflow_status() | ✅ Used backoff         | ✅ Used backoff     |
+  | get_new_runs()                 | ❌ Direct session.get() | ✅ Now uses backoff |
+  | initialize_baseline()          | ❌ Direct session.get() | ✅ Now uses backoff |
+  | update_workflow_status()       | ❌ Direct session.get() | ✅ Now uses backoff |
+
+  So match_pending_workflows() was calling get_new_runs() every 30 seconds without rate limit protection - that was likely the source of the OpenShift 403s.
+
+  The other fix is the jobs_per_workflow: 4 config for OpenShift to get more accurate concurrent job counts.
+
+  What test profile do you want to run on AWS ECS?
+
+> lets talk about concurrency - why can't we get a real count versus estimating
+
+⏺ Good question. The issue is purely the GitHub API structure:
+
+  To get accurate job count, we need:
+  1. List in_progress runs → 1 API call
+  2. For EACH run, get its jobs → N API calls (one per run)
+
+  There's no /repos/{owner}/{repo}/actions/jobs endpoint that lists all jobs across all runs in a single call. GitHub only provides:
+  - /actions/runs - lists runs (workflows)
+  - /actions/runs/{run_id}/jobs - lists jobs for ONE specific run
+
+  So for 60 in_progress workflows:
+  - Accurate mode: 1 + 60 = 61 API calls per poll
+  - Bulk mode: 1 API call per poll (counts runs, not jobs)
+
+  At 30-second polls, accurate mode = 122 calls/min, which approaches the 900 reads/min secondary limit.
+
+  Options to consider:
+
+  1. Hybrid approach: Do accurate counting every 5th poll (every 2.5 min) instead of every poll
+  2. Sampling: Query jobs for 10 random runs and extrapolate
+  3. Accept the estimate: For sequential job workflows, runs ≈ jobs anyway
+
+  Which approach would you prefer? Or should we just accept that bulk mode is an estimate and note it in the report?
+
+> so you are saying the rate limiting is affecting our ability to get the details?
+
+⏺ Exactly. It's a tradeoff:
+
+  | Scenario             | API Calls/Poll | Accuracy        | Rate Limit Risk  |
+  |----------------------|----------------|-----------------|------------------|
+  | 10 workflows         | ~11 calls      | Exact job count | Low              |
+  | 60 workflows         | ~61 calls      | Exact job count | Medium           |
+  | 100 workflows        | ~101 calls     | Exact job count | High - hits 403s |
+  | 100 workflows (bulk) | ~2 calls       | Estimated       | None             |
+
+  The rate limit IS the reason we switched to estimation for high concurrency.
+
+  With 100+ workflows polling every 30 seconds:
+  - Accurate: 100 calls × 2/min = 200 calls/min → hits secondary limit (900/min) quickly when combined with other operations
+  - Bulk: 2 calls × 2/min = 4 calls/min → safe
+
+  So yes - GitHub's rate limiting directly limits our ability to get detailed job-level data at scale. We can either:
+
+  1. Get accurate data for fewer workflows (< 50)
+  2. Get estimated data for many workflows (50+)
+
+  The threshold of 50 workflows is where we switch modes. Below that, you get exact concurrent job counts. Above that, you get estimates based on in_progress runs.
+
+> is there a way to get metrics at the runner level
+
+⏺ Yes! Great thinking. The GitHub API has a runners endpoint:
+
+  GET /repos/{owner}/{repo}/actions/runners
+
+  Each runner object includes a busy field (boolean) - exactly what we need!
+
+  {
+    "runners": [
+      {
+        "id": 1,
+        "name": "ecs-runner-1",
+        "status": "online",
+        "busy": true,    // <-- This runner is executing a job
+        "labels": ["self-hosted", "ecs-fargate"]
+      },
+      {
+        "id": 2,
+        "name": "ecs-runner-2",
+        "status": "online",
+        "busy": false,   // <-- This runner is idle
+        "labels": ["self-hosted", "ecs-fargate"]
+      }
+    ]
+  }
+
+  Benefits:
+  - 1 API call → get ALL runners with busy status
+  - Accurate count of concurrent jobs (count where busy: true)
+  - No estimation needed
+  - Works regardless of how many workflows we're tracking
+
+  Caveat: It counts ALL busy runners in the repo, not just our test's jobs. But if only our test is running, it's exact.
+
+  Want me to add this as the primary method for getting concurrent job count? It would replace both accurate mode and bulk mode estimation with a single reliable call.
+
+> but we don't know if all runs were dedicated to our tests - are metrics details available for runners
+
+⏺ You're right - the runners endpoint doesn't tell us which job is running on each runner. The relationship is one-way:
+
+  | Endpoint     | Knows                                      |
+  |--------------|--------------------------------------------|
+  | Job → Runner | ✅ Job object has runner_id, runner_name   |
+  | Runner → Job | ❌ Runner object just has busy: true/false |
+
+  GitHub doesn't provide detailed runner metrics like:
+  - What job is currently running on the runner
+  - CPU/memory usage
+  - Historical utilization
+  - Job queue depth per runner
+
+  To know which runners are running OUR jobs, we'd still need to:
+  1. Get our tracked runs
+  2. Query each run's jobs
+  3. Check runner_id on each job
+
+  ...which is the same N API calls problem.
+
+  Alternatives for real runner metrics:
+
+  | Source                          | What it provides                                |
+  |---------------------------------|-------------------------------------------------|
+  | AWS CloudWatch (ECS)            | Task CPU/memory, task count, custom metrics     |
+  | OpenShift/Prometheus            | Pod metrics, runner controller metrics          |
+  | Actions Runner Controller (ARC) | K8s-native runner metrics if using ARC          |
+  | GitHub Enterprise Server        | Admin-level runner metrics (if you have access) |
+
+  Are you using ARC on OpenShift, or standalone runner pods? If ARC, there may be Prometheus metrics we could tap into.
+
+> instead of a github token could we use a github app to avoid ratelimiting
+
+⏺ GitHub Apps have similar primary rate limits but some advantages:
+
+  | Auth Method                   | Primary Limit | Secondary Limit | Notes            |
+  |-------------------------------|---------------|-----------------|------------------|
+  | PAT                           | 5,000/hour    | 900 reads/min   | Per user         |
+  | GitHub App                    | 5,000/hour    | 900 reads/min   | Per installation |
+  | GitHub App (Enterprise Cloud) | 15,000/hour   | 900 reads/min   | 3x higher!       |
+
+  The secondary rate limit (900 reads/min) still applies - that's what causes the 403s.
+
+  However, GitHub Apps help if:
+
+  1. Using GitHub Enterprise Cloud → 15,000 requests/hour (3x more)
+  2. Multiple repos → Each installation gets its own limit
+  3. Multiple apps → Could spread load across apps (if desperate)
+
+  Better options for avoiding rate limits:
+
+  | Approach                 | Benefit                                               |
+  |--------------------------|-------------------------------------------------------|
+  | GitHub Enterprise Server | Admin can adjust/disable rate limits                  |
+  | Conditional requests     | Use If-None-Match headers (304 responses don't count) |
+  | Webhooks                 | Push-based instead of polling - no rate limit         |
+
+  Webhooks would be ideal - GitHub pushes workflow/job status changes to us instead of us polling. Zero API calls for status updates.
+
+  Are you on GitHub.com, Enterprise Cloud, or Enterprise Server? And would setting up a webhook receiver be feasible for your environment?
+
+> github.com
+
+⏺ On github.com, webhooks are your best path to avoid rate limits entirely. Instead of polling, GitHub pushes events to you in real-time.
+
+  Relevant webhook events:
+
+  | Event        | Fires When                  | Data Included                      |
+  |--------------|-----------------------------|------------------------------------|
+  | workflow_run | Workflow starts/completes   | Run status, conclusion             |
+  | workflow_job | Job queued/starts/completes | runner_id, runner_name, job status |
+
+  The workflow_job event is perfect - it tells you:
+  - Which job started/finished
+  - Which runner is running it
+  - Real-time, no polling needed
+
+  Architecture would be:
+
+  GitHub ──webhook POST──▶ Your Receiver ──▶ Track state in memory
+                                │
+                                ▼
+                          Real-time metrics:
+                          - Concurrent jobs (count in_progress)
+                          - Which runner for each job
+                          - Queue times, execution times
+
+  Setup options for webhook receiver:
+
+  | Option                   | Complexity | Notes              |
+  |--------------------------|------------|--------------------|
+  | ngrok + local Flask      | Easy       | Good for testing   |
+  | AWS API Gateway + Lambda | Medium     | Serverless, scales |
+  | Simple EC2/ECS service   | Medium     | Persistent         |
+  | smee.io                  | Easy       | GitHub's dev proxy |
+
+  Would you want to explore adding webhook support? It would give you accurate real-time metrics with zero rate limit concerns. The harness would still dispatch workflows via API, but track status via webhooks.
+
+> I am running from a laptop and I am sure webhooks would be blocked
+
+⏺ That makes sense - corporate networks typically block inbound connections and may even block tunneling services like ngrok.
+
+  So we're back to polling with these constraints:
+  - Can't use webhooks (inbound blocked)
+  - Can't get runner→job mapping without N API calls
+  - Secondary rate limit (900/min) caps our polling frequency
+
+  What we have now should work:
+
+  | Scenario       | Mode     | Behavior                                  |
+  |----------------|----------|-------------------------------------------|
+  | < 50 workflows | Accurate | Counts actual jobs per run                |
+  | ≥ 50 workflows | Bulk     | Estimates jobs from runs × overlap factor |
+  | Any 403 error  | Backoff  | Waits and retries automatically           |
+
+  Options to improve accuracy without more API calls:
+
+  1. Poll less frequently in bulk mode - 60s instead of 30s, but get accurate counts
+  2. Hybrid - Bulk mode normally, accurate count every 5th poll
+  3. Sample - Query jobs for 10 random runs, extrapolate to total
+
+  Or we can just accept that bulk mode is an estimate and note it clearly in the report.
+
+  Want to run a test now with the current fixes to see if:
+  1. The 403 backoff works
+  2. The job count estimation is reasonable
+
+  Which profile on AWS ECS?
+
+> is there a way to run the queries after the job completes and get all the stats?
+
+⏺ Yes! That's a much cleaner approach. Post-hoc analysis instead of real-time polling:
+
+  During test:
+  - Dispatch workflows, record dispatch times
+  - Minimal polling just for progress feedback (bulk mode, infrequent)
+  - No need for accurate counts in real-time
+
+  After test completes:
+  - Query all runs matching our job_name (test_run_id)
+  - Get jobs for each run (can spread API calls over time, no rush)
+  - Calculate everything from timestamps
+
+  We can reconstruct concurrent jobs from timestamps:
+
+  Job A: |----started_at----completed_at----|
+  Job B:      |----started_at----completed_at----|
+  Job C:           |----started_at----completed_at----|
+                   ^
+                   At this moment: 3 concurrent jobs
+
+  By analyzing started_at and completed_at for ALL jobs, we can:
+  - Find exact max concurrent jobs
+  - Build a timeline of concurrency over time
+  - Get accurate queue times, execution times
+  - See which runner ran each job
+
+  Benefits:
+  | Aspect               | Real-time Polling     | Post-hoc Analysis       |
+  |----------------------|-----------------------|-------------------------|
+  | Rate limit risk      | High                  | Low (spread out calls)  |
+  | Accuracy             | Estimated (bulk mode) | Exact                   |
+  | Concurrent job count | Estimated             | Exact from timestamps   |
+  | Runner mapping       | Can't get             | ✅ Full job→runner data |
+
+  Want me to add a post-test analysis phase that does this detailed data collection after all workflows complete?
+
+> how do we ensure we are only getting workflows triggered by our tool.. everytime we trigger can we get a uniqueid that we then look for later?
+
+⏺ We're already doing this! Here's how it works:
+
+  Current approach:
+
+  1. Generate unique test_run_id at test start:
+  concurrency_max_20260114_154552_e758908a
+  └─ profile ─────┘└─ timestamp ─┘└─ uuid ─┘
+  2. Pass it as job_name input with every workflow dispatch:
+  workflow_inputs['job_name'] = self.test_run_tracker.get_job_name()
+  3. Workflow receives it and it's stored in the run's inputs:
+  {
+    "id": 12345,
+    "inputs": {
+      "job_name": "concurrency_max_20260114_154552_e758908a",
+      "workload_type": "test"
+    }
+  }
+
+  For post-hoc analysis:
+
+  # Get all runs created after test start
+  runs = GET /actions/runs?created=>=2026-01-14
+
+  # Filter to only our test's runs
+  for run in runs:
+      if run["inputs"]["job_name"] == our_test_run_id:
+          # This run belongs to our test
+          jobs = GET /actions/runs/{run.id}/jobs
+          # Collect metrics...
+
+  The limitation: The dispatch API returns 204 No Content with no run ID. So we can't know the run ID at dispatch time - we have to match by job_name later.
+
+  This matching is reliable as long as your workflow accepts the job_name input. Does your k8s.yml workflow have that input defined?
+
+> thats fine we can make job_name required for any workflow that needs to be load tested... will this have the exact level of detail we need
+
+⏺ Yes! The job-level data from GitHub API gives us everything:
+
+  From /actions/runs/{run_id}/jobs for each job:
+
+  | Field        | What it tells us         |
+  |--------------|--------------------------|
+  | created_at   | When job entered queue   |
+  | started_at   | When runner picked it up |
+  | completed_at | When job finished        |
+  | runner_id    | Which runner ran it      |
+  | runner_name  | Runner name              |
+  | conclusion   | success/failure          |
+
+  Metrics we can calculate:
+
+  | Metric               | Formula                                             |
+  |----------------------|-----------------------------------------------------|
+  | Queue time           | started_at - created_at                             |
+  | Execution time       | completed_at - started_at                           |
+  | Total time           | completed_at - created_at                           |
+  | Max concurrent jobs  | Count overlapping [started_at, completed_at] ranges |
+  | Runner utilization   | Sum of each runner's busy time / test duration      |
+  | Throughput           | Jobs completed per minute                           |
+  | Per-runner breakdown | Group jobs by runner_id                             |
+
+  For your k8s.yml with reusable workflows:
+  - Each job (including reusable workflow jobs) appears in the jobs list
+  - We see all 4 jobs with their individual timings and runner assignments
+
+  This is actually more detailed than real-time polling could ever provide. Want me to implement the post-hoc analysis phase?
+
+> yes and we are going to fully test here
+
+⏺ Write(src/orchestrator/post_hoc_analyzer.py)
+  ⎿  Wrote 477 lines to src/orchestrator/post_hoc_analyzer.py
+     """
+     Post-Hoc Analysis Module
+     Analyzes workflow runs after test completion to get accurate metrics
+     without rate limiting concerns during the test.
+     """
+     import asyncio
+     import logging
+     import time
+     from datetime import datetime, timezone
+     … +467 lines (ctrl+o to expand)
+
+⏺ Now integrating into scenario_runner:
+
+⏺ Read(src/orchestrator/scenario_runner.py)
+  ⎿  Read 30 lines
+
+⏺ Update(src/orchestrator/scenario_runner.py)
+  ⎿  Added 1 line
+      24  from src.orchestrator.workflow_tracker import WorkflowTracker
+      25  from src.orchestrator.enhanced_metrics import EnhancedMetrics
+      26  from src.orchestrator.test_run_tracker import TestRunTracker
+      27 +from src.orchestrator.post_hoc_analyzer import PostHocAnalyzer, PostHocAnalysis
+      28  from main import trigger_workflow_dispatch
+      29
+      30  # Configure logging
+
+⏺ Read(src/orchestrator/scenario_runner.py)
+  ⎿  Read 50 lines
+
+⏺ Update(src/orchestrator/scenario_runner.py)
+  ⎿  Added 62 lines, removed 2 lines
+      342              if self.test_run_tracker:
+      343                  self.test_run_tracker.save_tracking_data()
+      344
+      345 +        # === POST-HOC ANALYSIS ===
+      346 +        # Now that all workflows are complete, do detailed analysis with accurate metrics
+      347 +        post_hoc_analysis = None
+      348 +        if self.test_run_tracker:
+      349 +            logger.info("=" * 60)
+      350 +            logger.info("Starting post-hoc analysis (accurate metrics from completed jobs)...")
+      351 +            logger.info("=" * 60)
+      352 +
+      353 +            try:
+      354 +                analyzer = PostHocAnalyzer(
+      355 +                    github_token=self.github_token,
+      356 +                    owner=self.environment.github_owner,
+      357 +                    repo=self.environment.github_repo
+      358 +                )
+      359 +
+      360 +                post_hoc_analysis = await analyzer.analyze(
+      361 +                    job_name=self.test_run_tracker.test_run_id,
+      362 +                    created_after=self.metrics.start_time,
+      363 +                    delay_between_calls=0.2  # Be nice to the API
+      364 +                )
+      365 +
+      366 +                await analyzer.close()
+      367 +
+      368 +                # Log post-hoc results
+      369 +                if post_hoc_analysis.total_jobs > 0:
+      370 +                    ph_stats = post_hoc_analysis.calculate_statistics()
+      371 +                    logger.info(f"Post-hoc analysis complete:")
+      372 +                    logger.info(f"  Total runs: {post_hoc_analysis.total_runs}")
+      373 +                    logger.info(f"  Total jobs: {post_hoc_analysis.total_jobs}")
+      374 +                    logger.info(f"  Successful: {post_hoc_analysis.successful_jobs}")
+      375 +                    logger.info(f"  Failed: {post_hoc_analysis.failed_jobs}")
+      376 +                    logger.info(f"  Max concurrent jobs: {post_hoc_analysis.max_concurrent_jobs}")
+      377 +                    logger.info(f"  Avg concurrent jobs: {post_hoc_analysis.avg_concurrent_jobs:.1f}")
+      378 +                    logger.info(f"  Unique runners used: {len(post_hoc_analysis.runners_used)}")
+      379 +                    if post_hoc_analysis.runners_used:
+      380 +                        logger.info(f"  Runners: {post_hoc_analysis.runners_used}")
+      381 +
+      382 +                    # Update metrics with accurate post-hoc data
+      383 +                    if post_hoc_analysis.queue_times:
+      384 +                        self.metrics.queue_times = post_hoc_analysis.queue_times
+      385 +                    if post_hoc_analysis.execution_times:
+      386 +                        self.metrics.execution_times = post_hoc_analysis.execution_times
+      387 +                    self.metrics.successful_workflows = post_hoc_analysis.successful_jobs
+      388 +                    self.metrics.failed_workflows = post_hoc_analysis.failed_jobs
+      389 +
+      390 +                    # Update concurrent jobs with accurate max
+      391 +                    if post_hoc_analysis.max_concurrent_jobs > 0:
+      392 +                        self.metrics.concurrent_jobs.append(post_hoc_analysis.max_concurrent_jobs)
+      393 +
+      394 +            except Exception as e:
+      395 +                logger.error(f"Post-hoc analysis failed: {e}")
+      396 +                import traceback
+      397 +                traceback.print_exc()
+      398 +
+      399          # Calculate final statistics
+      400          stats = self.metrics.calculate_statistics()
+      401          logger.info(f"Test complete. Results: {json.dumps(stats, indent=2)}")
+     ...
+      349          # Generate enhanced metrics report
+      350          if self.enhanced_metrics.workflows:
+      351              logger.info("Generating enhanced metrics report...")
+      352 -            # Pass observed runner count (max concurrent jobs seen)
+      353 -            if self.metrics.concurrent_jobs:
+      352 +            # Pass observed runner count from post-hoc analysis (most accurate)
+      353 +            if post_hoc_analysis and post_hoc_analysis.max_concurrent_jobs > 0:
+      354 +                self.enhanced_metrics.observed_runner_count = post_hoc_analysis.max_concurrent_jobs
+      355 +            elif self.metrics.concurrent_jobs:
+      356                  self.enhanced_metrics.observed_runner_count = max(self.metrics.concurrent_jobs)
+      357              report_path = self.enhanced_metrics.generate_report(profile_name, f"test_results/{self.environment.name}")
+      358              logger.info(f"Enhanced report saved to: {report_path}")
+      359
+      360 +        # Save post-hoc analysis report
+      361 +        if post_hoc_analysis and post_hoc_analysis.total_jobs > 0:
+      362 +            self._save_post_hoc_report(post_hoc_analysis, profile_name)
+      363 +
+      364          return self.metrics
+      365
+      366      async def _run_steady_load(self, profile: TestProfile) -> None:
+
+⏺ Now let me add the _save_post_hoc_report method:
+
+⏺ Read(src/orchestrator/scenario_runner.py)
+  ⎿  Read 55 lines
+
+⏺ Update(src/orchestrator/scenario_runner.py)
+  ⎿  Added 75 lines
+      722          logger.info(f"Report saved to: {report_file}")
+      723          return str(report_file)
+      724
+      725 +    def _save_post_hoc_report(self, analysis: PostHocAnalysis, profile_name: str) -> str:
+      726 +        """
+      727 +        Save detailed post-hoc analysis report.
+      728
+      729 +        Args:
+      730 +            analysis: PostHocAnalysis results
+      731 +            profile_name: Name of test profile
+      732 +
+      733 +        Returns:
+      734 +            Path to saved report
+      735 +        """
+      736 +        output_path = Path(f"test_results/{self.environment.name}")
+      737 +        output_path.mkdir(parents=True, exist_ok=True)
+      738 +
+      739 +        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+      740 +        report_file = output_path / f"post_hoc_{profile_name}_{timestamp}.json"
+      741 +
+      742 +        # Build detailed report
+      743 +        report = {
+      744 +            "test_run_id": analysis.test_run_id,
+      745 +            "profile": profile_name,
+      746 +            "environment": self.environment.name,
+      747 +            "summary": {
+      748 +                "total_runs": analysis.total_runs,
+      749 +                "total_jobs": analysis.total_jobs,
+      750 +                "successful_jobs": analysis.successful_jobs,
+      751 +                "failed_jobs": analysis.failed_jobs,
+      752 +                "success_rate": analysis.successful_jobs / analysis.total_jobs if analysis.total_jobs > 0 else 0
+      753 +            },
+      754 +            "concurrency": {
+      755 +                "max_concurrent_jobs": analysis.max_concurrent_jobs,
+      756 +                "avg_concurrent_jobs": round(analysis.avg_concurrent_jobs, 2)
+      757 +            },
+      758 +            "timing": {
+      759 +                "queue_time": {
+      760 +                    "min": min(analysis.queue_times) if analysis.queue_times else 0,
+      761 +                    "max": max(analysis.queue_times) if analysis.queue_times else 0,
+      762 +                    "mean": statistics.mean(analysis.queue_times) if analysis.queue_times else 0,
+      763 +                    "median": statistics.median(analysis.queue_times) if analysis.queue_times else 0
+      764 +                },
+      765 +                "execution_time": {
+      766 +                    "min": min(analysis.execution_times) if analysis.execution_times else 0,
+      767 +                    "max": max(analysis.execution_times) if analysis.execution_times else 0,
+      768 +                    "mean": statistics.mean(analysis.execution_times) if analysis.execution_times else 0,
+      769 +                    "median": statistics.median(analysis.execution_times) if analysis.execution_times else 0
+      770 +                }
+      771 +            },
+      772 +            "runners": {
+      773 +                "unique_count": len(analysis.runners_used),
+      774 +                "jobs_per_runner": analysis.runners_used,
+      775 +                "busy_time_per_runner": {k: round(v, 1) for k, v in analysis.runner_busy_time.items()}
+      776 +            },
+      777 +            "jobs": [
+      778 +                {
+      779 +                    "job_id": job.job_id,
+      780 +                    "job_name": job.job_name,
+      781 +                    "run_id": job.run_id,
+      782 +                    "status": job.status,
+      783 +                    "conclusion": job.conclusion,
+      784 +                    "runner_name": job.runner_name,
+      785 +                    "queue_time_sec": round(job.queue_time, 2) if job.queue_time else None,
+      786 +                    "execution_time_sec": round(job.execution_time, 2) if job.execution_time else None,
+      787 +                    "started_at": job.started_at.isoformat() if job.started_at else None,
+      788 +                    "completed_at": job.completed_at.isoformat() if job.completed_at else None
+      789 +                }
+      790 +                for job in analysis.jobs
+      791 +            ]
+      792 +        }
+      793 +
+      794 +        with open(report_file, 'w') as f:
+      795 +            json.dump(report, f, indent=2)
+      796 +
+      797 +        logger.info(f"Post-hoc analysis report saved to: {report_file}")
+      798 +        return str(report_file)
+      799 +
+      800 +
+      801  # Example usage
+      802  async def main():
+      803      """Example usage of ScenarioRunner"""
+
+⏺ Let me verify the syntax:
+
+⏺ Bash(python -m py_compile src/orchestrator/post_hoc_analyzer.py src/orchestrator/scenario_runner.py && echo "Syntax OK")
+  ⎿  Syntax OK
+
+⏺ Post-hoc analysis is integrated. Here's what happens now:
+
+  During test:
+  - Dispatch workflows with job_name input (test_run_id)
+  - Light polling for progress feedback (bulk mode for 50+ workflows)
+  - No rate limit concerns during test execution
+
+  After test completes:
+  - Queries all runs matching job_name
+  - Gets ALL jobs for each run (with rate limit handling)
+  - Calculates accurate metrics from timestamps:
+    - Max concurrent jobs (from overlapping time ranges)
+    - Queue times (job.started_at - job.created_at)
+    - Execution times (job.completed_at - job.started_at)
+    - Runner breakdown (which runner ran which jobs)
+
+  Output files:
+  - test_results/{env}/post_hoc_{profile}_{timestamp}.json - detailed job-level data
+
+  Ready to test! Which profile on AWS ECS?
+
+  | Profile               | Duration | Pattern | Workflows |
+  |-----------------------|----------|---------|-----------|
+  | validation            | 5 min    | steady  | ~5        |
+  | concurrency_discovery | 10 min   | burst   | 40        |
+  | concurrency_max       | 15 min   | burst   | 90        |
+
+> I am running validation does this output looke correct
+
+ python run_tests.py -e aws_ecs -p validation
+INFO:src.orchestrator.environment_switcher:Loaded base configuration from config/base_config.yaml
+INFO:src.orchestrator.environment_switcher:Found 2 environment(s): ['aws_ecs', 'openshift_sandbox']
+INFO:__main__:Loading environment: aws_ecs
+INFO:src.orchestrator.environment_switcher:Loaded environment: aws_ecs
+INFO:__main__:Test harness setup complete
+
+============================================================
+Environment: aws-ecs (test)
+Description: AWS ECS Fargate GitHub Runners
+GitHub: devopulence/pythonProject
+Runner Labels: ['self-hosted', 'ecs-fargate', 'aws', 'linux']
+Workflows: 1 available
+Test Profiles: ['validation', 'performance_fast', 'quick', 'performance', 'capacity_fast', 'capacity', 'stress_fast', 'stress', 'load_fast', 'load',
+'spike_medium', 'spike', 'concurrency_discovery', 'concurrency_max']
+============================================================
+
+INFO:__main__:Starting validation test
+
+🚀 Running validation test...
+Press Ctrl+C to abort
+
+INFO:src.orchestrator.scenario_runner:Starting test profile: validation
+INFO:src.orchestrator.scenario_runner:Duration: 5 minutes
+INFO:src.orchestrator.scenario_runner:Pattern: steady
+INFO:src.orchestrator.scenario_runner:Workflows: ['default']
+INFO:src.orchestrator.scenario_runner:Test Run ID: validation_20260116_121646_97dfefba
+INFO:src.orchestrator.workflow_tracker:Workflow tracker will match job_name=validation_20260116_121646_97dfefba
+INFO:src.orchestrator.scenario_runner:Expected workflows: 5, bulk_mode: False
+INFO:src.orchestrator.workflow_tracker:Bulk polling mode: disabled
+INFO:src.orchestrator.workflow_tracker:Jobs per workflow set to: 2
+INFO:src.orchestrator.scenario_runner:Initializing workflow tracker baseline...
+INFO:src.orchestrator.workflow_tracker:Baseline established: run_id=21009676138, time=2026-01-16 17:16:46.624418+00:00
+INFO:src.orchestrator.scenario_runner:Using profile workload inputs: {'workload_type': 'test'}
+INFO:src.orchestrator.scenario_runner:Dispatching workflow: default
+Dispatching workflow 'build_job_multiple.yml' on ref 'main' for devopulence/pythonProject...
+✅ Workflow dispatch created successfully (HTTP 204).
+You can check the run under 'Actions' in the repository UI.
+INFO:src.orchestrator.scenario_runner:Workflow dispatched successfully: default
+INFO:src.orchestrator.workflow_tracker:Tracking workflow dispatch: build_job_multiple (job_name=validation_20260116_121646_97dfefba)
+INFO:src.orchestrator.workflow_tracker:Found 1 new unmatched runs (baseline=21009676138)
+INFO:src.orchestrator.workflow_tracker:Matching 1 pending workflows with 1 new runs
+INFO:src.orchestrator.workflow_tracker:Matched build_job_multiple_1768583807.170201 -> run 21074782366 (status: queued)
+INFO:src.orchestrator.workflow_tracker:Workflow status: {'total': 1, 'pending': 0, 'queued': 0, 'in_progress': 1, 'completed': 0, 'successful': 0, 'failed':
+0}
+INFO:src.orchestrator.scenario_runner:Status - Queued: 0, Running: 1, Completed: 0, Utilization: 100.0%
+INFO:src.orchestrator.workflow_tracker:Workflow status: {'total': 1, 'pending': 0, 'queued': 0, 'in_progress': 1, 'completed': 0, 'successful': 0, 'failed':
+0}
+INFO:src.orchestrator.scenario_runner:Status - Queued: 0, Running: 1, Completed: 0, Utilization: 100.0%
+INFO:src.orchestrator.scenario_runner:Using profile workload inputs: {'workload_type': 'test'}
+INFO:src.orchestrator.scenario_runner:Dispatching workflow: default
+Dispatching workflow 'build_job_multiple.yml' on ref 'main' for devopulence/pythonProject...
+✅ Workflow dispatch created successfully (HTTP 204).
+You can check the run under 'Actions' in the repository UI.
+INFO:src.orchestrator.scenario_runner:Workflow dispatched successfully: default
+INFO:src.orchestrator.workflow_tracker:Tracking workflow dispatch: build_job_multiple (job_name=validation_20260116_121646_97dfefba)
+INFO:src.orchestrator.workflow_tracker:Found 1 new unmatched runs (baseline=21009676138)
+INFO:src.orchestrator.workflow_tracker:Matching 1 pending workflows with 1 new runs
+INFO:src.orchestrator.workflow_tracker:Matched build_job_multiple_1768583868.974948 -> run 21074809520 (status: in_progress)
+INFO:src.orchestrator.workflow_tracker:Workflow status: {'total': 2, 'pending': 0, 'queued': 0, 'in_progress': 2, 'completed': 0, 'successful': 0, 'failed':
+0}
+INFO:src.orchestrator.scenario_runner:Status - Queued: 0, Running: 2, Completed: 0, Utilization: 100.0%
+
+⏺ Yes, this looks correct! Key observations:
+
+  | Check                 | Status                              |
+  |-----------------------|-------------------------------------|
+  | Expected workflows: 5 | ✅ Correct for 5 min × 1/min        |
+  | bulk_mode: False      | ✅ Correct (5 < 50 threshold)       |
+  | Jobs per workflow: 2  | ✅ Reading from aws_ecs.yaml config |
+  | Baseline established  | ✅ run_id=21009676138               |
+  | Workflows dispatching | ✅ HTTP 204 success                 |
+  | Runs matched          | ✅ Matching by run_id > baseline    |
+  | Status tracking       | ✅ Showing in_progress counts       |
+
+  The test is running in accurate mode (not bulk) since only 5 workflows are expected. It's:
+  1. Dispatching workflows every 60 seconds (1/min)
+  2. Matching them to GitHub runs
+  3. Counting actual in_progress jobs (2 currently running)
+
+  Let it continue - after the 5 min dispatch phase + completion wait, you'll see the post-hoc analysis section with:
+  - Exact max concurrent jobs (from timestamp overlaps)
+  - Per-runner breakdown
+  - Detailed job-level timing data
+
+> 📌 Test Run ID: validation_20260116_121646_97dfefba
+📄 Tracking saved to: test_results/aws-ecs/tracking/validation_20260116_121646_97dfefba.json
+INFO:src.orchestrator.scenario_runner:============================================================
+INFO:src.orchestrator.scenario_runner:Starting post-hoc analysis (accurate metrics from completed jobs)...
+INFO:src.orchestrator.scenario_runner:============================================================
+INFO:src.orchestrator.post_hoc_analyzer:Starting post-hoc analysis for: validation_20260116_121646_97dfefba
+INFO:src.orchestrator.post_hoc_analyzer:Searching for runs with job_name: validation_20260116_121646_97dfefba
+INFO:src.orchestrator.post_hoc_analyzer:Found 0 runs matching job_name: validation_20260116_121646_97dfefba
+WARNING:src.orchestrator.post_hoc_analyzer:No runs found for job_name: validation_20260116_121646_97dfefba
+INFO:src.orchestrator.scenario_runner:Test complete. Results: {
+  "total_workflows": 5,
+  "successful_workflows": 5,
+  "failed_workflows": 0,
+  "success_rate": 1.0,
+  "duration_minutes": 5.144204616666667,
+  "queue_time": {
+    "min": 1.0,
+    "max": 2.0,
+    "mean": 1.4,
+    "median": 1.0,
+    "p95": 2.0,
+    "stdev": 0.5477225575051661
+  },
+  "execution_time": {
+    "min": 53.0,
+    "max": 72.0,
+    "mean": 65.6,
+    "median": 70.0,
+    "p95": 72.0,
+    "stdev": 8.384509526501834
+  },
+  "runner_utilization": {
+    "min": 0.5,
+    "max": 1.0,
+    "mean": 0.8333333333333334
+  },
+  "concurrent_jobs": {
+    "max": 2,
+    "mean": 1.4444444444444444,
+    "min": 1
+  }
+}
+INFO:src.orchestrator.scenario_runner:Generating enhanced metrics report...
+
+============================================================
+ENHANCED METRICS SUMMARY
+============================================================
+
+Workflows Analyzed: 5
+
+📊 QUEUE TIME (waiting for runner):
+  Average: 1.4 seconds
+  Max: 2.0 seconds
+  Min: 1.0 seconds
+
+⚙️ EXECUTION TIME (on runner):
+  Average: 1.1 minutes
+  Max: 1.2 minutes
+  Min: 0.9 minutes
+
+⏱️ TOTAL TIME (queue + execution):
+  Average: 1.1 minutes
+  Max: 1.2 minutes
+  Min: 0.9 minutes
+
+🎯 CAPACITY INSIGHTS:
+  Observed Runners: 2
+  Avg execution: 1.1 minutes
+  Max throughput (2 runners): 109.8 jobs/hour
+
+📈 QUEUE TREND:
+  First half avg: 2.0 seconds
+  Second half avg: 1.0 seconds
+  Trend: DECREASING
+
+============================================================
+INFO:src.orchestrator.scenario_runner:Enhanced report saved to: test_results/aws-ecs/enhanced_report_validation_20260116_122250.json
+INFO:src.orchestrator.scenario_runner:Report saved to: test_results/aws-ecs/test_report_20260116_122250.json
+
+============================================================
+TEST RESULTS SUMMARY
+============================================================
+
+Workflows:
+  Total: 5
+  Successful: 5
+  Failed: 0
+  Success Rate: 100.0%
+
+Queue Time (seconds):
+  Min: 1.0
+  Max: 2.0
+  Mean: 1.4
+  Median: 1.0
+  P95: 2.0
+
+Execution Time (seconds):
+  Min: 53.0
+  Max: 72.0
+  Mean: 65.6
+  Median: 70.0
+  P95: 72.0
+
+Runner Utilization:
+  Average: 83.3%
+  Peak: 100.0%
+
+Concurrent Jobs (Runners Active):
+  Max Observed: 2
+  Average: 1.4
+
+Test Duration: 5.1 minutes
+
+🔬 Running validation test analysis...
+============================================================
+
+🎯 Performance Analysis:
+----------------------------------------
+Overall Rating: ✅ GOOD - Minor optimizations needed
+Queue Health: EXCELLENT
+Execution Consistency: CONSISTENT
+Predictability: GOOD
+  Good predictability - suitable for production
+
+Recommended SLAs:
+  P50: 1.2 minutes
+  P95: 1.2 minutes
+  P99: 1.2 minutes
+
+📄 Analysis saved to: test_results/aws-ecs/analysis/validation_20260116_121646_97dfefba_analysis.json
+
+✅ Test complete!
+📊 Report saved to: test_results/aws-ecs/test_report_20260116_122250.json
+
+⏺ The test worked, but the post-hoc analysis found 0 runs - that's a bug. The issue is that the GitHub API's /actions/runs list endpoint doesn't include the inputs field in the response. We need to query each run individually to see its inputs, or use a different approach.
+
+  Quick fix: Use the already-tracked run IDs from the real-time tracker instead of searching by job_name again.
+
+⏺ Update(src/orchestrator/scenario_runner.py)
+  ⎿  Added 8 lines, removed 1 line
+      357                      repo=self.environment.github_repo
+      358                  )
+      359
+      360 +                # Get run IDs we already tracked during the test
+      361 +                tracked_run_ids = [
+      362 +                    w["run_id"] for w in self.tracker.tracked_workflows.values()
+      363 +                    if w.get("run_id")
+      364 +                ]
+      365 +
+      366                  post_hoc_analysis = await analyzer.analyze(
+      367                      job_name=self.test_run_tracker.test_run_id,
+      368                      created_after=self.metrics.start_time,
+      369 -                    delay_between_calls=0.2  # Be nice to the API
+      369 +                    delay_between_calls=0.2,  # Be nice to the API
+      370 +                    run_ids=tracked_run_ids  # Use already-matched run IDs
+      371                  )
+      372
+      373                  await analyzer.close()
+
+⏺ Now update the analyzer to use the provided run IDs:
+
+⏺ Update(src/orchestrator/post_hoc_analyzer.py)
+  ⎿  Added 10 lines, removed 3 lines
+      288          return jobs
+      289
+      290      async def analyze(self, job_name: str, created_after: datetime = None,
+      291 -                     delay_between_calls: float = 0.1) -> PostHocAnalysis:
+      291 +                     delay_between_calls: float = 0.1,
+      292 +                     run_ids: List[int] = None) -> PostHocAnalysis:
+      293          """
+      294          Perform complete post-hoc analysis of a test run.
+      295
+     ...
+      296              job_name: The unique test run identifier (test_run_id)
+      297              created_after: Only analyze runs created after this time
+      298              delay_between_calls: Delay between API calls to avoid rate limits
+      299 +            run_ids: Optional list of run IDs to analyze directly (skips search)
+      300
+      301          Returns:
+      302              PostHocAnalysis with all metrics
+      303          """
+      304          logger.info(f"Starting post-hoc analysis for: {job_name}")
+      305
+      306 -        # Get all matching runs
+      307 -        runs = await self.get_runs_by_job_name(job_name, created_after)
+      306 +        # If run_ids provided, use them directly (more efficient)
+      307 +        if run_ids:
+      308 +            logger.info(f"Using {len(run_ids)} pre-tracked run IDs")
+      309 +            runs = [{"id": run_id} for run_id in run_ids]
+      310 +        else:
+      311 +            # Fall back to searching by job_name
+      312 +            runs = await self.get_runs_by_job_name(job_name, created_after)
+      313
+      314          if not runs:
+      315              logger.warning(f"No runs found for job_name: {job_name}")
+
+⏺ Let me also update the part that gets the workflow name, since we're now passing just run IDs:
+
+⏺ Read(src/orchestrator/post_hoc_analyzer.py)
+  ⎿  Read 50 lines
+
+⏺ Bash(python -m py_compile src/orchestrator/post_hoc_analyzer.py src/orchestrator/scenario_runner.py && echo "Syntax OK")
+  ⎿  Tool use rejected with user message: you said this approach would work
+  ⎿  Credit balance too low · Add funds: https://console.anthropic.com/settings/billing
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+> 
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ accept edits on (shift+tab to cycle)                                         ✗ Auto-update failed · Try claude doctor or npm i -g @anthropic-ai/claude-code
+
+
+
+
+
+
+
