@@ -424,11 +424,21 @@ class ScenarioRunner:
                     logger.info(f"  Total jobs: {post_hoc_analysis.total_jobs}")
                     logger.info(f"  Successful: {post_hoc_analysis.successful_jobs}")
                     logger.info(f"  Failed: {post_hoc_analysis.failed_jobs}")
-                    logger.info(f"  Max concurrent jobs: {post_hoc_analysis.max_concurrent_jobs}")
-                    logger.info(f"  Avg concurrent jobs: {post_hoc_analysis.avg_concurrent_jobs:.1f}")
                     logger.info(f"  Unique runners used: {len(post_hoc_analysis.runners_used)}")
                     if post_hoc_analysis.runners_used:
                         logger.info(f"  Runners: {post_hoc_analysis.runners_used}")
+
+                    # Report BOTH concurrency calculations clearly
+                    logger.info("=" * 60)
+                    logger.info("CONCURRENCY COMPARISON")
+                    logger.info("=" * 60)
+                    logger.info(f"  TIMESTAMP-BASED (actual job overlap):")
+                    logger.info(f"    Max concurrent: {post_hoc_analysis.timestamp_max_concurrent}")
+                    logger.info(f"    Avg concurrent: {post_hoc_analysis.timestamp_avg_concurrent:.1f}")
+                    logger.info(f"  SNAPSHOT-BASED (polling samples):")
+                    logger.info(f"    Max concurrent: {post_hoc_analysis.max_concurrent_jobs}")
+                    logger.info(f"    Avg concurrent: {post_hoc_analysis.avg_concurrent_jobs:.1f}")
+                    logger.info("=" * 60)
 
                     # Update metrics with accurate post-hoc timing data
                     # Note: Keep workflow counts separate from job counts

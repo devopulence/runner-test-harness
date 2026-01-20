@@ -59,10 +59,15 @@ class PostHocAnalysis:
     execution_times: List[float] = field(default_factory=list)
     total_times: List[float] = field(default_factory=list)
 
-    # Concurrency metrics
+    # Concurrency metrics (primary - may be from snapshots or timestamps)
     max_concurrent_jobs: int = 0
     concurrency_timeline: List[ConcurrencyPoint] = field(default_factory=list)
     avg_concurrent_jobs: float = 0.0
+
+    # Timestamp-based concurrency (always calculated from job start/end times)
+    # This is the TRUE overlap based on actual job execution windows
+    timestamp_max_concurrent: int = 0
+    timestamp_avg_concurrent: float = 0.0
 
     # Runner metrics
     runners_used: Dict[str, int] = field(default_factory=dict)  # runner_name -> job_count
@@ -397,8 +402,7 @@ class PostHocAnalyzer:
             job_name: Test run identifier
             runs: List of workflow runs
             jobs: List of job metrics
-            snapshot_concurrency: If provided, use these accurate values instead of
-                                  timestamp-based inference (which can be wrong)
+            snapshot_concurrency: If provided, use these values as primary concurrency metrics
         """
 
         # Basic counts
@@ -420,17 +424,19 @@ class PostHocAnalyzer:
                 if job.execution_time:
                     runner_busy_time[job.runner_name] = runner_busy_time.get(job.runner_name, 0) + job.execution_time
 
-        # Concurrency metrics - prefer snapshot data (accurate) over timestamp inference (can be wrong)
+        # ALWAYS calculate timestamp-based concurrency from actual job start/end times
+        # This is the TRUE overlap based on when jobs were actually running
+        ts_max_concurrent, ts_avg_concurrent, timeline = self._calculate_concurrency(jobs)
+        logger.info(f"TIMESTAMP-BASED concurrency (from job start/end times): max={ts_max_concurrent}, avg={ts_avg_concurrent:.1f}")
+
+        # Primary concurrency metrics - use snapshot data if available, otherwise timestamp
         if snapshot_concurrency:
-            # Use accurate data from real-time snapshots
             max_concurrent = snapshot_concurrency.get("max_concurrent_jobs", 0)
             avg_concurrent = snapshot_concurrency.get("avg_concurrent_jobs", 0.0)
-            timeline = []  # No timeline from snapshots
-            logger.info(f"Using snapshot-based concurrency: max={max_concurrent}, avg={avg_concurrent:.1f}")
+            logger.info(f"SNAPSHOT-BASED concurrency (from polling samples): max={max_concurrent}, avg={avg_concurrent:.1f}")
         else:
-            # Fall back to timestamp inference (may be inaccurate)
-            max_concurrent, avg_concurrent, timeline = self._calculate_concurrency(jobs)
-            logger.warning("Using timestamp-based concurrency inference (may be inaccurate)")
+            max_concurrent = ts_max_concurrent
+            avg_concurrent = ts_avg_concurrent
 
         return PostHocAnalysis(
             test_run_id=job_name,
@@ -444,6 +450,8 @@ class PostHocAnalyzer:
             max_concurrent_jobs=max_concurrent,
             avg_concurrent_jobs=avg_concurrent,
             concurrency_timeline=timeline,
+            timestamp_max_concurrent=ts_max_concurrent,
+            timestamp_avg_concurrent=ts_avg_concurrent,
             runners_used=runners_used,
             runner_busy_time=runner_busy_time,
             jobs=jobs
