@@ -7,7 +7,7 @@ without rate limiting concerns during the test.
 import asyncio
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
 import aiohttp
@@ -514,3 +514,77 @@ class PostHocAnalyzer:
         avg_concurrent = concurrency_sum / total_job_seconds if total_job_seconds > 0 else 0
 
         return max_concurrent, avg_concurrent, timeline
+
+    def get_concurrency_timeline_display(self, jobs: List[JobMetrics], interval_seconds: int = 30) -> List[Dict]:
+        """
+        Generate a human-readable concurrency timeline at regular intervals.
+
+        Args:
+            jobs: List of job metrics with started_at and completed_at
+            interval_seconds: Time interval for each bucket (default 30 seconds)
+
+        Returns:
+            List of dicts with time offset and concurrent count
+        """
+        # Filter jobs with valid timestamps
+        valid_jobs = [j for j in jobs if j.started_at and j.completed_at]
+
+        if not valid_jobs:
+            return []
+
+        # Find time range
+        min_time = min(j.started_at for j in valid_jobs)
+        max_time = max(j.completed_at for j in valid_jobs)
+
+        timeline = []
+        current_time = min_time
+
+        while current_time <= max_time:
+            # Count jobs running at this moment
+            # A job is running if: started_at <= current_time < completed_at
+            concurrent = sum(
+                1 for j in valid_jobs
+                if j.started_at <= current_time < j.completed_at
+            )
+
+            # Calculate offset from start in minutes
+            offset_seconds = (current_time - min_time).total_seconds()
+            offset_minutes = offset_seconds / 60
+
+            timeline.append({
+                "time": current_time.strftime("%H:%M:%S"),
+                "offset_min": round(offset_minutes, 1),
+                "concurrent": concurrent
+            })
+
+            current_time = current_time + timedelta(seconds=interval_seconds)
+
+        return timeline
+
+    def print_concurrency_timeline(self, jobs: List[JobMetrics], interval_seconds: int = 30) -> None:
+        """
+        Print a visual concurrency timeline showing jobs running at each interval.
+
+        Args:
+            jobs: List of job metrics
+            interval_seconds: Time interval for sampling
+        """
+        timeline = self.get_concurrency_timeline_display(jobs, interval_seconds)
+
+        if not timeline:
+            logger.info("No job data available for timeline")
+            return
+
+        max_concurrent = max(t["concurrent"] for t in timeline)
+
+        logger.info("")
+        logger.info("CONCURRENCY TIMELINE (every %d seconds):", interval_seconds)
+        logger.info("-" * 60)
+
+        for entry in timeline:
+            bar = "█" * entry["concurrent"]
+            spaces = " " * (max_concurrent - entry["concurrent"])
+            logger.info(f"  {entry['offset_min']:5.1f}m | {bar}{spaces} | {entry['concurrent']}")
+
+        logger.info("-" * 60)
+        logger.info(f"  Peak concurrent: {max_concurrent}")

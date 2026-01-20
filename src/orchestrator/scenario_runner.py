@@ -440,6 +440,10 @@ class ScenarioRunner:
                     logger.info(f"    Avg concurrent: {post_hoc_analysis.avg_concurrent_jobs:.1f}")
                     logger.info("=" * 60)
 
+                    # Show detailed timeline of job overlaps
+                    if post_hoc_analysis.jobs:
+                        analyzer.print_concurrency_timeline(post_hoc_analysis.jobs, interval_seconds=30)
+
                     # Update metrics with accurate post-hoc timing data
                     # Note: Keep workflow counts separate from job counts
                     if post_hoc_analysis.queue_times:
