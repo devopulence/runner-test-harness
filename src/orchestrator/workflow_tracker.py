@@ -843,5 +843,15 @@ class WorkflowTracker:
             # This handles cancelled, skipped, timed_out, etc. correctly
             "in_progress": sum(1 for w in self.tracked_workflows.values()
                               if w.get("run_id") is not None and w.get("status") != "completed"),
-            "completed": sum(1 for w in self.tracked_workflows.values() if w.get("status") == "completed")
+            "completed": sum(1 for w in self.tracked_workflows.values() if w.get("status") == "completed"),
+            # Debug: show what statuses we have
+            "status_breakdown": {status: sum(1 for w in self.tracked_workflows.values() if w.get("status") == status)
+                                for status in set(w.get("status") for w in self.tracked_workflows.values())}
         }
+
+        # Log any workflows stuck in non-completed state
+        stuck = [(tid, w.get("status"), w.get("run_id"))
+                 for tid, w in self.tracked_workflows.items()
+                 if w.get("run_id") is not None and w.get("status") != "completed"]
+        if stuck:
+            logger.debug(f"Workflows not yet completed: {stuck}")

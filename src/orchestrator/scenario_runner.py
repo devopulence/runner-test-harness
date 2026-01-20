@@ -303,8 +303,10 @@ class ScenarioRunner:
                     in_progress = tracker_metrics['in_progress']
                     completed = tracker_metrics['completed']
 
+                    status_breakdown = tracker_metrics.get('status_breakdown', {})
                     logger.info(f"Waiting: {in_progress} still running, {pending} pending match, "
-                               f"{completed} completed ({successful} success, {failed} failed)")
+                               f"{completed} completed ({successful} success, {failed} failed) "
+                               f"[statuses: {status_breakdown}]")
 
                     # All done if no pending and no in-progress
                     if pending == 0 and in_progress == 0:
