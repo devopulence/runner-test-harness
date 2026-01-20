@@ -838,5 +838,10 @@ class WorkflowTracker:
             "successful": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "success"),
             "failed": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "failure"),
             "pending": sum(1 for w in self.tracked_workflows.values() if w.get("run_id") is None),
-            "matched": sum(1 for w in self.tracked_workflows.values() if w.get("run_id") is not None)
+            "matched": sum(1 for w in self.tracked_workflows.values() if w.get("run_id") is not None),
+            # Count actual in_progress based on status, not derived from success/failed
+            # This handles cancelled, skipped, timed_out, etc. correctly
+            "in_progress": sum(1 for w in self.tracked_workflows.values()
+                              if w.get("run_id") is not None and w.get("status") != "completed"),
+            "completed": sum(1 for w in self.tracked_workflows.values() if w.get("status") == "completed")
         }

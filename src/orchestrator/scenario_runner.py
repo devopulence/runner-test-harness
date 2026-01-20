@@ -298,13 +298,13 @@ class ScenarioRunner:
                     tracker_metrics = self.tracker.get_metrics()
 
                     pending = tracker_metrics['pending']
-                    matched = tracker_metrics['matched']
                     successful = tracker_metrics['successful']
                     failed = tracker_metrics['failed']
-                    in_progress = matched - successful - failed
+                    in_progress = tracker_metrics['in_progress']
+                    completed = tracker_metrics['completed']
 
                     logger.info(f"Waiting: {in_progress} still running, {pending} pending match, "
-                               f"{successful} successful, {failed} failed")
+                               f"{completed} completed ({successful} success, {failed} failed)")
 
                     # All done if no pending and no in-progress
                     if pending == 0 and in_progress == 0:
