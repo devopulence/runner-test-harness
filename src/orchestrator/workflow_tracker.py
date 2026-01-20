@@ -600,21 +600,40 @@ class WorkflowTracker:
         if not run_id_to_tracking:
             return
 
-        # Single API call to get all recent runs
+        # Fetch recent runs with pagination (up to 3 pages = 300 runs)
         runs_url = f"{self.base_url}/actions/runs"
-        params = {"per_page": 100}
+        runs = []
 
-        data, status = await self._api_get_with_backoff(runs_url, params)
-        if not data or status != 200:
+        for page in range(1, 4):  # Pages 1, 2, 3
+            params = {"per_page": 100, "page": page}
+            data, status = await self._api_get_with_backoff(runs_url, params)
+
+            if not data or status != 200:
+                break
+
+            page_runs = data.get("workflow_runs", [])
+            runs.extend(page_runs)
+
+            # Stop if we got fewer than 100 (no more pages)
+            if len(page_runs) < 100:
+                break
+
+            # Stop if we've found all our tracked runs
+            found_count = sum(1 for r in runs if r.get("id") in run_id_to_tracking)
+            if found_count >= len(run_id_to_tracking):
+                break
+
+        if not runs:
             return
-
-        runs = data.get("workflow_runs", [])
 
         # Update status from list data
         newly_completed = []
+        found_run_ids = set()
+
         for run in runs:
             run_id = run.get("id")
             if run_id in run_id_to_tracking:
+                found_run_ids.add(run_id)
                 tracking_id = run_id_to_tracking[run_id]
                 workflow_data = self.tracked_workflows[tracking_id]
 
@@ -625,6 +644,24 @@ class WorkflowTracker:
                 # Track newly completed workflows for job detail fetch
                 if run["status"] == "completed" and old_status != "completed":
                     newly_completed.append(tracking_id)
+
+        # Fetch status individually for runs not found in bulk list (pagination issue)
+        missing_run_ids = set(run_id_to_tracking.keys()) - found_run_ids
+        if missing_run_ids:
+            logger.debug(f"Fetching {len(missing_run_ids)} runs not in bulk list (pagination)")
+            for run_id in missing_run_ids:
+                tracking_id = run_id_to_tracking[run_id]
+                url = f"{self.base_url}/actions/runs/{run_id}"
+                run_data, resp_status = await self._api_get_with_backoff(url)
+
+                if run_data and resp_status == 200:
+                    workflow_data = self.tracked_workflows[tracking_id]
+                    old_status = workflow_data.get("status")
+                    workflow_data["status"] = run_data["status"]
+                    workflow_data["conclusion"] = run_data.get("conclusion")
+
+                    if run_data["status"] == "completed" and old_status != "completed":
+                        newly_completed.append(tracking_id)
 
         # Fetch job details only for newly completed workflows (for timing data)
         for tracking_id in newly_completed:
