@@ -25,6 +25,7 @@ from src.orchestrator.workflow_tracker import WorkflowTracker
 from src.orchestrator.enhanced_metrics import EnhancedMetrics
 from src.orchestrator.test_run_tracker import TestRunTracker
 from src.orchestrator.post_hoc_analyzer import PostHocAnalyzer, PostHocAnalysis
+from src.orchestrator.snapshot_collector import SnapshotCollector, ConcurrencyMetrics
 from main import trigger_workflow_dispatch
 
 # Configure logging
@@ -165,6 +166,9 @@ class ScenarioRunner:
         # Test run tracker for identifying workflows
         self.test_run_tracker = None
 
+        # Snapshot collector for persisting all poll data
+        self.snapshot_collector: Optional[SnapshotCollector] = None
+
     def _calculate_expected_workflows(self, profile: TestProfile) -> int:
         """
         Calculate expected total workflows based on profile configuration.
@@ -240,6 +244,13 @@ class ScenarioRunner:
 
         # Set the test_run_id on the workflow tracker for job_name matching
         self.tracker.set_test_run_id(self.test_run_tracker.test_run_id)
+
+        # Initialize snapshot collector to persist all poll data
+        self.snapshot_collector = SnapshotCollector(
+            test_run_id=self.test_run_tracker.test_run_id,
+            environment=self.environment.name if hasattr(self.environment, 'name') else 'aws-ecs'
+        )
+        logger.info(f"Snapshot collector initialized: {self.snapshot_collector.get_snapshots_file_path()}")
 
         # Calculate expected workflows and set bulk mode if high concurrency
         expected_workflows = self._calculate_expected_workflows(profile)
@@ -336,9 +347,36 @@ class ScenarioRunner:
             if self.test_run_tracker:
                 self.test_run_tracker.save_tracking_data()
 
+            # === FINALIZE SNAPSHOT COLLECTOR ===
+            # Calculate accurate concurrency metrics from collected snapshots
+            if self.snapshot_collector:
+                self.snapshot_collector.finalize()
+                concurrency_metrics = self.snapshot_collector.calculate_metrics()
+
+                # Print summary
+                self.snapshot_collector.print_summary()
+
+                # Log the accurate metrics
+                logger.info("=" * 60)
+                logger.info("CONCURRENCY FROM SNAPSHOTS (accurate, observed data)")
+                logger.info("=" * 60)
+                logger.info(f"  Max concurrent workflows: {concurrency_metrics.max_concurrent_workflows}")
+                logger.info(f"  Max concurrent jobs: {concurrency_metrics.max_concurrent_jobs}")
+                logger.info(f"  Max concurrent runners: {concurrency_metrics.max_concurrent_runners}")
+                logger.info(f"  Total unique runners discovered: {concurrency_metrics.total_unique_runners}")
+                if concurrency_metrics.discovered_runners:
+                    logger.info(f"  Runner names: {concurrency_metrics.discovered_runners}")
+                logger.info(f"  Snapshots file: {self.snapshot_collector.get_snapshots_file_path()}")
+
         # === POST-HOC ANALYSIS ===
         # Now that all workflows are complete, do detailed analysis with accurate metrics
         post_hoc_analysis = None
+        concurrency_metrics = None  # Will be set from snapshots
+
+        # Get accurate concurrency from snapshots (if available)
+        if self.snapshot_collector:
+            concurrency_metrics = self.snapshot_collector.calculate_metrics()
+
         if self.test_run_tracker:
             logger.info("=" * 60)
             logger.info("Starting post-hoc analysis (accurate metrics from completed jobs)...")
@@ -357,11 +395,21 @@ class ScenarioRunner:
                     if w.get("run_id")
                 ]
 
+                # Build snapshot concurrency dict for post-hoc
+                snapshot_concurrency = None
+                if concurrency_metrics:
+                    snapshot_concurrency = {
+                        "max_concurrent_jobs": concurrency_metrics.max_concurrent_jobs,
+                        "avg_concurrent_jobs": concurrency_metrics.avg_concurrent_jobs,
+                        "max_concurrent_runners": concurrency_metrics.max_concurrent_runners
+                    }
+
                 post_hoc_analysis = await analyzer.analyze(
                     job_name=self.test_run_tracker.test_run_id,
                     created_after=self.metrics.start_time,
                     delay_between_calls=0.2,  # Be nice to the API
-                    run_ids=tracked_run_ids  # Use already-matched run IDs
+                    run_ids=tracked_run_ids,  # Use already-matched run IDs
+                    snapshot_concurrency=snapshot_concurrency  # Use accurate snapshot data
                 )
 
                 await analyzer.close()
@@ -595,7 +643,7 @@ class ScenarioRunner:
         return run
 
     async def _poll_workflow_status(self) -> None:
-        """Poll GitHub API for workflow status updates"""
+        """Poll GitHub API for workflow status updates and collect snapshots"""
         while self.test_running:
             try:
                 # Update all tracked workflows
@@ -617,27 +665,44 @@ class ScenarioRunner:
                         workflow.get("run_id") not in [w.get("id") for w in self.enhanced_metrics.workflows]):
                         self.enhanced_metrics.add_workflow(workflow)
 
-                # Get active jobs count (actual runners in use)
-                active_count = await self.tracker.get_active_jobs_count()
-                self.metrics.concurrent_jobs.append(active_count)
+                # === COLLECT FULL SNAPSHOT ===
+                # Get complete snapshot with all workflow/job/runner data
+                snapshot = await self.tracker.get_full_snapshot()
+
+                # Add to snapshot collector (persists to JSON file)
+                if self.snapshot_collector:
+                    self.snapshot_collector.add_snapshot(snapshot)
+
+                # Extract counts from snapshot for real-time metrics
+                active_jobs = sum(
+                    1 for w in snapshot.get("workflows", [])
+                    for j in w.get("jobs", [])
+                    if j.get("status") == "in_progress"
+                )
+                active_runners = set(
+                    j.get("runner_name")
+                    for w in snapshot.get("workflows", [])
+                    for j in w.get("jobs", [])
+                    if j.get("status") == "in_progress" and j.get("runner_name")
+                )
+
+                self.metrics.concurrent_jobs.append(active_jobs)
 
                 # Calculate utilization based on observed max (not hardcoded config)
                 observed_max = max(self.metrics.concurrent_jobs) if self.metrics.concurrent_jobs else 1
-                utilization = active_count / observed_max if observed_max > 0 else 0
+                utilization = active_jobs / observed_max if observed_max > 0 else 0
                 self.metrics.runner_utilization.append(utilization)
 
-                # Log status with enhanced metrics
+                # Log status with snapshot data
+                in_progress_workflows = len(snapshot.get("workflows", []))
+                logger.info(f"Status - Workflows: {in_progress_workflows}, Jobs: {active_jobs}, "
+                          f"Runners: {len(active_runners)}, Completed: {summary['completed']}")
+
                 if self.enhanced_metrics.workflows:
                     stats = self.enhanced_metrics.calculate_statistics()
                     avg_queue = stats["queue_time"].get("mean_minutes", 0)
                     avg_exec = stats["execution_time"].get("mean_minutes", 0)
-                    avg_total = stats["total_time"].get("mean_minutes", 0)
-                    logger.info(f"Status - Queued: {summary['queued']}, Running: {summary['in_progress']}, "
-                              f"Completed: {summary['completed']}, Utilization: {utilization:.1%}")
-                    logger.info(f"Avg Times - Queue: {avg_queue:.1f}min, Exec: {avg_exec:.1f}min, Total: {avg_total:.1f}min")
-                else:
-                    logger.info(f"Status - Queued: {summary['queued']}, Running: {summary['in_progress']}, "
-                              f"Completed: {summary['completed']}, Utilization: {utilization:.1%}")
+                    logger.info(f"Avg Times - Queue: {avg_queue:.1f}min, Exec: {avg_exec:.1f}min")
 
             except Exception as e:
                 logger.error(f"Error polling workflow status: {e}")

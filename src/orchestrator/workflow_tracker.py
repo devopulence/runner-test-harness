@@ -9,7 +9,7 @@ import ssl
 import time
 import certifi
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Any
 import aiohttp
 
 logger = logging.getLogger(__name__)
@@ -213,29 +213,14 @@ class WorkflowTracker:
             Dict of inputs or None if not available
         """
         try:
-            session = await self._get_session()
-            # The workflow run endpoint doesn't include inputs directly,
-            # but we can get them from the jobs endpoint or by checking
-            # the workflow_dispatch event payload
-
-            # First try to get from the run details
+            # Use backoff wrapper for rate limit handling
             url = f"{self.base_url}/actions/runs/{run_id}"
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    run = await resp.json()
-                    # For workflow_dispatch events, inputs might be in different places
-                    # depending on GitHub API version
+            data, status = await self._api_get_with_backoff(url)
 
-                    # Check if inputs are directly available (newer API)
-                    if run.get("inputs"):
-                        return run["inputs"]
-
-                    # Try to get from the triggering actor's event
-                    event = run.get("event")
-                    if event == "workflow_dispatch":
-                        # We need to check the workflow jobs for the job_name
-                        # which might be in the job name or step outputs
-                        pass
+            if data and status == 200:
+                # Check if inputs are directly available (newer API)
+                if data.get("inputs"):
+                    return data["inputs"]
 
         except Exception as e:
             logger.debug(f"Error getting run inputs for {run_id}: {e}")
@@ -256,45 +241,42 @@ class WorkflowTracker:
             The job_name value or None
         """
         try:
-            session = await self._get_session()
-
-            # Get the run details which may include inputs
+            # Get the run details which may include inputs (with rate limit handling)
             url = f"{self.base_url}/actions/runs/{run_id}"
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    run = await resp.json()
+            run_data, status = await self._api_get_with_backoff(url)
 
-                    # Check for inputs in the run (available for workflow_dispatch)
-                    inputs = run.get("inputs") or {}
-                    if "job_name" in inputs:
-                        return inputs["job_name"]
+            if run_data and status == 200:
+                # Check for inputs in the run (available for workflow_dispatch)
+                inputs = run_data.get("inputs") or {}
+                if "job_name" in inputs:
+                    return inputs["job_name"]
 
-                    # Also check display_title which might contain our identifier
-                    display_title = run.get("display_title", "")
+                # Also check display_title which might contain our identifier
+                display_title = run_data.get("display_title", "")
 
-                    # If we have a test_run_id, check if it's in the title
-                    if self.test_run_id and self.test_run_id in display_title:
-                        return self.test_run_id
+                # If we have a test_run_id, check if it's in the title
+                if self.test_run_id and self.test_run_id in display_title:
+                    return self.test_run_id
 
             # If inputs not in run, try to get from the first job's name
             # Some workflows include the job_name in the job title
-            url = f"{self.base_url}/actions/runs/{run_id}/jobs"
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    jobs = data.get("jobs", [])
+            jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+            jobs_data, jobs_status = await self._api_get_with_backoff(jobs_url)
 
-                    for job in jobs:
-                        job_name = job.get("name", "")
-                        # Check if our test_run_id is in the job name
-                        if self.test_run_id and self.test_run_id in job_name:
+            if jobs_data and jobs_status == 200:
+                jobs = jobs_data.get("jobs", [])
+
+                for job in jobs:
+                    job_name = job.get("name", "")
+                    # Check if our test_run_id is in the job name
+                    if self.test_run_id and self.test_run_id in job_name:
+                        return self.test_run_id
+
+                    # Look for patterns like "job_name: xxx" in steps
+                    for step in job.get("steps", []):
+                        step_name = step.get("name", "")
+                        if self.test_run_id and self.test_run_id in step_name:
                             return self.test_run_id
-
-                        # Look for patterns like "job_name: xxx" in steps
-                        for step in job.get("steps", []):
-                            step_name = step.get("name", "")
-                            if self.test_run_id and self.test_run_id in step_name:
-                                return self.test_run_id
 
         except Exception as e:
             logger.debug(f"Error getting job_name for run {run_id}: {e}")
@@ -366,42 +348,40 @@ class WorkflowTracker:
         new_runs = []
 
         try:
-            session = await self._get_session()
+            # Use backoff wrapper for rate limit handling
             url = f"{self.base_url}/actions/runs"
             params = {"per_page": 100}
 
-            async with session.get(url, params=params) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
+            data, status = await self._api_get_with_backoff(url, params)
 
-                    for run in data.get("workflow_runs", []):
-                        run_id = run["id"]
+            if data and status == 200:
+                for run in data.get("workflow_runs", []):
+                    run_id = run["id"]
 
-                        # Skip if we've already matched this run
-                        if run_id in self.matched_run_ids:
+                    # Skip if we've already matched this run
+                    if run_id in self.matched_run_ids:
+                        continue
+
+                    # Skip if this run existed before our test
+                    if self.baseline_run_id and run_id <= self.baseline_run_id:
+                        continue
+
+                    # Filter by workflow file if specified
+                    if workflow_file:
+                        run_path = run.get("path", "")
+                        run_file = run_path.split("/")[-1].replace(".yml", "").replace(".yaml", "")
+                        if run_file.lower() != workflow_file.lower():
                             continue
 
-                        # Skip if this run existed before our test
-                        if self.baseline_run_id and run_id <= self.baseline_run_id:
-                            continue
+                    # Get the job_name for this run
+                    job_name = await self.get_run_job_name(run_id)
+                    run["_job_name"] = job_name
 
-                        # Filter by workflow file if specified
-                        if workflow_file:
-                            run_path = run.get("path", "")
-                            run_file = run_path.split("/")[-1].replace(".yml", "").replace(".yaml", "")
-                            if run_file.lower() != workflow_file.lower():
-                                continue
+                    new_runs.append(run)
 
-                        # Get the job_name for this run
-                        job_name = await self.get_run_job_name(run_id)
-                        run["_job_name"] = job_name
-
-                        new_runs.append(run)
-
-                    logger.debug(f"Found {len(new_runs)} new unmatched runs")
-                else:
-                    text = await resp.text()
-                    logger.error(f"API error {resp.status}: {text[:200]}")
+                logger.debug(f"Found {len(new_runs)} new unmatched runs")
+            else:
+                logger.error(f"API error getting runs: status={status}")
 
         except Exception as e:
             logger.error(f"Error getting new runs: {e}")
@@ -749,6 +729,92 @@ class WorkflowTracker:
             logger.error(f"Error getting active jobs: {e}")
 
         return 0
+
+    async def get_full_snapshot(self) -> Dict[str, Any]:
+        """
+        Get a complete snapshot of all tracked workflow runs and their jobs.
+
+        Captures everything GitHub returns - nothing is discarded.
+        Used by SnapshotCollector to persist all poll data.
+
+        Returns:
+            Dict containing:
+            - timestamp: When snapshot was taken
+            - workflows: List of workflow runs with full job data
+              - Each workflow includes: run_id, status, created_at, etc.
+              - Each job includes: job_id, status, runner_name, runner_id, timestamps, etc.
+        """
+        from datetime import datetime, timezone
+
+        snapshot = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "workflows": []
+        }
+
+        try:
+            # Get list of in_progress runs (1 API call)
+            runs_url = f"{self.base_url}/actions/runs"
+            params = {"status": "in_progress", "per_page": 100}
+
+            data, resp_status = await self._api_get_with_backoff(runs_url, params)
+            if not data or resp_status != 200:
+                return snapshot
+
+            # Filter to only runs we're tracking
+            tracked_run_ids = set(
+                w.get("run_id") for w in self.tracked_workflows.values()
+                if w.get("run_id")
+            )
+
+            in_progress_runs = [
+                run for run in data.get("workflow_runs", [])
+                if run.get("id") in tracked_run_ids
+            ]
+
+            # Get full details for each workflow run
+            for run in in_progress_runs:
+                run_id = run["id"]
+
+                workflow_data = {
+                    "run_id": run_id,
+                    "name": run.get("name"),
+                    "status": run.get("status"),
+                    "conclusion": run.get("conclusion"),
+                    "created_at": run.get("created_at"),
+                    "updated_at": run.get("updated_at"),
+                    "run_started_at": run.get("run_started_at"),
+                    "jobs": []
+                }
+
+                # Get all jobs for this run
+                jobs_url = f"{self.base_url}/actions/runs/{run_id}/jobs"
+                jobs_data, jobs_status = await self._api_get_with_backoff(jobs_url)
+
+                if jobs_data and jobs_status == 200:
+                    for job in jobs_data.get("jobs", []):
+                        job_data = {
+                            "job_id": job.get("id"),
+                            "name": job.get("name"),
+                            "status": job.get("status"),
+                            "conclusion": job.get("conclusion"),
+                            "created_at": job.get("created_at"),
+                            "started_at": job.get("started_at"),
+                            "completed_at": job.get("completed_at"),
+                            "runner_id": job.get("runner_id"),
+                            "runner_name": job.get("runner_name"),
+                            "runner_group_id": job.get("runner_group_id"),
+                            "runner_group_name": job.get("runner_group_name")
+                        }
+                        workflow_data["jobs"].append(job_data)
+
+                snapshot["workflows"].append(workflow_data)
+
+            return snapshot
+
+        except Exception as e:
+            logger.error(f"Error getting full snapshot: {e}")
+
+        return snapshot
 
     def get_metrics(self) -> Dict:
         """

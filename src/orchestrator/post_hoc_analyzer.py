@@ -289,7 +289,8 @@ class PostHocAnalyzer:
 
     async def analyze(self, job_name: str, created_after: datetime = None,
                      delay_between_calls: float = 0.1,
-                     run_ids: List[int] = None) -> PostHocAnalysis:
+                     run_ids: List[int] = None,
+                     snapshot_concurrency: Dict[str, Any] = None) -> PostHocAnalysis:
         """
         Perform complete post-hoc analysis of a test run.
 
@@ -298,6 +299,11 @@ class PostHocAnalyzer:
             created_after: Only analyze runs created after this time
             delay_between_calls: Delay between API calls to avoid rate limits
             run_ids: Optional list of run IDs to analyze directly (skips search)
+            snapshot_concurrency: Optional dict with accurate concurrency from snapshots:
+                - max_concurrent_jobs: int
+                - avg_concurrent_jobs: float
+                - max_concurrent_runners: int
+                If provided, these values are used instead of timestamp inference.
 
         Returns:
             PostHocAnalysis with all metrics
@@ -375,15 +381,25 @@ class PostHocAnalyzer:
                 await asyncio.sleep(delay_between_calls)
 
         # Calculate metrics
-        analysis = self._calculate_metrics(job_name, runs, all_jobs)
+        analysis = self._calculate_metrics(job_name, runs, all_jobs, snapshot_concurrency)
 
         logger.info(f"Post-hoc analysis complete. API calls made: {self.api_calls_made}")
 
         return analysis
 
     def _calculate_metrics(self, job_name: str, runs: List[Dict],
-                          jobs: List[JobMetrics]) -> PostHocAnalysis:
-        """Calculate all metrics from collected job data"""
+                          jobs: List[JobMetrics],
+                          snapshot_concurrency: Dict[str, Any] = None) -> PostHocAnalysis:
+        """
+        Calculate all metrics from collected job data.
+
+        Args:
+            job_name: Test run identifier
+            runs: List of workflow runs
+            jobs: List of job metrics
+            snapshot_concurrency: If provided, use these accurate values instead of
+                                  timestamp-based inference (which can be wrong)
+        """
 
         # Basic counts
         successful = sum(1 for j in jobs if j.conclusion == "success")
@@ -394,7 +410,7 @@ class PostHocAnalyzer:
         execution_times = [j.execution_time for j in jobs if j.execution_time is not None]
         total_times = [j.total_time for j in jobs if j.total_time is not None]
 
-        # Runner stats
+        # Runner stats from completed jobs
         runners_used: Dict[str, int] = {}
         runner_busy_time: Dict[str, float] = {}
 
@@ -404,8 +420,17 @@ class PostHocAnalyzer:
                 if job.execution_time:
                     runner_busy_time[job.runner_name] = runner_busy_time.get(job.runner_name, 0) + job.execution_time
 
-        # Calculate concurrency from overlapping time ranges
-        max_concurrent, avg_concurrent, timeline = self._calculate_concurrency(jobs)
+        # Concurrency metrics - prefer snapshot data (accurate) over timestamp inference (can be wrong)
+        if snapshot_concurrency:
+            # Use accurate data from real-time snapshots
+            max_concurrent = snapshot_concurrency.get("max_concurrent_jobs", 0)
+            avg_concurrent = snapshot_concurrency.get("avg_concurrent_jobs", 0.0)
+            timeline = []  # No timeline from snapshots
+            logger.info(f"Using snapshot-based concurrency: max={max_concurrent}, avg={avg_concurrent:.1f}")
+        else:
+            # Fall back to timestamp inference (may be inaccurate)
+            max_concurrent, avg_concurrent, timeline = self._calculate_concurrency(jobs)
+            logger.warning("Using timestamp-based concurrency inference (may be inaccurate)")
 
         return PostHocAnalysis(
             test_run_id=job_name,
