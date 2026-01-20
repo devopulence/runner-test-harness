@@ -664,9 +664,12 @@ class WorkflowTracker:
                     old_status = workflow_data.get("status")
                     workflow_data["status"] = run_data["status"]
                     workflow_data["conclusion"] = run_data.get("conclusion")
+                    logger.info(f"Run {run_id}: status={run_data['status']}, conclusion={run_data.get('conclusion')}")
 
                     if run_data["status"] == "completed" and old_status != "completed":
                         newly_completed.append(tracking_id)
+                else:
+                    logger.error(f"FAILED to fetch run {run_id}: HTTP {resp_status} - workflow stuck as in_progress")
 
         # Fetch job details only for newly completed workflows (for timing data)
         for tracking_id in newly_completed:
