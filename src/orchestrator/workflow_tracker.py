@@ -600,11 +600,13 @@ class WorkflowTracker:
         if not run_id_to_tracking:
             return
 
-        # Fetch recent runs with pagination (up to 3 pages = 300 runs)
+        # Fetch recent runs with pagination until we find all tracked runs
+        # Max 10 pages (1000 runs) as safety limit
         runs_url = f"{self.base_url}/actions/runs"
         runs = []
+        max_pages = 10
 
-        for page in range(1, 4):  # Pages 1, 2, 3
+        for page in range(1, max_pages + 1):
             params = {"per_page": 100, "page": page}
             data, status = await self._api_get_with_backoff(runs_url, params)
 
@@ -621,7 +623,10 @@ class WorkflowTracker:
             # Stop if we've found all our tracked runs
             found_count = sum(1 for r in runs if r.get("id") in run_id_to_tracking)
             if found_count >= len(run_id_to_tracking):
+                logger.info(f"Found all {found_count} tracked runs after {page} page(s)")
                 break
+            else:
+                logger.info(f"Page {page}: found {found_count}/{len(run_id_to_tracking)} tracked runs, fetching more...")
 
         if not runs:
             return
@@ -648,7 +653,7 @@ class WorkflowTracker:
         # Fetch status individually for runs not found in bulk list (pagination issue)
         missing_run_ids = set(run_id_to_tracking.keys()) - found_run_ids
         if missing_run_ids:
-            logger.debug(f"Fetching {len(missing_run_ids)} runs not in bulk list (pagination)")
+            logger.info(f"Fetching {len(missing_run_ids)} runs individually (not found in {len(runs)} bulk-fetched runs)")
             for run_id in missing_run_ids:
                 tracking_id = run_id_to_tracking[run_id]
                 url = f"{self.base_url}/actions/runs/{run_id}"
@@ -869,6 +874,13 @@ class WorkflowTracker:
             if workflow.get("execution_time") is not None:
                 execution_times.append(workflow["execution_time"])
 
+        # Log any workflows stuck in non-completed state (for debugging)
+        stuck = [(tid, w.get("status"), w.get("run_id"))
+                 for tid, w in self.tracked_workflows.items()
+                 if w.get("run_id") is not None and w.get("status") != "completed"]
+        if stuck:
+            logger.info(f"Workflows not yet completed ({len(stuck)}): run_ids={[s[2] for s in stuck]}")
+
         return {
             "queue_times": queue_times,
             "execution_times": execution_times,
@@ -885,10 +897,3 @@ class WorkflowTracker:
             "status_breakdown": {status: sum(1 for w in self.tracked_workflows.values() if w.get("status") == status)
                                 for status in set(w.get("status") for w in self.tracked_workflows.values())}
         }
-
-        # Log any workflows stuck in non-completed state
-        stuck = [(tid, w.get("status"), w.get("run_id"))
-                 for tid, w in self.tracked_workflows.items()
-                 if w.get("run_id") is not None and w.get("status") != "completed"]
-        if stuck:
-            logger.debug(f"Workflows not yet completed: {stuck}")
