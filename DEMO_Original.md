@@ -17,8 +17,8 @@ This harness was built to answer critical questions about our CI/CD infrastructu
 
 | Environment | Runners | Purpose |
 |-------------|---------|---------|
-| OpenShift Production | N (auto-discovered) | Production CI/CD workloads |
-| AWS ECS (Test Bed) | N | Validate harness before production |
+| OpenShift Production | 4 (dynamic) | Production CI/CD workloads |
+| AWS ECS (Test Bed) | 4 | Validate harness before production |
 
 ---
 
@@ -91,11 +91,11 @@ This harness was built to answer critical questions about our CI/CD infrastructu
 **Sample Output:**
 ```
 Concurrent Jobs (Runners Active):
-  Max Observed: N      <-- Actual runner limit discovered
-  Average: X.X
+  Max Observed: 4      <-- Actual runner limit discovered
+  Average: 3.5
 ```
 
-This is especially useful for environments like OpenShift where runners can scale dynamically. The configured count may differ from actual capacity - auto-scaling might provide more runners than expected.
+This is especially useful for environments like OpenShift where runners can scale dynamically. The configured count may say 4, but auto-scaling might provide 8 or more.
 
 ---
 
@@ -120,23 +120,23 @@ This is especially useful for environments like OpenShift where runners can scal
            │
            ▼
     ┌──────────────────────────────────────────────┐
-    │              Runner Pool (N runners)          │
-    │  ┌────────┐ ┌────────┐ ┌────────┐            │
-    │  │Runner 1│ │Runner 2│ │   ...  │ │Runner N│ │
-    │  └────────┘ └────────┘ └────────┘            │
+    │              Runner Pool (4 runners)          │
+    │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ │
+    │  │Runner 1│ │Runner 2│ │Runner 3│ │Runner 4│ │
+    │  └────────┘ └────────┘ └────────┘ └────────┘ │
     └──────────────────────────────────────────────┘
            │
-           │ Poll every 30 seconds
+           │ Execution complete
            ▼
-    ┌──────────────┐     ┌───────────────────┐
-    │  Workflow    │────▶│ Snapshot Collector│  Persists ALL poll data
-    │  Tracker     │     │ (JSON files)      │  Auto-discovers runners
-    └──────┬───────┘     └───────────────────┘
+    ┌──────────────┐
+    │  Workflow    │  Tracks job lifecycle
+    │  Tracker     │  Calculates queue/execution times
+    └──────┬───────┘
            │
            ▼
     ┌──────────────┐
     │  Analyzer    │  Test-specific analysis
-    │  & Reporter  │  Accurate concurrency from snapshots
+    │  & Reporter  │  Generates recommendations
     └──────────────┘
 ```
 
@@ -162,96 +162,6 @@ Job Created ──► Job Started ──► Job Completed
 | **Throughput** | Jobs completed per hour | System capacity |
 | **Utilization** | % of runners busy | Capacity headroom |
 | **Success Rate** | % of jobs that pass | System reliability |
-
----
-
-## Snapshot-Based Concurrency Tracking
-
-The harness uses a **Snapshot Collector** to capture accurate concurrency metrics. Every 30-second poll captures complete workflow/job/runner data and persists it to JSON.
-
-### Why Snapshots?
-
-Traditional timestamp-based inference can report impossible numbers (e.g., "10 concurrent jobs" when only N runners exist). Snapshot-based tracking observes the **actual state** at each poll interval.
-
-### What Gets Captured
-
-Each snapshot records:
-- All in-progress workflow runs
-- All jobs for each workflow (with status)
-- Runner names from job data (auto-discovered)
-- Timestamps for everything
-
-### Auto-Discovery of Runners
-
-Runner names are **automatically discovered** from job data - no configuration needed. This is especially valuable for:
-- OpenShift environments with dynamic runner scaling
-- Environments where runner count is unknown
-- Verifying actual vs configured runner capacity
-
-### Concurrency Metrics Output
-
-```
-============================================================
-CONCURRENCY METRICS (from observed snapshots)
-============================================================
-
-Snapshots collected: 18
-
-CONCURRENT WORKFLOWS:
-  Max: N
-  Avg: X.X
-  Min: 0
-
-CONCURRENT JOBS:
-  Max: N
-  Avg: X.X
-  Min: 0
-
-CONCURRENT RUNNERS (auto-discovered):
-  Max active at once: N
-  Avg active: X.X
-  Total unique runners: N
-  Runner names: runner-abc123, runner-def456, ...
-============================================================
-```
-
----
-
-## Rate Limiting Protection
-
-The harness includes robust rate limiting protection to prevent GitHub API errors (403/429).
-
-### Protection Features
-
-| Feature | Description |
-|---------|-------------|
-| **Rate Limit Tracking** | Monitors `X-RateLimit-Remaining` header from every API response |
-| **Proactive Pausing** | Automatically pauses when remaining calls < 100 |
-| **Exponential Backoff** | 5 retry attempts with increasing delays on 403/429 errors |
-| **Bulk Mode** | Optional optimized polling for high-concurrency tests |
-| **Post-Hoc Analysis** | Heavy analysis runs AFTER test completion to avoid mid-test limits |
-
-### Backoff Behavior
-
-```
-Rate Limit Protection:
-  - Attempt 1: Immediate
-  - Attempt 2: Wait 5 seconds
-  - Attempt 3: Wait 10 seconds
-  - Attempt 4: Wait 15 seconds
-  - Attempt 5: Wait 20 seconds
-
-  On 403 rate limit:
-  - Wait until X-RateLimit-Reset timestamp
-  - Maximum wait capped at 2 minutes
-```
-
-### Best Practices
-
-1. **Use Fast Profiles First**: `validation`, `*_fast` profiles use fewer API calls
-2. **Avoid Parallel Test Runs**: Multiple simultaneous tests can exceed limits
-3. **Monitor Logs**: Watch for "Rate limit low" warnings
-4. **Use Bulk Mode**: Automatically enabled for high-concurrency tests
 
 ---
 
@@ -283,7 +193,7 @@ Workflows Analyzed: 12
 
 🎯 CAPACITY INSIGHTS:
   Avg execution: 4.5 minutes
-  Max throughput (N runners): Based on observed capacity
+  Max throughput (4 runners): 53.3 jobs/hour
 ```
 
 **Analysis Output:**
@@ -430,110 +340,41 @@ python run_tests.py -i
 Each test generates:
 
 1. **Console Summary** - Real-time metrics during test
-2. **Enhanced Report** - Detailed metrics for each workflow
+2. **JSON Report** - Detailed metrics for each workflow
 3. **Analysis Report** - Test-specific insights and recommendations
-4. **Tracking File** - Raw workflow tracking data
-5. **Snapshot File** - Complete poll data with runner discovery
+4. **Tracking File** - Raw data for later analysis
 
-### Directory Structure
-
+Reports are saved to:
 ```
 test_results/
-└── {environment}/                              # e.g., aws-ecs, openshift-sandbox
-    │
-    ├── enhanced_report_{profile}_{timestamp}.json
-    │   └── Detailed metrics: queue times, execution times, throughput
-    │
-    ├── {test_run_id}_snapshots.json
-    │   └── All poll data with auto-discovered runner names
-    │
+└── {environment}/
+    ├── test_report_{timestamp}.json
+    ├── enhanced_report_{timestamp}.json
     ├── tracking/
-    │   └── {profile}_{timestamp}_{id}.json
-    │       └── Raw workflow run data: status, timestamps, job details
-    │
+    │   └── {test_type}_{timestamp}_{id}.json
     └── analysis/
         └── {test_run_id}_analysis.json
-            └── Test-specific analysis: ratings, recommendations, SLAs
-```
-
-### File Naming Convention
-
-Files follow a consistent naming pattern:
-- `{profile}` - Test profile name (e.g., `capacity`, `performance_fast`, `stress`)
-- `{timestamp}` - Format: `YYYYMMDD_HHMMSS`
-- `{id}` - 8-character unique identifier for the test run
-- `{test_run_id}` - Full identifier: `{profile}_{timestamp}_{id}`
-
-**Example:**
-```
-capacity_20250120_143022_abc12345
-   │         │        │
-   │         │        └── Unique ID
-   │         └── Timestamp (Jan 20, 2025 at 14:30:22)
-   └── Test profile
-```
-
-### File Contents
-
-| File | Contains | Use Case |
-|------|----------|----------|
-| `enhanced_report_*.json` | Queue/execution times, throughput, success rates | Quick metrics review |
-| `*_snapshots.json` | All poll data, runner names, concurrency over time | Accurate concurrency analysis |
-| `tracking/*.json` | Individual workflow run details, job timestamps | Debugging, detailed analysis |
-| `analysis/*.json` | Ratings, recommendations, SLA suggestions | Decision making |
-
-### Snapshot File Contents
-
-The `*_snapshots.json` file contains:
-```json
-{
-  "test_run_id": "capacity_20250120_143022_abc123",
-  "environment": "openshift-sandbox",
-  "started_at": "2025-01-20T14:30:22.123456",
-  "completed_at": "2025-01-20T14:42:45.789012",
-  "total_snapshots": 24,
-  "discovered_runners": ["runner-abc123", "runner-def456", "..."],
-  "snapshots": [
-    {
-      "timestamp": "2025-01-20T14:30:52.123456",
-      "workflows": [
-        {
-          "run_id": 12345,
-          "status": "in_progress",
-          "jobs": [
-            {
-              "id": 67890,
-              "status": "in_progress",
-              "runner_name": "runner-1",
-              "started_at": "2025-01-20T14:30:45"
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
 ```
 
 ---
 
 ## Key Findings (Example)
 
-Based on testing with N runners (auto-discovered):
+Based on testing with 4 runners:
 
 | Finding | Value | Implication |
 |---------|-------|-------------|
-| Max throughput | Calculated from observed runners | N runners can handle X builds/hour |
+| Max throughput | ~53 jobs/hour | 4 runners can handle ~53 builds/hour |
 | Avg execution | 4.5 minutes | Typical CI job duration |
-| Queue at capacity | 11+ minutes | Jobs wait when overwhelmed |
+| Queue at capacity | 11+ minutes | Jobs wait 11 min when overwhelmed |
 | Recovery time | ~5 jobs | System recovers after spike clears |
 
 ### Capacity Planning
 
 ```
-With N runners @ avg execution time:
-- Theoretical max: (60 / avg_execution_min) * N jobs/hour
-- Sustainable rate: ~75% of theoretical max
+With 4 runners @ 4.5 min avg execution:
+- Theoretical max: 53 jobs/hour
+- Sustainable rate: ~40 jobs/hour (75% utilization)
 - Add runners when: Queue time consistently > 2 minutes
 ```
 
@@ -546,15 +387,12 @@ With N runners @ avg execution time:
 - **Configurable**: YAML-based environment and test profiles
 - **Async**: Efficient parallel workflow tracking
 - **Extensible**: Pluggable analyzers for different test types
-- **Accurate Metrics**: Snapshot-based concurrency tracking (not timestamp inference)
-- **Auto-Discovery**: Runner names discovered automatically from job data
-- **Rate Limit Safe**: Exponential backoff with proactive pausing on low limits
 
 ---
 
 ## Next Steps
 
 1. **Production Baseline**: Run full test suite on OpenShift production
-2. **Capacity Planning**: Determine if current runner count is sufficient
+2. **Capacity Planning**: Determine if 4 runners is sufficient
 3. **Auto-scaling Validation**: Test dynamic runner scaling behavior
 4. **SLA Definition**: Establish queue time SLAs based on findings
