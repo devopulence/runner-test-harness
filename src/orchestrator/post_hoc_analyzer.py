@@ -349,6 +349,11 @@ class PostHocAnalyzer:
             jobs = await self.get_jobs_for_run(run_id)
 
             for job in jobs:
+                # Skip jobs that were skipped (never ran on a runner)
+                # These have fake timestamps where started_at == created_at
+                if job.get("conclusion") == "skipped":
+                    continue
+
                 # Parse timestamps
                 created_at = datetime.fromisoformat(job["created_at"].replace("Z", "+00:00"))
                 started_at = None
