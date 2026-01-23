@@ -54,10 +54,14 @@ class PostHocAnalysis:
     successful_jobs: int
     failed_jobs: int
 
-    # Timing metrics
-    queue_times: List[float] = field(default_factory=list)
-    execution_times: List[float] = field(default_factory=list)
-    total_times: List[float] = field(default_factory=list)
+    # Timing metrics (WORKFLOW-LEVEL - aggregated per workflow run)
+    queue_times: List[float] = field(default_factory=list)  # Per workflow: first job start - first job created
+    execution_times: List[float] = field(default_factory=list)  # Per workflow: last job end - first job start
+    total_times: List[float] = field(default_factory=list)  # Per workflow: last job end - first job created
+
+    # Job-level timing (for detailed analysis)
+    job_queue_times: List[float] = field(default_factory=list)
+    job_execution_times: List[float] = field(default_factory=list)
 
     # Concurrency metrics (primary - may be from snapshots or timestamps)
     max_concurrent_jobs: int = 0
@@ -409,10 +413,45 @@ class PostHocAnalyzer:
         successful = sum(1 for j in jobs if j.conclusion == "success")
         failed = sum(1 for j in jobs if j.conclusion == "failure")
 
-        # Timing lists
-        queue_times = [j.queue_time for j in jobs if j.queue_time is not None]
-        execution_times = [j.execution_time for j in jobs if j.execution_time is not None]
-        total_times = [j.total_time for j in jobs if j.total_time is not None]
+        # Job-level timing (for detailed analysis)
+        job_queue_times = [j.queue_time for j in jobs if j.queue_time is not None]
+        job_execution_times = [j.execution_time for j in jobs if j.execution_time is not None]
+
+        # WORKFLOW-LEVEL timing - group jobs by run_id and aggregate
+        # This gives the actual workflow duration, not individual job times
+        from collections import defaultdict
+        jobs_by_run: Dict[int, List[JobMetrics]] = defaultdict(list)
+        for job in jobs:
+            jobs_by_run[job.run_id].append(job)
+
+        workflow_queue_times = []
+        workflow_execution_times = []
+        workflow_total_times = []
+
+        for run_id, run_jobs in jobs_by_run.items():
+            # Filter jobs with valid timestamps
+            valid_jobs = [j for j in run_jobs if j.started_at and j.completed_at and j.created_at]
+            if not valid_jobs:
+                continue
+
+            # Workflow timing:
+            # - Queue time: from earliest job created to earliest job started
+            # - Execution time: SUM of all job execution times (actual runner time)
+            # - Total time: from earliest job created to latest job completed (wall clock)
+            earliest_created = min(j.created_at for j in valid_jobs)
+            earliest_started = min(j.started_at for j in valid_jobs)
+            latest_completed = max(j.completed_at for j in valid_jobs)
+
+            wf_queue_time = (earliest_started - earliest_created).total_seconds()
+            wf_execution_time = sum(j.execution_time for j in valid_jobs if j.execution_time)
+            wf_total_time = (latest_completed - earliest_created).total_seconds()
+
+            workflow_queue_times.append(wf_queue_time)
+            workflow_execution_times.append(wf_execution_time)
+            workflow_total_times.append(wf_total_time)
+
+        logger.info(f"Calculated {len(workflow_execution_times)} workflow-level execution times "
+                   f"(from {len(jobs)} individual jobs)")
 
         # Runner stats from completed jobs
         runners_used: Dict[str, int] = {}
@@ -444,9 +483,13 @@ class PostHocAnalyzer:
             total_jobs=len(jobs),
             successful_jobs=successful,
             failed_jobs=failed,
-            queue_times=queue_times,
-            execution_times=execution_times,
-            total_times=total_times,
+            # Workflow-level timing (primary metrics)
+            queue_times=workflow_queue_times,
+            execution_times=workflow_execution_times,
+            total_times=workflow_total_times,
+            # Job-level timing (for detailed analysis)
+            job_queue_times=job_queue_times,
+            job_execution_times=job_execution_times,
             max_concurrent_jobs=max_concurrent,
             avg_concurrent_jobs=avg_concurrent,
             concurrency_timeline=timeline,
@@ -588,3 +631,80 @@ class PostHocAnalyzer:
 
         logger.info("-" * 60)
         logger.info(f"  Peak concurrent: {max_concurrent}")
+
+    def print_queue_time_trend(self, jobs: List[JobMetrics], bucket_minutes: int = 2) -> None:
+        """
+        Print queue time trend over the test duration.
+        Shows how queue times change as the test progresses.
+
+        Args:
+            jobs: List of job metrics
+            bucket_minutes: Time bucket size in minutes
+        """
+        # Get jobs with valid queue times, sorted by creation time
+        valid_jobs = [j for j in jobs if j.queue_time is not None and j.created_at]
+        if not valid_jobs:
+            logger.info("No queue time data available")
+            return
+
+        valid_jobs.sort(key=lambda j: j.created_at)
+
+        # Find time range
+        min_time = min(j.created_at for j in valid_jobs)
+        max_time = max(j.created_at for j in valid_jobs)
+        total_minutes = (max_time - min_time).total_seconds() / 60
+
+        # Create time buckets
+        buckets = []
+        bucket_seconds = bucket_minutes * 60
+        current_bucket_start = min_time
+
+        while current_bucket_start < max_time:
+            bucket_end = current_bucket_start + timedelta(seconds=bucket_seconds)
+
+            # Get jobs in this bucket (by creation time)
+            bucket_jobs = [
+                j for j in valid_jobs
+                if current_bucket_start <= j.created_at < bucket_end
+            ]
+
+            if bucket_jobs:
+                avg_queue = sum(j.queue_time for j in bucket_jobs) / len(bucket_jobs)
+                max_queue = max(j.queue_time for j in bucket_jobs)
+                offset_min = (current_bucket_start - min_time).total_seconds() / 60
+                buckets.append({
+                    "offset_min": offset_min,
+                    "avg_queue": avg_queue,
+                    "max_queue": max_queue,
+                    "count": len(bucket_jobs)
+                })
+
+            current_bucket_start = bucket_end
+
+        if not buckets:
+            logger.info("No queue time buckets to display")
+            return
+
+        # Find max for scaling
+        max_avg_queue = max(b["avg_queue"] for b in buckets)
+        bar_scale = 10  # Max bar width
+
+        logger.info("")
+        logger.info("QUEUE TIME TREND (how queue time changes over test):")
+        logger.info("-" * 65)
+        logger.info(f"  {'Time':>8} | {'Avg Queue':^20} | {'Jobs'}")
+        logger.info("-" * 65)
+
+        for bucket in buckets:
+            # Scale bar to max
+            bar_len = int((bucket["avg_queue"] / max_avg_queue) * bar_scale) if max_avg_queue > 0 else 0
+            bar = "█" * bar_len
+            spaces = " " * (bar_scale - bar_len)
+
+            time_label = f"{bucket['offset_min']:.0f}-{bucket['offset_min'] + bucket_minutes:.0f}m"
+            queue_label = f"{bucket['avg_queue']:.0f}s"
+
+            logger.info(f"  {time_label:>8} | {bar}{spaces} {queue_label:>6} | {bucket['count']}")
+
+        logger.info("-" * 65)
+        logger.info(f"  Trend: {'INCREASING' if buckets[-1]['avg_queue'] > buckets[0]['avg_queue'] * 1.5 else 'STABLE'}")

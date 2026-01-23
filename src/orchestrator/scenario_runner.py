@@ -420,13 +420,35 @@ class ScenarioRunner:
                 if post_hoc_analysis.total_jobs > 0:
                     ph_stats = post_hoc_analysis.calculate_statistics()
                     logger.info(f"Post-hoc analysis complete:")
-                    logger.info(f"  Total runs: {post_hoc_analysis.total_runs}")
+                    logger.info(f"  Total workflows: {post_hoc_analysis.total_runs}")
                     logger.info(f"  Total jobs: {post_hoc_analysis.total_jobs}")
-                    logger.info(f"  Successful: {post_hoc_analysis.successful_jobs}")
-                    logger.info(f"  Failed: {post_hoc_analysis.failed_jobs}")
+                    logger.info(f"  Successful jobs: {post_hoc_analysis.successful_jobs}")
+                    logger.info(f"  Failed jobs: {post_hoc_analysis.failed_jobs}")
                     logger.info(f"  Unique runners used: {len(post_hoc_analysis.runners_used)}")
                     if post_hoc_analysis.runners_used:
                         logger.info(f"  Runners: {post_hoc_analysis.runners_used}")
+
+                    # Show WORKFLOW-LEVEL timing (what users care about)
+                    import statistics
+                    logger.info("=" * 60)
+                    logger.info("WORKFLOW TIMING (per-workflow)")
+                    logger.info("=" * 60)
+                    if post_hoc_analysis.total_times:
+                        logger.info(f"  TOTAL TIME (dispatch to completion):")
+                        logger.info(f"    Min: {min(post_hoc_analysis.total_times)/60:.1f} min")
+                        logger.info(f"    Max: {max(post_hoc_analysis.total_times)/60:.1f} min")
+                        logger.info(f"    Mean: {statistics.mean(post_hoc_analysis.total_times)/60:.1f} min")
+                    if post_hoc_analysis.queue_times:
+                        logger.info(f"  QUEUE TIME (waiting for first runner):")
+                        logger.info(f"    Min: {min(post_hoc_analysis.queue_times)/60:.1f} min")
+                        logger.info(f"    Max: {max(post_hoc_analysis.queue_times)/60:.1f} min")
+                        logger.info(f"    Mean: {statistics.mean(post_hoc_analysis.queue_times)/60:.1f} min")
+                    if post_hoc_analysis.execution_times:
+                        logger.info(f"  JOB TIMES (sum of job execution on runners):")
+                        logger.info(f"    Min: {min(post_hoc_analysis.execution_times)/60:.1f} min")
+                        logger.info(f"    Max: {max(post_hoc_analysis.execution_times)/60:.1f} min")
+                        logger.info(f"    Mean: {statistics.mean(post_hoc_analysis.execution_times)/60:.1f} min")
+                    logger.info("=" * 60)
 
                     # Report BOTH concurrency calculations clearly
                     logger.info("=" * 60)
@@ -443,6 +465,7 @@ class ScenarioRunner:
                     # Show detailed timeline of job overlaps
                     if post_hoc_analysis.jobs:
                         analyzer.print_concurrency_timeline(post_hoc_analysis.jobs, interval_seconds=30)
+                        analyzer.print_queue_time_trend(post_hoc_analysis.jobs, bucket_minutes=2)
 
                     # Update metrics with accurate post-hoc timing data
                     # Note: Keep workflow counts separate from job counts

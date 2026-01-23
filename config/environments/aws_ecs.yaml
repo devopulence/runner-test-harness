@@ -173,7 +173,7 @@ test_profiles:
 
   # Concurrency discovery - find max concurrent runners
   concurrency_discovery:
-    duration_minutes: 10
+    duration_minutes: 15
     dispatch_pattern: burst
     burst_size: 20            # Dispatch 20 jobs at once
     burst_interval: 300       # Wait 5 min between bursts
