@@ -588,12 +588,15 @@ class PostHocAnalyzer:
         current_time = min_time
 
         while current_time <= max_time:
-            # Count jobs running at this moment
+            # Find jobs running at this moment
             # A job is running if: started_at <= current_time < completed_at
-            concurrent = sum(
-                1 for j in valid_jobs
-                if j.started_at <= current_time < j.completed_at
-            )
+            running_jobs = [j for j in valid_jobs if j.started_at <= current_time < j.completed_at]
+
+            # Count jobs
+            concurrent_jobs = len(running_jobs)
+
+            # Count workflows (unique run_ids with at least one job running)
+            concurrent_workflows = len(set(j.run_id for j in running_jobs))
 
             # Calculate offset from start in minutes
             offset_seconds = (current_time - min_time).total_seconds()
@@ -602,7 +605,9 @@ class PostHocAnalyzer:
             timeline.append({
                 "time": current_time.strftime("%H:%M:%S"),
                 "offset_min": round(offset_minutes, 1),
-                "concurrent": concurrent
+                "concurrent_jobs": concurrent_jobs,
+                "concurrent_workflows": concurrent_workflows,
+                "concurrent": concurrent_jobs  # backward compat
             })
 
             current_time = current_time + timedelta(seconds=interval_seconds)
@@ -623,23 +628,41 @@ class PostHocAnalyzer:
             logger.info("No job data available for timeline")
             return
 
-        max_concurrent = max(t["concurrent"] for t in timeline)
+        max_jobs = max(t["concurrent_jobs"] for t in timeline)
+        max_workflows = max(t["concurrent_workflows"] for t in timeline)
 
+        # JOB CONCURRENCY TIMELINE (runner utilization)
         # Scale: 5 concurrent = 1 block (for readability at high concurrency)
-        max_bar_width = (max_concurrent + 4) // 5  # ceiling division
+        job_bar_width = (max_jobs + 4) // 5  # ceiling division
 
         logger.info("")
-        logger.info("CONCURRENCY TIMELINE (every %d seconds, scale: 5=█):", interval_seconds)
-        logger.info("-" * 65)
+        logger.info("JOB CONCURRENCY TIMELINE (runner utilization, scale: 5=█):")
+        logger.info("-" * 60)
 
         for entry in timeline:
-            bar_width = (entry["concurrent"] + 4) // 5  # ceiling division
+            bar_width = (entry["concurrent_jobs"] + 4) // 5
             bar = "█" * bar_width
-            spaces = " " * (max_bar_width - bar_width)
-            logger.info(f"  {entry['offset_min']:5.1f}m | {bar}{spaces} | {entry['concurrent']:>4}")
+            spaces = " " * (job_bar_width - bar_width)
+            logger.info(f"  {entry['offset_min']:5.1f}m | {bar}{spaces} | {entry['concurrent_jobs']:>4}")
 
-        logger.info("-" * 65)
-        logger.info(f"  Peak concurrent: {max_concurrent}")
+        logger.info("-" * 60)
+        logger.info(f"  Peak: {max_jobs} jobs")
+
+        # WORKFLOW CONCURRENCY TIMELINE (pipelines in flight)
+        wf_bar_width = (max_workflows + 4) // 5  # ceiling division
+
+        logger.info("")
+        logger.info("WORKFLOW CONCURRENCY TIMELINE (pipelines in flight, scale: 5=█):")
+        logger.info("-" * 60)
+
+        for entry in timeline:
+            bar_width = (entry["concurrent_workflows"] + 4) // 5
+            bar = "█" * bar_width
+            spaces = " " * (wf_bar_width - bar_width)
+            logger.info(f"  {entry['offset_min']:5.1f}m | {bar}{spaces} | {entry['concurrent_workflows']:>4}")
+
+        logger.info("-" * 60)
+        logger.info(f"  Peak: {max_workflows} workflows")
 
     def print_queue_time_trend(self, jobs: List[JobMetrics], bucket_minutes: int = 2) -> None:
         """

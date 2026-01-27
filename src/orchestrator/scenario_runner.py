@@ -317,6 +317,17 @@ class ScenarioRunner:
                     elapsed = (datetime.now() - wait_start).total_seconds() / 60
                     if elapsed > max_wait_minutes:
                         logger.warning(f"Timeout waiting for workflows after {max_wait_minutes} minutes")
+                        # Mark remaining in_progress workflows as timed_out
+                        timed_out_count = 0
+                        for tracking_id, workflow in self.tracker.tracked_workflows.items():
+                            if workflow.get("status") == "in_progress":
+                                workflow["status"] = "completed"
+                                workflow["conclusion"] = "timed_out"
+                                run_id = workflow.get("run_id")
+                                logger.warning(f"Workflow {run_id} timed out after {max_wait_minutes} min - marking as timed_out")
+                                timed_out_count += 1
+                        if timed_out_count:
+                            logger.warning(f"Marked {timed_out_count} workflows as timed_out")
                         break
 
                     await asyncio.sleep(15)  # Poll every 15 seconds while waiting

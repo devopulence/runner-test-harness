@@ -579,7 +579,8 @@ class WorkflowTracker:
             "in_progress": sum(1 for w in self.tracked_workflows.values() if w.get("status") == "in_progress"),
             "completed": sum(1 for w in self.tracked_workflows.values() if w.get("status") == "completed"),
             "successful": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "success"),
-            "failed": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "failure"),
+            "failed": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") in ("failure", "timed_out")),
+            "timed_out": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "timed_out"),
         }
 
         logger.info(f"Workflow status: {summary}")
@@ -650,11 +651,36 @@ class WorkflowTracker:
                 if run["status"] == "completed" and old_status != "completed":
                     newly_completed.append(tracking_id)
 
-        # Fetch status individually for runs not found in bulk list (pagination issue)
+        # Detect stale workflows - in_progress for too long (> 10 min since dispatch)
+        # This catches cases where bulk API returns stale status
+        stale_run_ids = set()
+        now = datetime.now(timezone.utc)
+        stale_threshold_minutes = 10
+
+        for run_id, tracking_id in run_id_to_tracking.items():
+            workflow_data = self.tracked_workflows[tracking_id]
+            if workflow_data.get("status") == "in_progress":
+                dispatch_time = workflow_data.get("dispatch_time")
+                if dispatch_time:
+                    # Ensure dispatch_time is timezone-aware
+                    if dispatch_time.tzinfo is None:
+                        dispatch_time = dispatch_time.replace(tzinfo=timezone.utc)
+                    age_minutes = (now - dispatch_time).total_seconds() / 60
+                    if age_minutes > stale_threshold_minutes:
+                        stale_run_ids.add(run_id)
+
+        # Fetch status individually for:
+        # 1. Runs not found in bulk list (pagination issue)
+        # 2. Runs that have been in_progress too long (stale status)
         missing_run_ids = set(run_id_to_tracking.keys()) - found_run_ids
-        if missing_run_ids:
-            logger.info(f"Fetching {len(missing_run_ids)} runs individually (not found in {len(runs)} bulk-fetched runs)")
-            for run_id in missing_run_ids:
+        verify_run_ids = missing_run_ids | stale_run_ids
+
+        if stale_run_ids:
+            logger.info(f"Detected {len(stale_run_ids)} stale in_progress runs (> {stale_threshold_minutes} min), forcing individual fetch")
+
+        if verify_run_ids:
+            logger.info(f"Fetching {len(verify_run_ids)} runs individually (missing={len(missing_run_ids)}, stale={len(stale_run_ids)})")
+            for run_id in verify_run_ids:
                 tracking_id = run_id_to_tracking[run_id]
                 url = f"{self.base_url}/actions/runs/{run_id}"
                 run_data, resp_status = await self._api_get_with_backoff(url)
@@ -888,7 +914,8 @@ class WorkflowTracker:
             "queue_times": queue_times,
             "execution_times": execution_times,
             "successful": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "success"),
-            "failed": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "failure"),
+            "failed": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") in ("failure", "timed_out")),
+            "timed_out": sum(1 for w in self.tracked_workflows.values() if w.get("conclusion") == "timed_out"),
             "pending": sum(1 for w in self.tracked_workflows.values() if w.get("run_id") is None),
             "matched": sum(1 for w in self.tracked_workflows.values() if w.get("run_id") is not None),
             # Count actual in_progress based on status, not derived from success/failed

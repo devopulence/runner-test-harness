@@ -261,3 +261,30 @@ jobs:
           echo "Status: ${{ job.status }}"
           echo "Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo "==============================================="
+
+  # Conditional job - NEVER runs (simulates OpenShift conditional jobs)
+  # This tests that our metrics correctly filter out skipped jobs
+  deploy-production:
+    name: Deploy to Production
+    needs: send-results
+    if: github.event.inputs.deploy_prod == 'true'  # Never true - no such input
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    steps:
+      - name: Deploy
+        run: |
+          echo "Deploying to production..."
+          sleep 30
+          echo "Deployed!"
+
+  # Another conditional job - NEVER runs (simulates scheduled-only jobs)
+  security-scan-extended:
+    name: Extended Security Scan
+    needs: build-simulation
+    if: github.event_name == 'schedule'  # Never true - we use workflow_dispatch
+    runs-on: [self-hosted, ecs-fargate, aws, linux]
+    steps:
+      - name: Extended Scan
+        run: |
+          echo "Running extended security scan..."
+          sleep 60
+          echo "Scan complete!"
