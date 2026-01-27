@@ -625,16 +625,20 @@ class PostHocAnalyzer:
 
         max_concurrent = max(t["concurrent"] for t in timeline)
 
+        # Scale: 5 concurrent = 1 block (for readability at high concurrency)
+        max_bar_width = (max_concurrent + 4) // 5  # ceiling division
+
         logger.info("")
-        logger.info("CONCURRENCY TIMELINE (every %d seconds):", interval_seconds)
-        logger.info("-" * 60)
+        logger.info("CONCURRENCY TIMELINE (every %d seconds, scale: 5=█):", interval_seconds)
+        logger.info("-" * 65)
 
         for entry in timeline:
-            bar = "█" * entry["concurrent"]
-            spaces = " " * (max_concurrent - entry["concurrent"])
-            logger.info(f"  {entry['offset_min']:5.1f}m | {bar}{spaces} | {entry['concurrent']}")
+            bar_width = (entry["concurrent"] + 4) // 5  # ceiling division
+            bar = "█" * bar_width
+            spaces = " " * (max_bar_width - bar_width)
+            logger.info(f"  {entry['offset_min']:5.1f}m | {bar}{spaces} | {entry['concurrent']:>4}")
 
-        logger.info("-" * 60)
+        logger.info("-" * 65)
         logger.info(f"  Peak concurrent: {max_concurrent}")
 
     def print_queue_time_trend(self, jobs: List[JobMetrics], bucket_minutes: int = 2) -> None:
