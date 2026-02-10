@@ -232,13 +232,16 @@ class TestHarness:
                 for rec in recommendations:
                     print(f"  {rec}")
 
-            # Save analysis results
+            # Save analysis results to per-run directory
             if self.runner and self.runner.test_run_tracker:
-                analysis_dir = Path(f'test_results/{self.switcher.current_environment.name if self.switcher.current_environment else "aws-ecs"}/analysis')
-                analysis_dir.mkdir(parents=True, exist_ok=True)
-
                 test_run_id = self.runner.test_run_tracker.test_run_id
-                analysis_file = analysis_dir / f"{test_run_id}_analysis.json"
+                env_name = self.switcher.current_environment.name if self.switcher.current_environment else "aws-ecs"
+
+                # Use per-run directory: test_results/{env}/{test_run_id}/
+                run_dir = Path(f'test_results/{env_name}/{test_run_id}')
+                run_dir.mkdir(parents=True, exist_ok=True)
+
+                analysis_file = run_dir / "analysis.json"
 
                 import json
                 with open(analysis_file, 'w') as f:

@@ -62,17 +62,12 @@ class TestRunTracker:
             }
         }
 
-        # Save to tracking directory
-        tracking_dir = Path(f"test_results/{self.environment}/tracking")
-        tracking_dir.mkdir(parents=True, exist_ok=True)
+        # Save to per-run directory: test_results/{env}/{test_run_id}/
+        run_dir = Path(f"test_results/{self.environment}/{self.test_run_id}")
+        run_dir.mkdir(parents=True, exist_ok=True)
 
-        tracking_file = tracking_dir / f"{self.test_run_id}.json"
+        tracking_file = run_dir / "tracking.json"
         with open(tracking_file, 'w') as f:
-            json.dump(tracking_data, f, indent=2)
-
-        # Also save as "latest" for easy access
-        latest_file = tracking_dir / "latest.json"
-        with open(latest_file, 'w') as f:
             json.dump(tracking_data, f, indent=2)
 
         print(f"\n📌 Test Run ID: {self.test_run_id}")

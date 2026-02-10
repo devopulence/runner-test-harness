@@ -510,7 +510,8 @@ class ScenarioRunner:
                 self.enhanced_metrics.observed_runner_count = post_hoc_analysis.max_concurrent_jobs
             elif self.metrics.concurrent_jobs:
                 self.enhanced_metrics.observed_runner_count = max(self.metrics.concurrent_jobs)
-            report_path = self.enhanced_metrics.generate_report(profile_name, f"test_results/{self.environment.name}")
+            test_run_id = self.test_run_tracker.test_run_id if self.test_run_tracker else None
+            report_path = self.enhanced_metrics.generate_report(profile_name, f"test_results/{self.environment.name}", test_run_id)
             logger.info(f"Enhanced report saved to: {report_path}")
 
         # Save post-hoc analysis report
@@ -802,13 +803,17 @@ class ScenarioRunner:
         Returns:
             Path to report file
         """
-        # Create output directory
-        output_path = Path(output_dir) / self.environment.name
-        output_path.mkdir(parents=True, exist_ok=True)
-
-        # Generate report filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = output_path / f"test_report_{timestamp}.json"
+        # Use per-run directory if test_run_tracker is available
+        if self.test_run_tracker:
+            run_dir = Path(output_dir) / self.environment.name / self.test_run_tracker.test_run_id
+            run_dir.mkdir(parents=True, exist_ok=True)
+            report_file = run_dir / "test_report.json"
+        else:
+            # Fallback to old behavior
+            output_path = Path(output_dir) / self.environment.name
+            output_path.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_file = output_path / f"test_report_{timestamp}.json"
 
         # Prepare report data
         observed_runners = max(metrics.concurrent_jobs) if metrics.concurrent_jobs else 0
@@ -852,17 +857,102 @@ class ScenarioRunner:
         Returns:
             Path to saved report
         """
-        output_path = Path(f"test_results/{self.environment.name}")
-        output_path.mkdir(parents=True, exist_ok=True)
+        # Use per-run directory: test_results/{env}/{test_run_id}/
+        run_dir = Path(f"test_results/{self.environment.name}/{analysis.test_run_id}")
+        run_dir.mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = output_path / f"post_hoc_{profile_name}_{timestamp}.json"
+        report_file = run_dir / "post_hoc.json"
+
+        # Calculate test duration from job timestamps
+        test_duration_minutes = 0.0
+        if analysis.jobs:
+            job_starts = [j.started_at for j in analysis.jobs if j.started_at]
+            job_ends = [j.completed_at for j in analysis.jobs if j.completed_at]
+            if job_starts and job_ends:
+                first_start = min(job_starts)
+                last_end = max(job_ends)
+                test_duration_minutes = (last_end - first_start).total_seconds() / 60.0
+
+        # Helper function for p95 calculation
+        def calc_p95(values: List[float]) -> float:
+            if not values:
+                return 0.0
+            if len(values) == 1:
+                return values[0]
+            sorted_vals = sorted(values)
+            idx = int(len(sorted_vals) * 0.95)
+            return sorted_vals[min(idx, len(sorted_vals) - 1)]
+
+        # Calculate total times if not present (queue + execution per workflow)
+        total_times = analysis.total_times if analysis.total_times else []
+        if not total_times and analysis.queue_times and analysis.execution_times:
+            # Approximate: can't pair them perfectly, use sums
+            total_times = [q + e for q, e in zip(analysis.queue_times, analysis.execution_times)]
+
+        # Calculate runner utilization
+        runner_count = len(analysis.runners_used) if analysis.runners_used else 0
+        total_busy_time_sec = sum(analysis.runner_busy_time.values()) if analysis.runner_busy_time else 0
+        runner_utilization_percent = 0.0
+        if runner_count > 0 and test_duration_minutes > 0:
+            total_available_time_sec = runner_count * test_duration_minutes * 60
+            runner_utilization_percent = (total_busy_time_sec / total_available_time_sec) * 100
+
+        # Calculate throughput
+        test_duration_hours = test_duration_minutes / 60.0 if test_duration_minutes > 0 else 1
+        jobs_per_hour = analysis.total_jobs / test_duration_hours if test_duration_hours > 0 else 0
+        workflows_per_hour = analysis.total_runs / test_duration_hours if test_duration_hours > 0 else 0
+
+        # Count timed_out jobs
+        timed_out_jobs = sum(1 for j in analysis.jobs if j.conclusion == "timed_out")
+
+        # Build KPI section (standardized across all reports)
+        kpi = {
+            "totals": {
+                "workflows": analysis.total_runs,
+                "jobs": analysis.total_jobs,
+                "jobs_per_workflow": round(analysis.total_jobs / analysis.total_runs, 2) if analysis.total_runs > 0 else 0,
+                "queue_time_minutes": round(sum(analysis.queue_times) / 60, 2) if analysis.queue_times else 0,
+                "execution_time_minutes": round(sum(analysis.execution_times) / 60, 2) if analysis.execution_times else 0,
+                "total_time_minutes": round(sum(total_times) / 60, 2) if total_times else 0
+            },
+            "throughput": {
+                "jobs_per_hour": round(jobs_per_hour, 2),
+                "workflows_per_hour": round(workflows_per_hour, 2)
+            },
+            "queue_time_minutes": {
+                "avg": round(statistics.mean(analysis.queue_times) / 60, 2) if analysis.queue_times else 0,
+                "p95": round(calc_p95(analysis.queue_times) / 60, 2) if analysis.queue_times else 0,
+                "max": round(max(analysis.queue_times) / 60, 2) if analysis.queue_times else 0
+            },
+            "execution_time_minutes": {
+                "avg": round(statistics.mean(analysis.execution_times) / 60, 2) if analysis.execution_times else 0,
+                "p95": round(calc_p95(analysis.execution_times) / 60, 2) if analysis.execution_times else 0,
+                "max": round(max(analysis.execution_times) / 60, 2) if analysis.execution_times else 0
+            },
+            "total_time_minutes": {
+                "avg": round(statistics.mean(total_times) / 60, 2) if total_times else 0,
+                "p95": round(calc_p95(total_times) / 60, 2) if total_times else 0,
+                "max": round(max(total_times) / 60, 2) if total_times else 0
+            },
+            "success": {
+                "rate_percent": round((analysis.successful_jobs / analysis.total_jobs) * 100, 2) if analysis.total_jobs > 0 else 0,
+                "succeeded": analysis.successful_jobs,
+                "failed": analysis.failed_jobs,
+                "timed_out": timed_out_jobs
+            },
+            "runners": {
+                "count": runner_count,
+                "utilization_percent": round(runner_utilization_percent, 2)
+            },
+            "test_duration_minutes": round(test_duration_minutes, 2)
+        }
 
         # Build detailed report
         report = {
             "test_run_id": analysis.test_run_id,
             "profile": profile_name,
             "environment": self.environment.name,
+            "kpi": kpi,
             "summary": {
                 "total_runs": analysis.total_runs,
                 "total_jobs": analysis.total_jobs,
@@ -913,7 +1003,43 @@ class ScenarioRunner:
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 
+        # Save standalone KPI file for quick access
+        kpi_file = run_dir / "kpi.json"
+        kpi_with_metadata = {
+            "test_run_id": analysis.test_run_id,
+            "profile": profile_name,
+            "environment": self.environment.name,
+            "generated_at": datetime.now().isoformat(),
+            **kpi
+        }
+        with open(kpi_file, 'w') as f:
+            json.dump(kpi_with_metadata, f, indent=2)
+
+        # Save metadata file with test configuration
+        metadata_file = run_dir / "metadata.json"
+        metadata = {
+            "test_run_id": analysis.test_run_id,
+            "profile": profile_name,
+            "environment": self.environment.name,
+            "environment_type": self.environment.type,
+            "runner_labels": self.environment.runner_labels,
+            "generated_at": datetime.now().isoformat(),
+            "files": {
+                "kpi": "kpi.json",
+                "post_hoc": "post_hoc.json",
+                "analysis": "analysis.json",
+                "snapshots": "snapshots.json",
+                "enhanced_report": "enhanced_report.json",
+                "test_report": "test_report.json",
+                "tracking": "tracking.json"
+            }
+        }
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata, f, indent=2)
+
         logger.info(f"Post-hoc analysis report saved to: {report_file}")
+        logger.info(f"KPI summary saved to: {kpi_file}")
+        logger.info(f"Metadata saved to: {metadata_file}")
         return str(report_file)
 
 

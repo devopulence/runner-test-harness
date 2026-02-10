@@ -63,7 +63,7 @@ workflows:
 # To change the workflow, update workflows.primary.file - no need to edit each profile
 test_profiles:
   # Validation test - 5 minutes with fast jobs (30-60 seconds each)
-  validation:
+  validation_fast:
     duration_minutes: 5
     dispatch_pattern: steady
     jobs_per_minute: 1.0
@@ -152,7 +152,7 @@ test_profiles:
       workload_type: test
 
   # Spike test - sudden traffic spike
-  spike:
+  spike_long:
     duration_minutes: 60
     dispatch_pattern: spike
     normal_rate: 0.2

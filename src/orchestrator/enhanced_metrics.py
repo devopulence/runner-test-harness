@@ -126,17 +126,21 @@ class EnhancedMetrics:
 
         return stats
 
-    def generate_report(self, test_name: str, output_dir: str = "test_results") -> str:
+    def generate_report(self, test_name: str, output_dir: str = "test_results", test_run_id: str = None) -> str:
         """Generate enhanced metrics report"""
         stats = self.calculate_statistics()
 
-        # Create output directory
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-
-        # Generate filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = output_path / f"enhanced_report_{test_name}_{timestamp}.json"
+        # Use per-run directory if test_run_id is provided
+        if test_run_id:
+            output_path = Path(output_dir) / test_run_id
+            output_path.mkdir(parents=True, exist_ok=True)
+            report_file = output_path / "enhanced_report.json"
+        else:
+            # Fallback to old behavior
+            output_path = Path(output_dir)
+            output_path.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_file = output_path / f"enhanced_report_{test_name}_{timestamp}.json"
 
         # Prepare report
         report = {

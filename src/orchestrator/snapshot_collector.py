@@ -65,10 +65,13 @@ class SnapshotCollector:
         """
         self.test_run_id = test_run_id
         self.environment = environment
-        self.output_dir = Path(output_dir) / environment
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Create per-run directory: test_results/{env}/{test_run_id}/
+        self.run_dir = Path(output_dir) / environment / test_run_id
+        self.run_dir.mkdir(parents=True, exist_ok=True)
+        # Keep output_dir for backward compatibility
+        self.output_dir = self.run_dir
 
-        self.snapshots_file = self.output_dir / f"{test_run_id}_snapshots.json"
+        self.snapshots_file = self.run_dir / "snapshots.json"
 
         # In-memory storage
         self.snapshots: List[Dict[str, Any]] = []
