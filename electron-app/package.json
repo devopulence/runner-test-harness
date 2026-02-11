@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@types/node": "file:node-24.10.13.tgz",
-    "electron": "^40.2.1"
+    "electron": "40.2.1"
   },
   "overrides": {
     "@types/node": "$@types/node"
