@@ -1,0 +1,120 @@
+{
+  "test_run_id": "concurrency_light_20260209_142631_f674988e",
+  "test_type": "concurrency_light",
+  "analysis": {
+    "test_type": "performance",
+    "timestamp": "2026-02-09T14:36:56.242087",
+    "focus": "Baseline performance and consistency",
+    "queue_analysis": {
+      "metrics": {
+        "average": 0.15714285714285714,
+        "minimum": 0.016666666666666666,
+        "maximum": 0.9833333333333333,
+        "median": 0.016666666666666666,
+        "p95": 0.9833333333333333,
+        "jobs_queued": 1
+      },
+      "health": "EXCELLENT",
+      "interpretation": "Virtually no queuing - runners immediately available",
+      "growth_pattern": "EXPONENTIAL_GROWTH",
+      "recommendations": [
+        "Queue growing rapidly - system cannot keep up with demand",
+        "Reduce dispatch rate by 30-50% or add runners"
+      ]
+    },
+    "execution_analysis": {
+      "metrics": {
+        "average": 1.6404761904761904,
+        "minimum": 1.4333333333333333,
+        "maximum": 1.8833333333333333,
+        "std_deviation": 0.1779141342149048,
+        "coefficient_variation": 10.845273783782297
+      },
+      "consistency": "CONSISTENT",
+      "interpretation": "Normal variation in execution times",
+      "range_compliance": {
+        "expected_range": "3-5 minutes",
+        "within_range_pct": 0.0,
+        "assessment": "INVESTIGATE"
+      },
+      "recommendations": [
+        "Only 0% of jobs completed within expected time",
+        "Investigate outliers for root cause"
+      ]
+    },
+    "predictability": {
+      "score": "GOOD",
+      "coefficient_variation": 21.2263794840433,
+      "interpretation": "Good predictability - suitable for production"
+    },
+    "baseline_metrics": {
+      "recommended_sla": {
+        "p50": 1.7666666666666666,
+        "p95": 2.9666666666666672,
+        "p99": 2.566666666666667
+      },
+      "typical_range": {
+        "min": 1.45,
+        "max": 2.566666666666667
+      }
+    },
+    "overall_rating": "\u2705 GOOD - Minor optimizations needed"
+  },
+  "metrics": {
+    "queue_times": [
+      0.016666666666666666,
+      0.016666666666666666,
+      0.03333333333333333,
+      0.016666666666666666,
+      0.016666666666666666,
+      0.016666666666666666,
+      0.9833333333333333
+    ],
+    "execution_times": [
+      1.4333333333333333,
+      1.45,
+      1.5666666666666667,
+      1.8166666666666667,
+      1.8833333333333333,
+      1.75,
+      1.5833333333333333
+    ],
+    "total_times": [
+      1.45,
+      1.4666666666666666,
+      1.6,
+      1.8333333333333333,
+      1.9,
+      1.7666666666666666,
+      2.566666666666667
+    ],
+    "job_count": 10,
+    "total_workflows": 10,
+    "failed_workflows": 0,
+    "duration_minutes": 10.247736333333334,
+    "runner_count": 4,
+    "runner_utilization": [
+      0,
+      100.0,
+      0.0,
+      25.0,
+      25.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      75.0,
+      100.0,
+      75.0,
+      75.0,
+      25.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "recommendations": []
+}

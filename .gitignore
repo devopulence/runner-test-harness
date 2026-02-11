@@ -184,7 +184,6 @@ memory-*.jsonl
 knowledge-graph/
 
 # Project specific
-test_results/
 output/
 tmp/
 temp/

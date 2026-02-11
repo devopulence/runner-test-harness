@@ -1,0 +1,33 @@
+{
+  "test_run_id": "load_fast_20260210_083829_4a573e6c",
+  "test_type": "load_fast",
+  "environment": "aws-ecs",
+  "start_time": "2026-02-10T08:38:29.753199",
+  "end_time": "2026-02-10T08:49:21.107263",
+  "duration_minutes": 10.855901066666666,
+  "workflow_count": 8,
+  "workflow_ids": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "workflow_names": [
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default"
+  ],
+  "metadata": {
+    "job_name_tag": "load_fast_20260210_083829_4a573e6c",
+    "query_hint": "Search for workflows with job_name=load_fast_20260210_083829_4a573e6c"
+  }
+}

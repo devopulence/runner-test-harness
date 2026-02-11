@@ -1,0 +1,49 @@
+{
+  "test_run_id": "stress_fast_20260210_081946_57112642",
+  "test_type": "stress_fast",
+  "environment": "aws-ecs",
+  "start_time": "2026-02-10T08:19:46.906275",
+  "end_time": "2026-02-10T08:27:22.595288",
+  "duration_minutes": 7.594816883333333,
+  "workflow_count": 16,
+  "workflow_ids": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "workflow_names": [
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default"
+  ],
+  "metadata": {
+    "job_name_tag": "stress_fast_20260210_081946_57112642",
+    "query_hint": "Search for workflows with job_name=stress_fast_20260210_081946_57112642"
+  }
+}
