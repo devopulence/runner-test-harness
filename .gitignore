@@ -211,3 +211,7 @@ settings.json
 Dockerfile.local
 docker-compose.override.yml
 .dockerignore.local
+
+# Electron
+electron-app/node_modules/
+!electron-app/*.tgz

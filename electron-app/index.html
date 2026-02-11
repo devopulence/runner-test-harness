@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">
+  <title>Runner Test Results Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f1117;
+      color: #e1e4e8;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+    .header .env-badge {
+      background: #1f6feb;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      background: #161b22;
+      display: flex;
+      padding: 0 24px;
+      border-bottom: 1px solid #30363d;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      color: #8b949e;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+      text-transform: capitalize;
+    }
+    .tab:hover { color: #e1e4e8; }
+    .tab.active {
+      color: #f0f6fc;
+      border-bottom-color: #1f6feb;
+    }
+    .tab .count {
+      background: #30363d;
+      color: #8b949e;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      margin-left: 6px;
+    }
+    .tab.active .count {
+      background: #1f6feb;
+      color: #fff;
+    }
+
+    /* Main content */
+    .main {
+      display: flex;
+      height: calc(100vh - 95px);
+    }
+
+    /* Sidebar - flavor selector */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: #161b22;
+      border-right: 1px solid #30363d;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    .sidebar-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #8b949e;
+      letter-spacing: 0.5px;
+      padding: 8px 12px 4px;
+      font-weight: 600;
+    }
+    .flavor-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background 0.15s;
+    }
+    .flavor-item:hover { background: #1c2129; }
+    .flavor-item.active { background: #1f6feb22; border: 1px solid #1f6feb44; }
+    .flavor-item .flavor-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #e1e4e8;
+      text-transform: capitalize;
+    }
+    .flavor-item .flavor-date {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 2px;
+    }
+    .flavor-item .flavor-status {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .flavor-status.success { background: #23863622; color: #3fb950; }
+    .flavor-status.partial { background: #9e6a0322; color: #d29922; }
+    .flavor-status.failed { background: #f8514922; color: #f85149; }
+
+    /* Content area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .kpi-card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #8b949e;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .kpi-card .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f0f6fc;
+    }
+    .kpi-card .sub {
+      font-size: 12px;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+    .kpi-card .value.green { color: #3fb950; }
+    .kpi-card .value.yellow { color: #d29922; }
+    .kpi-card .value.red { color: #f85149; }
+    .kpi-card .value.blue { color: #58a6ff; }
+
+    /* Section headers */
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+
+    /* Charts area */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .chart-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e1e4e8;
+      margin-bottom: 12px;
+    }
+    .chart-card canvas {
+      max-height: 250px;
+    }
+
+    /* Analysis panel */
+    .analysis-panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .analysis-panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e1e4e8;
+      margin-bottom: 12px;
+    }
+    .analysis-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 13px;
+    }
+    .analysis-row:last-child { border-bottom: none; }
+    .analysis-row .key { color: #8b949e; }
+    .analysis-row .val { color: #e1e4e8; font-weight: 500; }
+
+    /* Data table */
+    .data-table-wrapper {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .data-table-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .data-table-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e1e4e8;
+    }
+    .toggle-btn {
+      background: #21262d;
+      color: #8b949e;
+      border: 1px solid #30363d;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .toggle-btn:hover { background: #30363d; color: #e1e4e8; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: #0d1117;
+      color: #8b949e;
+      font-weight: 600;
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid #30363d;
+      position: sticky;
+      top: 0;
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #21262d;
+      color: #e1e4e8;
+    }
+    tr:hover td { background: #1c2129; }
+
+    /* Runner distribution */
+    .runner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .runner-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .runner-card .runner-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 8px;
+      font-family: monospace;
+    }
+    .runner-card .runner-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 3px 0;
+    }
+    .runner-card .runner-stat .key { color: #8b949e; }
+    .runner-card .runner-stat .val { color: #e1e4e8; }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background: #21262d;
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .progress-bar .fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8b949e;
+    }
+    .empty-state h2 { font-size: 18px; margin-bottom: 8px; color: #e1e4e8; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Runner Test Results</h1>
+    <span class="env-badge">aws-ecs</span>
+  </div>
+  <div class="tab-bar" id="tabBar"></div>
+  <div class="main">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content" id="content">
+      <div class="empty-state">
+        <h2>Loading test results...</h2>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let testData = {};
+    let activeType = null;
+    let activeIndex = 0;
+    let charts = [];
+
+    const TYPE_ICONS = {
+      capacity: '#58a6ff',
+      concurrency: '#bc8cff',
+      load: '#d29922',
+      performance: '#3fb950',
+      spike: '#f85149',
+      stress: '#f0883e',
+      validation: '#8b949e'
+    };
+
+    const TYPE_DESCRIPTIONS = {
+      capacity: 'Maximum system capacity and optimization',
+      concurrency: 'Concurrent job handling behavior',
+      load: 'Behavior under expected load conditions',
+      performance: 'Baseline performance metrics',
+      spike: 'Response to sudden load increases',
+      stress: 'Breaking point identification',
+      validation: 'Infrastructure validation checks'
+    };
+
+    async function init() {
+      testData = await window.api.getTestResults();
+      const types = Object.keys(testData).sort();
+
+      if (types.length === 0) {
+        document.getElementById('content').innerHTML = `
+          <div class="empty-state">
+            <h2>No test results found</h2>
+            <p>Check the test_results/aws-ecs directory</p>
+          </div>`;
+        return;
+      }
+
+      renderTabs(types);
+      selectType(types[0]);
+    }
+
+    function renderTabs(types) {
+      const tabBar = document.getElementById('tabBar');
+      tabBar.innerHTML = types.map(type => `
+        <div class="tab" data-type="${type}" onclick="selectType('${type}')">
+          ${type}
+          <span class="count">${testData[type].length}</span>
+        </div>
+      `).join('');
+    }
+
+    function selectType(type) {
+      activeType = type;
+      activeIndex = 0;
+
+      // Update tab active state
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.type === type);
+      });
+
+      renderSidebar();
+      renderContent();
+    }
+
+    function renderSidebar() {
+      const items = testData[activeType];
+      const sidebar = document.getElementById('sidebar');
+
+      sidebar.innerHTML = `
+        <div class="sidebar-title">${activeType} Tests</div>
+        ${items.map((item, i) => {
+          const date = parseDate(item.dirName);
+          const successRate = item.kpi?.success?.rate_percent ?? 0;
+          const statusClass = successRate === 100 ? 'success' : successRate > 80 ? 'partial' : 'failed';
+          return `
+            <div class="flavor-item ${i === activeIndex ? 'active' : ''}" onclick="selectFlavor(${i})">
+              <div class="flavor-name">${item.flavor}</div>
+              <div class="flavor-date">${date}</div>
+              <span class="flavor-status ${statusClass}">${successRate}% success</span>
+            </div>`;
+        }).join('')}
+      `;
+    }
+
+    function selectFlavor(index) {
+      activeIndex = index;
+      renderSidebar();
+      renderContent();
+    }
+
+    function parseDate(dirName) {
+      const parts = dirName.split('_');
+      if (parts.length >= 4) {
+        const d = parts[2]; // 20260210
+        const t = parts[3]; // 070024
+        return `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)} ${t.slice(0,2)}:${t.slice(2,4)}`;
+      }
+      return dirName;
+    }
+
+    function renderContent() {
+      destroyCharts();
+      const item = testData[activeType][activeIndex];
+      if (!item) return;
+
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="section-title" style="margin-top:0">${activeType} / ${item.flavor} - Overview</div>
+        <div id="kpiGrid" class="kpi-grid"></div>
+
+        <div class="section-title">Performance Charts</div>
+        <div class="charts-grid">
+          <div class="chart-card"><h3>Queue Time vs Execution Time (per workflow)</h3><canvas id="chartTimeline"></canvas></div>
+          <div class="chart-card"><h3>Runner Utilization Over Time</h3><canvas id="chartUtilization"></canvas></div>
+          <div class="chart-card"><h3>Queue Time Distribution</h3><canvas id="chartQueueDist"></canvas></div>
+          <div class="chart-card"><h3>Total Time per Workflow</h3><canvas id="chartTotalTime"></canvas></div>
+        </div>
+
+        <div id="analysisSection"></div>
+        <div id="runnerSection"></div>
+        <div id="jobsSection"></div>
+      `;
+
+      renderKPIs(item);
+      renderCharts(item);
+      renderAnalysis(item);
+      renderRunners(item);
+      renderJobs(item);
+    }
+
+    function renderKPIs(item) {
+      const kpi = item.kpi || {};
+      const analysis = item.analysis?.analysis || {};
+      const grid = document.getElementById('kpiGrid');
+
+      const cards = [];
+
+      // Workflows / Jobs
+      cards.push(kpiCard('Total Workflows', kpi.totals?.workflows ?? '-', '', 'blue'));
+      cards.push(kpiCard('Total Jobs', kpi.totals?.jobs ?? '-', `${kpi.totals?.jobs_per_workflow ?? '-'} jobs/workflow`));
+
+      // Success rate
+      const rate = kpi.success?.rate_percent ?? 0;
+      const rateColor = rate === 100 ? 'green' : rate > 80 ? 'yellow' : 'red';
+      cards.push(kpiCard('Success Rate', `${rate}%`, `${kpi.success?.succeeded ?? 0} ok / ${kpi.success?.failed ?? 0} fail`, rateColor));
+
+      // Throughput
+      cards.push(kpiCard('Jobs/Hour', kpi.throughput?.jobs_per_hour?.toFixed(1) ?? '-', `${kpi.throughput?.workflows_per_hour?.toFixed(1) ?? '-'} workflows/hr`, 'blue'));
+
+      // Queue time
+      cards.push(kpiCard('Avg Queue Time', `${kpi.queue_time_minutes?.avg?.toFixed(2) ?? '-'} min`, `p95: ${kpi.queue_time_minutes?.p95?.toFixed(2) ?? '-'} min`));
+
+      // Execution time
+      cards.push(kpiCard('Avg Exec Time', `${kpi.execution_time_minutes?.avg?.toFixed(2) ?? '-'} min`, `p95: ${kpi.execution_time_minutes?.p95?.toFixed(2) ?? '-'} min`));
+
+      // Runner utilization
+      const util = kpi.runners?.utilization_percent ?? 0;
+      const utilColor = util > 90 ? 'red' : util > 70 ? 'yellow' : 'green';
+      cards.push(kpiCard('Runner Utilization', `${util.toFixed(1)}%`, `${kpi.runners?.count ?? 4} runners`, utilColor));
+
+      // Test duration
+      cards.push(kpiCard('Test Duration', `${kpi.test_duration_minutes?.toFixed(1) ?? '-'} min`, ''));
+
+      // Capacity assessment
+      if (analysis.capacity_assessment) {
+        const verdict = analysis.capacity_assessment.verdict || '';
+        const vColor = verdict.includes('ADEQUATE') ? 'green' : verdict.includes('WARNING') ? 'yellow' : 'red';
+        cards.push(kpiCard('Capacity', verdict.replace(/_/g, ' '), analysis.capacity_assessment.description || '', vColor));
+      }
+
+      // Saturation
+      if (analysis.saturation_analysis) {
+        const sat = analysis.saturation_analysis;
+        const sColor = sat.saturation_state === 'SATURATED' ? 'red' : 'green';
+        cards.push(kpiCard('Saturation', sat.saturation_state || '-', `${sat.time_at_saturation_pct?.toFixed(0) ?? '-'}% time at saturation`, sColor));
+      }
+
+      grid.innerHTML = cards.join('');
+    }
+
+    function kpiCard(label, value, sub, colorClass = '') {
+      return `<div class="kpi-card">
+        <div class="label">${label}</div>
+        <div class="value ${colorClass}">${value}</div>
+        ${sub ? `<div class="sub">${sub}</div>` : ''}
+      </div>`;
+    }
+
+    function destroyCharts() {
+      charts.forEach(c => c.destroy());
+      charts = [];
+    }
+
+    function chartDefaults() {
+      return {
+        color: '#8b949e',
+        borderColor: '#30363d',
+        font: { family: 'Inter, sans-serif' }
+      };
+    }
+
+    function renderCharts(item) {
+      const analysis = item.analysis?.metrics || {};
+      const testReport = item.test_report?.raw_data || {};
+
+      // Chart 1: Queue vs Execution stacked bar
+      const queueTimes = analysis.queue_times || testReport.queue_times || [];
+      const execTimes = analysis.execution_times || testReport.execution_times || [];
+      const labels = queueTimes.map((_, i) => `W${i + 1}`);
+
+      if (queueTimes.length > 0) {
+        const ctx1 = document.getElementById('chartTimeline').getContext('2d');
+        charts.push(new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Queue (min)', data: queueTimes, backgroundColor: '#f0883e88', borderColor: '#f0883e', borderWidth: 1 },
+              { label: 'Execution (min)', data: execTimes, backgroundColor: '#1f6feb88', borderColor: '#1f6feb', borderWidth: 1 }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#8b949e' } } },
+            scales: {
+              x: { stacked: true, ticks: { color: '#8b949e', maxRotation: 0, autoSkip: true, maxTicksLimit: 20 }, grid: { color: '#21262d' } },
+              y: { stacked: true, ticks: { color: '#8b949e' }, grid: { color: '#21262d' }, title: { display: true, text: 'Minutes', color: '#8b949e' } }
+            }
+          }
+        }));
+      }
+
+      // Chart 2: Runner utilization
+      const utilization = analysis.runner_utilization || testReport.runner_utilization || [];
+      if (utilization.length > 0) {
+        const ctx2 = document.getElementById('chartUtilization').getContext('2d');
+        const utilPct = utilization.map(u => typeof u === 'number' ? (u > 1 ? u : u * 100) : 0);
+        charts.push(new Chart(ctx2, {
+          type: 'line',
+          data: {
+            labels: utilPct.map((_, i) => `T${i}`),
+            datasets: [{
+              label: 'Utilization %',
+              data: utilPct,
+              borderColor: '#3fb950',
+              backgroundColor: '#3fb95022',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#8b949e' } } },
+            scales: {
+              x: { ticks: { color: '#8b949e', maxTicksLimit: 15 }, grid: { color: '#21262d' } },
+              y: { min: 0, max: 100, ticks: { color: '#8b949e' }, grid: { color: '#21262d' }, title: { display: true, text: '%', color: '#8b949e' } }
+            }
+          }
+        }));
+      }
+
+      // Chart 3: Queue time distribution (histogram-like)
+      if (queueTimes.length > 0) {
+        const ctx3 = document.getElementById('chartQueueDist').getContext('2d');
+        const sorted = [...queueTimes].sort((a, b) => a - b);
+        charts.push(new Chart(ctx3, {
+          type: 'bar',
+          data: {
+            labels: sorted.map((_, i) => i + 1),
+            datasets: [{
+              label: 'Queue Time (min)',
+              data: sorted,
+              backgroundColor: sorted.map(v => v > (item.kpi?.queue_time_minutes?.p95 || 999) ? '#f8514988' : '#58a6ff88'),
+              borderColor: sorted.map(v => v > (item.kpi?.queue_time_minutes?.p95 || 999) ? '#f85149' : '#58a6ff'),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#8b949e' } } },
+            scales: {
+              x: { ticks: { color: '#8b949e', maxTicksLimit: 20 }, grid: { color: '#21262d' }, title: { display: true, text: 'Workflow (sorted)', color: '#8b949e' } },
+              y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' }, title: { display: true, text: 'Minutes', color: '#8b949e' } }
+            }
+          }
+        }));
+      }
+
+      // Chart 4: Total time per workflow
+      const totalTimes = analysis.total_times || [];
+      if (totalTimes.length > 0) {
+        const ctx4 = document.getElementById('chartTotalTime').getContext('2d');
+        charts.push(new Chart(ctx4, {
+          type: 'line',
+          data: {
+            labels: totalTimes.map((_, i) => `W${i + 1}`),
+            datasets: [{
+              label: 'Total Time (min)',
+              data: totalTimes,
+              borderColor: '#bc8cff',
+              backgroundColor: '#bc8cff22',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 3,
+              pointBackgroundColor: '#bc8cff'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#8b949e' } } },
+            scales: {
+              x: { ticks: { color: '#8b949e', maxRotation: 0, autoSkip: true, maxTicksLimit: 20 }, grid: { color: '#21262d' } },
+              y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' }, title: { display: true, text: 'Minutes', color: '#8b949e' } }
+            }
+          }
+        }));
+      }
+    }
+
+    function renderAnalysis(item) {
+      const section = document.getElementById('analysisSection');
+      const analysis = item.analysis?.analysis || {};
+      const enhanced = item.enhanced_report?.detailed_statistics || {};
+
+      let html = '';
+
+      // Capacity metrics
+      if (analysis.capacity_metrics) {
+        const cm = analysis.capacity_metrics;
+        html += `<div class="analysis-panel">
+          <h3>Capacity Metrics</h3>
+          <div class="analysis-row"><span class="key">Actual Throughput</span><span class="val">${cm.actual_throughput?.toFixed(2) ?? '-'} jobs/min</span></div>
+          <div class="analysis-row"><span class="key">Theoretical Max</span><span class="val">${cm.theoretical_max?.toFixed(2) ?? '-'} jobs/min</span></div>
+          <div class="analysis-row"><span class="key">Efficiency</span><span class="val">${cm.efficiency_percent?.toFixed(1) ?? '-'}%</span></div>
+          <div class="analysis-row"><span class="key">Capacity Utilized</span><span class="val">${cm.capacity_utilized ?? '-'}</span></div>
+        </div>`;
+      }
+
+      // Optimization
+      if (analysis.optimization) {
+        const opt = analysis.optimization;
+        html += `<div class="analysis-panel">
+          <h3>Optimization</h3>
+          <div class="analysis-row"><span class="key">Current Runners</span><span class="val">${opt.current_runners ?? '-'}</span></div>
+          <div class="analysis-row"><span class="key">Optimal Runners</span><span class="val">${opt.optimal_runners ?? '-'}</span></div>
+          <div class="analysis-row"><span class="key">Recommendation</span><span class="val">${opt.recommendation ?? '-'}</span></div>
+        </div>`;
+      }
+
+      // Queue growth
+      if (enhanced.queue_growth) {
+        const qg = enhanced.queue_growth;
+        html += `<div class="analysis-panel">
+          <h3>Queue Growth Trend</h3>
+          <div class="analysis-row"><span class="key">First Half Avg</span><span class="val">${qg.first_half_avg_minutes?.toFixed(2) ?? '-'} min</span></div>
+          <div class="analysis-row"><span class="key">Second Half Avg</span><span class="val">${qg.second_half_avg_minutes?.toFixed(2) ?? '-'} min</span></div>
+          <div class="analysis-row"><span class="key">Growth</span><span class="val">${qg.growth_minutes?.toFixed(2) ?? '-'} min</span></div>
+          <div class="analysis-row"><span class="key">Trend</span><span class="val" style="text-transform:capitalize">${qg.trend ?? '-'}</span></div>
+        </div>`;
+      }
+
+      // Detailed statistics
+      if (enhanced.queue_time) {
+        html += `<div class="analysis-panel">
+          <h3>Detailed Timing Statistics</h3>
+          <div class="analysis-row"><span class="key">Queue Time (mean)</span><span class="val">${enhanced.queue_time.mean_seconds?.toFixed(1)}s (${enhanced.queue_time.mean_minutes?.toFixed(2)} min)</span></div>
+          <div class="analysis-row"><span class="key">Queue Time (p95)</span><span class="val">${enhanced.queue_time.p95_seconds?.toFixed(1)}s</span></div>
+          <div class="analysis-row"><span class="key">Queue Time (stdev)</span><span class="val">${enhanced.queue_time.stdev_seconds?.toFixed(1)}s</span></div>
+          <div class="analysis-row"><span class="key">Exec Time (mean)</span><span class="val">${enhanced.execution_time?.mean_seconds?.toFixed(1)}s (${enhanced.execution_time?.mean_minutes?.toFixed(2)} min)</span></div>
+          <div class="analysis-row"><span class="key">Exec Time (p95)</span><span class="val">${enhanced.execution_time?.p95_seconds?.toFixed(1)}s</span></div>
+          <div class="analysis-row"><span class="key">Total Time (mean)</span><span class="val">${enhanced.total_time?.mean_seconds?.toFixed(1)}s (${enhanced.total_time?.mean_minutes?.toFixed(2)} min)</span></div>
+          <div class="analysis-row"><span class="key">Total Time (p95)</span><span class="val">${enhanced.total_time?.p95_seconds?.toFixed(1)}s</span></div>
+        </div>`;
+      }
+
+      // Recommendations
+      const recs = item.analysis?.recommendations || [];
+      if (recs.length > 0) {
+        html += `<div class="analysis-panel">
+          <h3>Recommendations</h3>
+          ${recs.map(r => `<div class="analysis-row"><span class="val">${r}</span></div>`).join('')}
+        </div>`;
+      }
+
+      section.innerHTML = html;
+    }
+
+    function renderRunners(item) {
+      const section = document.getElementById('runnerSection');
+      const postHoc = item.post_hoc || {};
+      const runners = postHoc.runners?.jobs_per_runner;
+      const busyTime = postHoc.runners?.busy_time_per_runner;
+
+      if (!runners) {
+        section.innerHTML = '';
+        return;
+      }
+
+      const runnerNames = Object.keys(runners);
+      const totalJobs = Object.values(runners).reduce((a, b) => a + b, 0);
+      const maxBusy = Math.max(...Object.values(busyTime || {}));
+
+      section.innerHTML = `
+        <div class="section-title">Runner Distribution</div>
+        <div class="runner-grid">
+          ${runnerNames.map(name => {
+            const jobs = runners[name];
+            const busy = busyTime?.[name] || 0;
+            const pct = maxBusy > 0 ? (busy / maxBusy * 100) : 0;
+            return `<div class="runner-card">
+              <div class="runner-name">${name}</div>
+              <div class="runner-stat"><span class="key">Jobs</span><span class="val">${jobs} (${(jobs/totalJobs*100).toFixed(0)}%)</span></div>
+              <div class="runner-stat"><span class="key">Busy Time</span><span class="val">${(busy/60).toFixed(1)} min</span></div>
+              <div class="progress-bar"><div class="fill" style="width:${pct}%;background:${pct > 90 ? '#f85149' : pct > 70 ? '#d29922' : '#3fb950'}"></div></div>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function renderJobs(item) {
+      const section = document.getElementById('jobsSection');
+      const jobs = item.post_hoc?.jobs || [];
+
+      if (jobs.length === 0) {
+        section.innerHTML = '';
+        return;
+      }
+
+      // Show build simulation jobs only (not send results)
+      const buildJobs = jobs.filter(j => j.job_name?.includes('Build'));
+      const displayJobs = buildJobs.length > 0 ? buildJobs : jobs;
+
+      section.innerHTML = `
+        <div class="data-table-wrapper">
+          <div class="data-table-header">
+            <h3>Job Details (${displayJobs.length} jobs)</h3>
+            <button class="toggle-btn" onclick="toggleAllJobs()">Show All ${jobs.length} Jobs</button>
+          </div>
+          <div style="max-height:400px;overflow-y:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Job Name</th>
+                  <th>Runner</th>
+                  <th>Queue (s)</th>
+                  <th>Exec (s)</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                </tr>
+              </thead>
+              <tbody id="jobsTableBody">
+                ${displayJobs.map((j, i) => `
+                  <tr>
+                    <td>${i + 1}</td>
+                    <td>${j.job_name || '-'}</td>
+                    <td style="font-family:monospace;font-size:11px;color:#58a6ff">${j.runner_name || '-'}</td>
+                    <td>${j.queue_time_sec?.toFixed(0) ?? '-'}</td>
+                    <td>${j.execution_time_sec?.toFixed(0) ?? '-'}</td>
+                    <td style="color:${j.conclusion === 'success' ? '#3fb950' : '#f85149'}">${j.conclusion || '-'}</td>
+                    <td style="font-size:11px">${j.started_at ? new Date(j.started_at).toLocaleTimeString() : '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    let showingAllJobs = false;
+    function toggleAllJobs() {
+      showingAllJobs = !showingAllJobs;
+      const item = testData[activeType][activeIndex];
+      const jobs = item.post_hoc?.jobs || [];
+      const displayJobs = showingAllJobs ? jobs : jobs.filter(j => j.job_name?.includes('Build'));
+      const btn = document.querySelector('.toggle-btn');
+      btn.textContent = showingAllJobs ? `Show Build Jobs Only` : `Show All ${jobs.length} Jobs`;
+
+      document.getElementById('jobsTableBody').innerHTML = displayJobs.map((j, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${j.job_name || '-'}</td>
+          <td style="font-family:monospace;font-size:11px;color:#58a6ff">${j.runner_name || '-'}</td>
+          <td>${j.queue_time_sec?.toFixed(0) ?? '-'}</td>
+          <td>${j.execution_time_sec?.toFixed(0) ?? '-'}</td>
+          <td style="color:${j.conclusion === 'success' ? '#3fb950' : '#f85149'}">${j.conclusion || '-'}</td>
+          <td style="font-size:11px">${j.started_at ? new Date(j.started_at).toLocaleTimeString() : '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    init();
+  </script>
+</body>
+</html>
