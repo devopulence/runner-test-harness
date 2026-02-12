@@ -30,14 +30,23 @@
       font-weight: 600;
       color: #f0f6fc;
     }
-    .header .env-badge {
-      background: #1f6feb;
-      color: #fff;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 500;
+    .env-bar {
+      display: flex;
+      gap: 8px;
     }
+    .env-badge {
+      background: #21262d;
+      color: #8b949e;
+      border: 1px solid #30363d;
+      padding: 4px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .env-badge:hover { color: #e1e4e8; border-color: #58a6ff; }
+    .env-badge.active { background: #1f6feb; color: #fff; border-color: #1f6feb; }
 
     /* Tab bar */
     .tab-bar {
@@ -343,7 +352,7 @@
 <body>
   <div class="header">
     <h1>Runner Test Results</h1>
-    <span class="env-badge">aws-ecs</span>
+    <div id="envBar" class="env-bar"></div>
   </div>
   <div class="tab-bar" id="tabBar"></div>
   <div class="main">
@@ -356,20 +365,12 @@
   </div>
 
   <script>
+    let allData = {};
     let testData = {};
+    let activeEnv = null;
     let activeType = null;
     let activeIndex = 0;
     let charts = [];
-
-    const TYPE_ICONS = {
-      capacity: '#58a6ff',
-      concurrency: '#bc8cff',
-      load: '#d29922',
-      performance: '#3fb950',
-      spike: '#f85149',
-      stress: '#f0883e',
-      validation: '#8b949e'
-    };
 
     const TYPE_DESCRIPTIONS = {
       capacity: 'Maximum system capacity and optimization',
@@ -382,14 +383,43 @@
     };
 
     async function init() {
-      testData = await window.api.getTestResults();
-      const types = Object.keys(testData).sort();
+      allData = await window.api.getTestResults();
+      const envs = Object.keys(allData).sort();
 
-      if (types.length === 0) {
+      if (envs.length === 0) {
         document.getElementById('content').innerHTML = `
           <div class="empty-state">
             <h2>No test results found</h2>
-            <p>Check the test_results/aws-ecs directory</p>
+            <p>Check the test_results directory</p>
+          </div>`;
+        return;
+      }
+
+      renderEnvBar(envs);
+      selectEnv(envs[0]);
+    }
+
+    function renderEnvBar(envs) {
+      document.getElementById('envBar').innerHTML = envs.map(env =>
+        `<span class="env-badge" data-env="${env}" onclick="selectEnv('${env}')">${env}</span>`
+      ).join('');
+    }
+
+    function selectEnv(env) {
+      activeEnv = env;
+      testData = allData[env];
+
+      document.querySelectorAll('.env-badge').forEach(b => {
+        b.classList.toggle('active', b.dataset.env === env);
+      });
+
+      const types = Object.keys(testData).sort();
+      if (types.length === 0) {
+        document.getElementById('tabBar').innerHTML = '';
+        document.getElementById('sidebar').innerHTML = '';
+        document.getElementById('content').innerHTML = `
+          <div class="empty-state">
+            <h2>No tests in ${env}</h2>
           </div>`;
         return;
       }
@@ -464,7 +494,7 @@
 
       const content = document.getElementById('content');
       content.innerHTML = `
-        <div class="section-title" style="margin-top:0">${activeType} / ${item.flavor} - Overview</div>
+        <div class="section-title" style="margin-top:0">${activeEnv} / ${activeType} / ${item.flavor} - Overview</div>
         <div id="kpiGrid" class="kpi-grid"></div>
 
         <div class="section-title">Performance Charts</div>

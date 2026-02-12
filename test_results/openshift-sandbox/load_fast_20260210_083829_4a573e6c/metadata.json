@@ -1,0 +1,22 @@
+{
+  "test_run_id": "load_fast_20260210_083829_4a573e6c",
+  "profile": "load_fast",
+  "environment": "aws-ecs",
+  "environment_type": "test",
+  "runner_labels": [
+    "self-hosted",
+    "ecs-fargate",
+    "aws",
+    "linux"
+  ],
+  "generated_at": "2026-02-10T08:49:25.247762",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

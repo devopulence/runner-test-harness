@@ -1,0 +1,97 @@
+{
+  "environment": {
+    "name": "aws-ecs",
+    "type": "test",
+    "observed_runners": 4,
+    "runner_labels": [
+      "self-hosted",
+      "ecs-fargate",
+      "aws",
+      "linux"
+    ]
+  },
+  "test_execution": {
+    "start_time": "2026-02-09T14:26:31.867395",
+    "end_time": "2026-02-09T14:36:46.731575",
+    "duration_minutes": 10.247736333333334
+  },
+  "metrics": {
+    "total_workflows": 10,
+    "successful_workflows": 10,
+    "failed_workflows": 0,
+    "success_rate": 1.0,
+    "duration_minutes": 10.247736333333334,
+    "queue_time": {
+      "min": 1.0,
+      "max": 59.0,
+      "mean": 9.428571428571429,
+      "median": 1.0,
+      "p95": 93.2,
+      "stdev": 21.86212205968078
+    },
+    "execution_time": {
+      "min": 86.0,
+      "max": 113.0,
+      "mean": 98.42857142857143,
+      "median": 95.0,
+      "p95": 115.4,
+      "stdev": 10.674848052894287
+    },
+    "runner_utilization": {
+      "min": 0,
+      "max": 1.0,
+      "mean": 0.25
+    },
+    "concurrent_jobs": {
+      "max": 4,
+      "mean": 2.5,
+      "min": 1
+    }
+  },
+  "raw_data": {
+    "queue_times": [
+      1.0,
+      1.0,
+      2.0,
+      1.0,
+      1.0,
+      1.0,
+      59.0
+    ],
+    "execution_times": [
+      86.0,
+      87.0,
+      94.0,
+      109.0,
+      113.0,
+      105.0,
+      95.0
+    ],
+    "runner_utilization": [
+      0,
+      1.0,
+      0.0,
+      0.25,
+      0.25,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.75,
+      1.0,
+      0.75,
+      0.75,
+      0.25,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "concurrent_jobs": [
+      4,
+      1
+    ]
+  }
+}

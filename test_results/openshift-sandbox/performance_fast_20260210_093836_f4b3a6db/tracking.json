@@ -1,0 +1,41 @@
+{
+  "test_run_id": "performance_fast_20260210_093836_f4b3a6db",
+  "test_type": "performance_fast",
+  "environment": "aws-ecs",
+  "start_time": "2026-02-10T09:38:36.606030",
+  "end_time": "2026-02-10T09:50:08.357545",
+  "duration_minutes": 11.529191916666667,
+  "workflow_count": 12,
+  "workflow_ids": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "workflow_names": [
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default"
+  ],
+  "metadata": {
+    "job_name_tag": "performance_fast_20260210_093836_f4b3a6db",
+    "query_hint": "Search for workflows with job_name=performance_fast_20260210_093836_f4b3a6db"
+  }
+}
