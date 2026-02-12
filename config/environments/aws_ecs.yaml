@@ -85,7 +85,7 @@ test_profiles:
     jobs_per_minute: 1.0
 
   # Performance baseline test
-  performance:
+  performance_baseline:
     duration_minutes: 30
     dispatch_pattern: steady
     jobs_per_minute: 1.2      # 72 jobs/hour
@@ -141,7 +141,7 @@ test_profiles:
       workload_type: standard
 
   # Spike test (medium) - demonstrates spike with queuing and recovery
-  spike_medium:
+  spike_baseline:
     duration_minutes: 15
     dispatch_pattern: spike
     normal_rate: 0.5

@@ -1,0 +1,22 @@
+{
+  "test_run_id": "performance_baseline_20260211_123224_f2e38180",
+  "profile": "performance_baseline",
+  "environment": "aws-ecs",
+  "environment_type": "test",
+  "runner_labels": [
+    "self-hosted",
+    "ecs-fargate",
+    "aws",
+    "linux"
+  ],
+  "generated_at": "2026-02-11T13:19:55.662522",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

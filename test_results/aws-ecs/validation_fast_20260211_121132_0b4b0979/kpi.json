@@ -1,0 +1,44 @@
+{
+  "test_run_id": "validation_fast_20260211_121132_0b4b0979",
+  "profile": "validation_fast",
+  "environment": "aws-ecs",
+  "generated_at": "2026-02-11T12:17:38.093641",
+  "totals": {
+    "workflows": 5,
+    "jobs": 10,
+    "jobs_per_workflow": 2.0,
+    "queue_time_minutes": 0.13,
+    "execution_time_minutes": 8.33,
+    "total_time_minutes": 8.6
+  },
+  "throughput": {
+    "jobs_per_hour": 104.96,
+    "workflows_per_hour": 52.48
+  },
+  "queue_time_minutes": {
+    "avg": 0.03,
+    "p95": 0.03,
+    "max": 0.03
+  },
+  "execution_time_minutes": {
+    "avg": 1.67,
+    "p95": 1.87,
+    "max": 1.87
+  },
+  "total_time_minutes": {
+    "avg": 1.72,
+    "p95": 1.93,
+    "max": 1.93
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 10,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 4,
+    "utilization_percent": 36.44
+  },
+  "test_duration_minutes": 5.72
+}

@@ -1,0 +1,27 @@
+{
+  "test_run_id": "validation_fast_20260211_121132_0b4b0979",
+  "test_type": "validation_fast",
+  "environment": "aws-ecs",
+  "start_time": "2026-02-11T12:11:32.696521",
+  "end_time": "2026-02-11T12:17:35.299500",
+  "duration_minutes": 6.043382983333333,
+  "workflow_count": 5,
+  "workflow_ids": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "workflow_names": [
+    "default",
+    "default",
+    "default",
+    "default",
+    "default"
+  ],
+  "metadata": {
+    "job_name_tag": "validation_fast_20260211_121132_0b4b0979",
+    "query_hint": "Search for workflows with job_name=validation_fast_20260211_121132_0b4b0979"
+  }
+}

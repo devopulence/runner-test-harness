@@ -1,0 +1,2396 @@
+{
+  "test_run_id": "capacity_fast_20260211_154440_7cc1fc66",
+  "environment": "aws-ecs",
+  "started_at": "2026-02-11T15:44:40.521183",
+  "completed_at": "2026-02-11T16:02:02.509135",
+  "snapshots": [
+    {
+      "timestamp": "2026-02-11T20:44:45.705671+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-11T20:45:18.729364+00:00",
+      "workflows": [
+        {
+          "run_id": 21922391757,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:03Z",
+          "updated_at": "2026-02-11T20:45:07Z",
+          "run_started_at": "2026-02-11T20:45:03Z",
+          "jobs": [
+            {
+              "job_id": 63305838163,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:45:05Z",
+              "started_at": "2026-02-11T20:45:06Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922380590,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:44:42Z",
+          "updated_at": "2026-02-11T20:44:46Z",
+          "run_started_at": "2026-02-11T20:44:42Z",
+          "jobs": [
+            {
+              "job_id": 63305799371,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:44:44Z",
+              "started_at": "2026-02-11T20:44:45Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:45:52.981063+00:00",
+      "workflows": [
+        {
+          "run_id": 21922414409,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:46Z",
+          "updated_at": "2026-02-11T20:45:50Z",
+          "run_started_at": "2026-02-11T20:45:46Z",
+          "jobs": [
+            {
+              "job_id": 63305916818,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:45:48Z",
+              "started_at": "2026-02-11T20:45:49Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922403736,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:25Z",
+          "updated_at": "2026-02-11T20:45:28Z",
+          "run_started_at": "2026-02-11T20:45:25Z",
+          "jobs": [
+            {
+              "job_id": 63305878377,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:45:26Z",
+              "started_at": "2026-02-11T20:45:28Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922391757,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:03Z",
+          "updated_at": "2026-02-11T20:45:07Z",
+          "run_started_at": "2026-02-11T20:45:03Z",
+          "jobs": [
+            {
+              "job_id": 63305838163,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:45:05Z",
+              "started_at": "2026-02-11T20:45:06Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922380590,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:44:42Z",
+          "updated_at": "2026-02-11T20:44:46Z",
+          "run_started_at": "2026-02-11T20:44:42Z",
+          "jobs": [
+            {
+              "job_id": 63305799371,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:44:44Z",
+              "started_at": "2026-02-11T20:44:45Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:46:27.346260+00:00",
+      "workflows": [
+        {
+          "run_id": 21922414409,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:46Z",
+          "updated_at": "2026-02-11T20:45:50Z",
+          "run_started_at": "2026-02-11T20:45:46Z",
+          "jobs": [
+            {
+              "job_id": 63305916818,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:45:48Z",
+              "started_at": "2026-02-11T20:45:49Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922403736,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:25Z",
+          "updated_at": "2026-02-11T20:45:28Z",
+          "run_started_at": "2026-02-11T20:45:25Z",
+          "jobs": [
+            {
+              "job_id": 63305878377,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:45:26Z",
+              "started_at": "2026-02-11T20:45:28Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922391757,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:03Z",
+          "updated_at": "2026-02-11T20:46:04Z",
+          "run_started_at": "2026-02-11T20:45:03Z",
+          "jobs": [
+            {
+              "job_id": 63305838163,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:45:05Z",
+              "started_at": "2026-02-11T20:45:06Z",
+              "completed_at": "2026-02-11T20:46:02Z",
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63305944007,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:02Z",
+              "started_at": "2026-02-11T20:46:03Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63305944320,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:46:02Z",
+              "started_at": "2026-02-11T20:46:02Z",
+              "completed_at": "2026-02-11T20:46:02Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        },
+        {
+          "run_id": 21922380590,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:44:42Z",
+          "updated_at": "2026-02-11T20:46:02Z",
+          "run_started_at": "2026-02-11T20:44:42Z",
+          "jobs": [
+            {
+              "job_id": 63305799371,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:44:44Z",
+              "started_at": "2026-02-11T20:44:45Z",
+              "completed_at": "2026-02-11T20:46:00Z",
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63305939656,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:00Z",
+              "started_at": "2026-02-11T20:46:01Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63305939870,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:46:00Z",
+              "started_at": "2026-02-11T20:46:00Z",
+              "completed_at": "2026-02-11T20:46:00Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:47:02.478076+00:00",
+      "workflows": [
+        {
+          "run_id": 21922437159,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:30Z",
+          "updated_at": "2026-02-11T20:46:38Z",
+          "run_started_at": "2026-02-11T20:46:30Z",
+          "jobs": [
+            {
+              "job_id": 63306000308,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:31Z",
+              "started_at": "2026-02-11T20:46:37Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922425580,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:08Z",
+          "updated_at": "2026-02-11T20:46:31Z",
+          "run_started_at": "2026-02-11T20:46:08Z",
+          "jobs": [
+            {
+              "job_id": 63305958142,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:10Z",
+              "started_at": "2026-02-11T20:46:31Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922414409,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:46Z",
+          "updated_at": "2026-02-11T20:46:48Z",
+          "run_started_at": "2026-02-11T20:45:46Z",
+          "jobs": [
+            {
+              "job_id": 63305916818,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:45:48Z",
+              "started_at": "2026-02-11T20:45:49Z",
+              "completed_at": "2026-02-11T20:46:46Z",
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306027672,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:47Z",
+              "started_at": "2026-02-11T20:46:48Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306028129,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:46:47Z",
+              "started_at": "2026-02-11T20:46:47Z",
+              "completed_at": "2026-02-11T20:46:47Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        },
+        {
+          "run_id": 21922403736,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:45:25Z",
+          "updated_at": "2026-02-11T20:46:36Z",
+          "run_started_at": "2026-02-11T20:45:25Z",
+          "jobs": [
+            {
+              "job_id": 63305878377,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:45:26Z",
+              "started_at": "2026-02-11T20:45:28Z",
+              "completed_at": "2026-02-11T20:46:30Z",
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63305996330,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:30Z",
+              "started_at": "2026-02-11T20:46:35Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63305997118,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:46:30Z",
+              "started_at": "2026-02-11T20:46:30Z",
+              "completed_at": "2026-02-11T20:46:30Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:47:39.386023+00:00",
+      "workflows": [
+        {
+          "run_id": 21922458716,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:13Z",
+          "updated_at": "2026-02-11T20:47:22Z",
+          "run_started_at": "2026-02-11T20:47:13Z",
+          "jobs": [
+            {
+              "job_id": 63306076367,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:14Z",
+              "started_at": "2026-02-11T20:47:21Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922448341,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:51Z",
+          "updated_at": "2026-02-11T20:47:09Z",
+          "run_started_at": "2026-02-11T20:46:51Z",
+          "jobs": [
+            {
+              "job_id": 63306038486,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:53Z",
+              "started_at": "2026-02-11T20:47:09Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922437159,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:30Z",
+          "updated_at": "2026-02-11T20:46:38Z",
+          "run_started_at": "2026-02-11T20:46:30Z",
+          "jobs": [
+            {
+              "job_id": 63306000308,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:31Z",
+              "started_at": "2026-02-11T20:46:37Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922425580,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:08Z",
+          "updated_at": "2026-02-11T20:46:31Z",
+          "run_started_at": "2026-02-11T20:46:08Z",
+          "jobs": [
+            {
+              "job_id": 63305958142,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:10Z",
+              "started_at": "2026-02-11T20:46:31Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:48:13.758707+00:00",
+      "workflows": [
+        {
+          "run_id": 21922458716,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:13Z",
+          "updated_at": "2026-02-11T20:47:22Z",
+          "run_started_at": "2026-02-11T20:47:13Z",
+          "jobs": [
+            {
+              "job_id": 63306076367,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:14Z",
+              "started_at": "2026-02-11T20:47:21Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922448341,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:51Z",
+          "updated_at": "2026-02-11T20:47:09Z",
+          "run_started_at": "2026-02-11T20:46:51Z",
+          "jobs": [
+            {
+              "job_id": 63306038486,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:46:53Z",
+              "started_at": "2026-02-11T20:47:09Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922425580,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:08Z",
+          "updated_at": "2026-02-11T20:47:45Z",
+          "run_started_at": "2026-02-11T20:46:08Z",
+          "jobs": [
+            {
+              "job_id": 63305958142,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:46:10Z",
+              "started_at": "2026-02-11T20:46:31Z",
+              "completed_at": "2026-02-11T20:47:41Z",
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306125723,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:41Z",
+              "started_at": "2026-02-11T20:47:45Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306126056,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:47:42Z",
+              "started_at": "2026-02-11T20:47:42Z",
+              "completed_at": "2026-02-11T20:47:41Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:48:47.867895+00:00",
+      "workflows": [
+        {
+          "run_id": 21922491963,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:48:18Z",
+          "updated_at": "2026-02-11T20:48:35Z",
+          "run_started_at": "2026-02-11T20:48:18Z",
+          "jobs": [
+            {
+              "job_id": 63306197023,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:48:20Z",
+              "started_at": "2026-02-11T20:48:34Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922480828,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:56Z",
+          "updated_at": "2026-02-11T20:48:24Z",
+          "run_started_at": "2026-02-11T20:47:56Z",
+          "jobs": [
+            {
+              "job_id": 63306156380,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:58Z",
+              "started_at": "2026-02-11T20:48:23Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922469803,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:35Z",
+          "updated_at": "2026-02-11T20:48:33Z",
+          "run_started_at": "2026-02-11T20:47:35Z",
+          "jobs": [
+            {
+              "job_id": 63306116881,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:36Z",
+              "started_at": "2026-02-11T20:48:32Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922437159,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:46:30Z",
+          "updated_at": "2026-02-11T20:48:18Z",
+          "run_started_at": "2026-02-11T20:46:30Z",
+          "jobs": [
+            {
+              "job_id": 63306000308,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:46:31Z",
+              "started_at": "2026-02-11T20:46:37Z",
+              "completed_at": "2026-02-11T20:47:44Z",
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306129906,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:44Z",
+              "started_at": "2026-02-11T20:48:18Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306130239,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:47:44Z",
+              "started_at": "2026-02-11T20:47:44Z",
+              "completed_at": "2026-02-11T20:47:44Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:49:24.553700+00:00",
+      "workflows": [
+        {
+          "run_id": 21922491963,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:48:18Z",
+          "updated_at": "2026-02-11T20:48:35Z",
+          "run_started_at": "2026-02-11T20:48:18Z",
+          "jobs": [
+            {
+              "job_id": 63306197023,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:48:20Z",
+              "started_at": "2026-02-11T20:48:34Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922469803,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:35Z",
+          "updated_at": "2026-02-11T20:48:33Z",
+          "run_started_at": "2026-02-11T20:47:35Z",
+          "jobs": [
+            {
+              "job_id": 63306116881,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:47:36Z",
+              "started_at": "2026-02-11T20:48:32Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922458716,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:13Z",
+          "updated_at": "2026-02-11T20:49:14Z",
+          "run_started_at": "2026-02-11T20:47:13Z",
+          "jobs": [
+            {
+              "job_id": 63306076367,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:47:14Z",
+              "started_at": "2026-02-11T20:47:21Z",
+              "completed_at": "2026-02-11T20:48:33Z",
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306220845,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:48:33Z",
+              "started_at": "2026-02-11T20:49:14Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306221225,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:48:33Z",
+              "started_at": "2026-02-11T20:48:33Z",
+              "completed_at": "2026-02-11T20:48:33Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:49:58.791752+00:00",
+      "workflows": [
+        {
+          "run_id": 21922523687,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:23Z",
+          "updated_at": "2026-02-11T20:49:48Z",
+          "run_started_at": "2026-02-11T20:49:23Z",
+          "jobs": [
+            {
+              "job_id": 63306314432,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:24Z",
+              "started_at": "2026-02-11T20:49:47Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922512644,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:01Z",
+          "updated_at": "2026-02-11T20:49:31Z",
+          "run_started_at": "2026-02-11T20:49:01Z",
+          "jobs": [
+            {
+              "job_id": 63306274237,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:03Z",
+              "started_at": "2026-02-11T20:49:31Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922502271,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:48:40Z",
+          "updated_at": "2026-02-11T20:49:25Z",
+          "run_started_at": "2026-02-11T20:48:40Z",
+          "jobs": [
+            {
+              "job_id": 63306234370,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:48:41Z",
+              "started_at": "2026-02-11T20:49:24Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922480828,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:56Z",
+          "updated_at": "2026-02-11T20:49:39Z",
+          "run_started_at": "2026-02-11T20:47:56Z",
+          "jobs": [
+            {
+              "job_id": 63306156380,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:47:58Z",
+              "started_at": "2026-02-11T20:48:23Z",
+              "completed_at": "2026-02-11T20:49:13Z",
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306293721,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:13Z",
+              "started_at": "2026-02-11T20:49:38Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306294136,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:49:13Z",
+              "started_at": "2026-02-11T20:49:13Z",
+              "completed_at": "2026-02-11T20:49:13Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:50:33.326114+00:00",
+      "workflows": [
+        {
+          "run_id": 21922523687,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:23Z",
+          "updated_at": "2026-02-11T20:49:48Z",
+          "run_started_at": "2026-02-11T20:49:23Z",
+          "jobs": [
+            {
+              "job_id": 63306314432,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:24Z",
+              "started_at": "2026-02-11T20:49:47Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922502271,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:48:40Z",
+          "updated_at": "2026-02-11T20:49:25Z",
+          "run_started_at": "2026-02-11T20:48:40Z",
+          "jobs": [
+            {
+              "job_id": 63306234370,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:48:41Z",
+              "started_at": "2026-02-11T20:49:24Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922491963,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:48:18Z",
+          "updated_at": "2026-02-11T20:50:12Z",
+          "run_started_at": "2026-02-11T20:48:18Z",
+          "jobs": [
+            {
+              "job_id": 63306197023,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:48:20Z",
+              "started_at": "2026-02-11T20:48:34Z",
+              "completed_at": "2026-02-11T20:49:30Z",
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306324932,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:30Z",
+              "started_at": "2026-02-11T20:50:11Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306325324,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:49:30Z",
+              "started_at": "2026-02-11T20:49:30Z",
+              "completed_at": "2026-02-11T20:49:30Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:51:08.340524+00:00",
+      "workflows": [
+        {
+          "run_id": 21922556197,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:27Z",
+          "updated_at": "2026-02-11T20:50:55Z",
+          "run_started_at": "2026-02-11T20:50:27Z",
+          "jobs": [
+            {
+              "job_id": 63306434058,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:29Z",
+              "started_at": "2026-02-11T20:50:55Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922544963,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:06Z",
+          "updated_at": "2026-02-11T20:50:48Z",
+          "run_started_at": "2026-02-11T20:50:06Z",
+          "jobs": [
+            {
+              "job_id": 63306393600,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:07Z",
+              "started_at": "2026-02-11T20:50:47Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922534164,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:44Z",
+          "updated_at": "2026-02-11T20:50:45Z",
+          "run_started_at": "2026-02-11T20:49:44Z",
+          "jobs": [
+            {
+              "job_id": 63306355142,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:46Z",
+              "started_at": "2026-02-11T20:50:45Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:51:42.495083+00:00",
+      "workflows": [
+        {
+          "run_id": 21922556197,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:27Z",
+          "updated_at": "2026-02-11T20:50:55Z",
+          "run_started_at": "2026-02-11T20:50:27Z",
+          "jobs": [
+            {
+              "job_id": 63306434058,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:29Z",
+              "started_at": "2026-02-11T20:50:55Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922544963,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:06Z",
+          "updated_at": "2026-02-11T20:50:48Z",
+          "run_started_at": "2026-02-11T20:50:06Z",
+          "jobs": [
+            {
+              "job_id": 63306393600,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:07Z",
+              "started_at": "2026-02-11T20:50:47Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922534164,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:44Z",
+          "updated_at": "2026-02-11T20:50:45Z",
+          "run_started_at": "2026-02-11T20:49:44Z",
+          "jobs": [
+            {
+              "job_id": 63306355142,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:46Z",
+              "started_at": "2026-02-11T20:50:45Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922469803,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:47:35Z",
+          "updated_at": "2026-02-11T20:51:22Z",
+          "run_started_at": "2026-02-11T20:47:35Z",
+          "jobs": [
+            {
+              "job_id": 63306116881,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:47:36Z",
+              "started_at": "2026-02-11T20:48:32Z",
+              "completed_at": "2026-02-11T20:49:37Z",
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306339147,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:49:38Z",
+              "started_at": "2026-02-11T20:51:22Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306339621,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:49:38Z",
+              "started_at": "2026-02-11T20:49:38Z",
+              "completed_at": "2026-02-11T20:49:38Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:52:18.077331+00:00",
+      "workflows": [
+        {
+          "run_id": 21922567022,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:49Z",
+          "updated_at": "2026-02-11T20:52:10Z",
+          "run_started_at": "2026-02-11T20:50:49Z",
+          "jobs": [
+            {
+              "job_id": 63306474548,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:51Z",
+              "started_at": "2026-02-11T20:52:10Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922523687,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:23Z",
+          "updated_at": "2026-02-11T20:52:11Z",
+          "run_started_at": "2026-02-11T20:49:23Z",
+          "jobs": [
+            {
+              "job_id": 63306314432,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:49:24Z",
+              "started_at": "2026-02-11T20:49:47Z",
+              "completed_at": "2026-02-11T20:50:54Z",
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306480725,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:54Z",
+              "started_at": "2026-02-11T20:52:11Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306481118,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:50:54Z",
+              "started_at": "2026-02-11T20:50:54Z",
+              "completed_at": "2026-02-11T20:50:54Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        },
+        {
+          "run_id": 21922512644,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:01Z",
+          "updated_at": "2026-02-11T20:51:56Z",
+          "run_started_at": "2026-02-11T20:49:01Z",
+          "jobs": [
+            {
+              "job_id": 63306274237,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:49:03Z",
+              "started_at": "2026-02-11T20:49:31Z",
+              "completed_at": "2026-02-11T20:50:31Z",
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306438618,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:31Z",
+              "started_at": "2026-02-11T20:51:55Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306439146,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:50:31Z",
+              "started_at": "2026-02-11T20:50:31Z",
+              "completed_at": "2026-02-11T20:50:31Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        },
+        {
+          "run_id": 21922502271,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:48:40Z",
+          "updated_at": "2026-02-11T20:52:07Z",
+          "run_started_at": "2026-02-11T20:48:40Z",
+          "jobs": [
+            {
+              "job_id": 63306234370,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:48:41Z",
+              "started_at": "2026-02-11T20:49:24Z",
+              "completed_at": "2026-02-11T20:50:46Z",
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306465758,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:46Z",
+              "started_at": "2026-02-11T20:52:06Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306466037,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:50:46Z",
+              "started_at": "2026-02-11T20:50:46Z",
+              "completed_at": "2026-02-11T20:50:46Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:52:52.793580+00:00",
+      "workflows": [
+        {
+          "run_id": 21922599765,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:54Z",
+          "updated_at": "2026-02-11T20:52:45Z",
+          "run_started_at": "2026-02-11T20:51:54Z",
+          "jobs": [
+            {
+              "job_id": 63306594365,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:56Z",
+              "started_at": "2026-02-11T20:52:44Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922588755,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:32Z",
+          "updated_at": "2026-02-11T20:52:40Z",
+          "run_started_at": "2026-02-11T20:51:32Z",
+          "jobs": [
+            {
+              "job_id": 63306553146,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:33Z",
+              "started_at": "2026-02-11T20:52:39Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922577956,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:10Z",
+          "updated_at": "2026-02-11T20:52:29Z",
+          "run_started_at": "2026-02-11T20:51:10Z",
+          "jobs": [
+            {
+              "job_id": 63306513434,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:12Z",
+              "started_at": "2026-02-11T20:52:29Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922567022,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:49Z",
+          "updated_at": "2026-02-11T20:52:10Z",
+          "run_started_at": "2026-02-11T20:50:49Z",
+          "jobs": [
+            {
+              "job_id": 63306474548,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:50:51Z",
+              "started_at": "2026-02-11T20:52:10Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:53:27.387325+00:00",
+      "workflows": [
+        {
+          "run_id": 21922599765,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:54Z",
+          "updated_at": "2026-02-11T20:52:45Z",
+          "run_started_at": "2026-02-11T20:51:54Z",
+          "jobs": [
+            {
+              "job_id": 63306594365,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:56Z",
+              "started_at": "2026-02-11T20:52:44Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922588755,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:32Z",
+          "updated_at": "2026-02-11T20:52:40Z",
+          "run_started_at": "2026-02-11T20:51:32Z",
+          "jobs": [
+            {
+              "job_id": 63306553146,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:33Z",
+              "started_at": "2026-02-11T20:52:39Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922577956,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:10Z",
+          "updated_at": "2026-02-11T20:52:29Z",
+          "run_started_at": "2026-02-11T20:51:10Z",
+          "jobs": [
+            {
+              "job_id": 63306513434,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:12Z",
+              "started_at": "2026-02-11T20:52:29Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922556197,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:27Z",
+          "updated_at": "2026-02-11T20:53:14Z",
+          "run_started_at": "2026-02-11T20:50:27Z",
+          "jobs": [
+            {
+              "job_id": 63306434058,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:50:29Z",
+              "started_at": "2026-02-11T20:50:55Z",
+              "completed_at": "2026-02-11T20:52:05Z",
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306612604,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:06Z",
+              "started_at": "2026-02-11T20:53:13Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306613061,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:52:06Z",
+              "started_at": "2026-02-11T20:52:06Z",
+              "completed_at": "2026-02-11T20:52:06Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:54:03.028454+00:00",
+      "workflows": [
+        {
+          "run_id": 21922599765,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:54Z",
+          "updated_at": "2026-02-11T20:52:45Z",
+          "run_started_at": "2026-02-11T20:51:54Z",
+          "jobs": [
+            {
+              "job_id": 63306594365,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:51:56Z",
+              "started_at": "2026-02-11T20:52:44Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922544963,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:06Z",
+          "updated_at": "2026-02-11T20:53:35Z",
+          "run_started_at": "2026-02-11T20:50:06Z",
+          "jobs": [
+            {
+              "job_id": 63306393600,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:50:07Z",
+              "started_at": "2026-02-11T20:50:47Z",
+              "completed_at": "2026-02-11T20:52:09Z",
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306619462,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:09Z",
+              "started_at": "2026-02-11T20:53:35Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306619668,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:52:09Z",
+              "started_at": "2026-02-11T20:52:09Z",
+              "completed_at": "2026-02-11T20:52:09Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        },
+        {
+          "run_id": 21922534164,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:49:44Z",
+          "updated_at": "2026-02-11T20:53:42Z",
+          "run_started_at": "2026-02-11T20:49:44Z",
+          "jobs": [
+            {
+              "job_id": 63306355142,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:49:46Z",
+              "started_at": "2026-02-11T20:50:45Z",
+              "completed_at": "2026-02-11T20:52:10Z",
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306620931,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:10Z",
+              "started_at": "2026-02-11T20:53:41Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306621089,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:52:10Z",
+              "started_at": "2026-02-11T20:52:10Z",
+              "completed_at": "2026-02-11T20:52:10Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:54:39.108588+00:00",
+      "workflows": [
+        {
+          "run_id": 21922632764,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:52:59Z",
+          "updated_at": "2026-02-11T20:54:09Z",
+          "run_started_at": "2026-02-11T20:52:59Z",
+          "jobs": [
+            {
+              "job_id": 63306712222,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:00Z",
+              "started_at": "2026-02-11T20:54:08Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922621846,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:52:37Z",
+          "updated_at": "2026-02-11T20:54:05Z",
+          "run_started_at": "2026-02-11T20:52:37Z",
+          "jobs": [
+            {
+              "job_id": 63306675678,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:39Z",
+              "started_at": "2026-02-11T20:54:04Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:55:13.544713+00:00",
+      "workflows": [
+        {
+          "run_id": 21922632764,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:52:59Z",
+          "updated_at": "2026-02-11T20:54:09Z",
+          "run_started_at": "2026-02-11T20:52:59Z",
+          "jobs": [
+            {
+              "job_id": 63306712222,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:00Z",
+              "started_at": "2026-02-11T20:54:08Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922621846,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:52:37Z",
+          "updated_at": "2026-02-11T20:54:05Z",
+          "run_started_at": "2026-02-11T20:52:37Z",
+          "jobs": [
+            {
+              "job_id": 63306675678,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:39Z",
+              "started_at": "2026-02-11T20:54:04Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922610561,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:52:15Z",
+          "updated_at": "2026-02-11T20:54:38Z",
+          "run_started_at": "2026-02-11T20:52:15Z",
+          "jobs": [
+            {
+              "job_id": 63306634060,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:17Z",
+              "started_at": "2026-02-11T20:54:37Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922567022,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:50:49Z",
+          "updated_at": "2026-02-11T20:55:05Z",
+          "run_started_at": "2026-02-11T20:50:49Z",
+          "jobs": [
+            {
+              "job_id": 63306474548,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:50:51Z",
+              "started_at": "2026-02-11T20:52:10Z",
+              "completed_at": "2026-02-11T20:53:13Z",
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306734752,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:13Z",
+              "started_at": "2026-02-11T20:55:04Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306734903,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:53:13Z",
+              "started_at": "2026-02-11T20:53:13Z",
+              "completed_at": "2026-02-11T20:53:13Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:55:48.275597+00:00",
+      "workflows": [
+        {
+          "run_id": 21922643023,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:53:20Z",
+          "updated_at": "2026-02-11T20:55:20Z",
+          "run_started_at": "2026-02-11T20:53:20Z",
+          "jobs": [
+            {
+              "job_id": 63306751312,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:22Z",
+              "started_at": "2026-02-11T20:55:19Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922610561,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:52:15Z",
+          "updated_at": "2026-02-11T20:54:38Z",
+          "run_started_at": "2026-02-11T20:52:15Z",
+          "jobs": [
+            {
+              "job_id": 63306634060,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:52:17Z",
+              "started_at": "2026-02-11T20:54:37Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922588755,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:32Z",
+          "updated_at": "2026-02-11T20:55:27Z",
+          "run_started_at": "2026-02-11T20:51:32Z",
+          "jobs": [
+            {
+              "job_id": 63306553146,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:51:33Z",
+              "started_at": "2026-02-11T20:52:39Z",
+              "completed_at": "2026-02-11T20:53:34Z",
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306774007,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:34Z",
+              "started_at": "2026-02-11T20:55:27Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306774411,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:53:34Z",
+              "started_at": "2026-02-11T20:53:34Z",
+              "completed_at": "2026-02-11T20:53:34Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:56:23.834875+00:00",
+      "workflows": [
+        {
+          "run_id": 21922665118,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:54:05Z",
+          "updated_at": "2026-02-11T20:56:19Z",
+          "run_started_at": "2026-02-11T20:54:05Z",
+          "jobs": [
+            {
+              "job_id": 63306832061,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:54:06Z",
+              "started_at": "2026-02-11T20:56:19Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922654478,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:53:43Z",
+          "updated_at": "2026-02-11T20:55:51Z",
+          "run_started_at": "2026-02-11T20:53:43Z",
+          "jobs": [
+            {
+              "job_id": 63306793341,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:45Z",
+              "started_at": "2026-02-11T20:55:50Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922599765,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:54Z",
+          "updated_at": "2026-02-11T20:56:01Z",
+          "run_started_at": "2026-02-11T20:51:54Z",
+          "jobs": [
+            {
+              "job_id": 63306594365,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:51:56Z",
+              "started_at": "2026-02-11T20:52:44Z",
+              "completed_at": "2026-02-11T20:54:03Z",
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306827641,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:54:04Z",
+              "started_at": "2026-02-11T20:56:00Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306828149,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:54:04Z",
+              "started_at": "2026-02-11T20:54:04Z",
+              "completed_at": "2026-02-11T20:54:04Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-11T20:56:59.117635+00:00",
+      "workflows": [
+        {
+          "run_id": 21922687238,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:54:48Z",
+          "updated_at": "2026-02-11T20:56:45Z",
+          "run_started_at": "2026-02-11T20:54:48Z",
+          "jobs": [
+            {
+              "job_id": 63306911168,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:54:49Z",
+              "started_at": "2026-02-11T20:56:44Z",
+              "completed_at": null,
+              "runner_id": 129,
+              "runner_name": "ecs-runner-SvC3C1flez7ic",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922676260,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:54:26Z",
+          "updated_at": "2026-02-11T20:56:35Z",
+          "run_started_at": "2026-02-11T20:54:26Z",
+          "jobs": [
+            {
+              "job_id": 63306871682,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:54:28Z",
+              "started_at": "2026-02-11T20:56:35Z",
+              "completed_at": null,
+              "runner_id": 130,
+              "runner_name": "ecs-runner-MviCnuoaPCdol",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922665118,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:54:05Z",
+          "updated_at": "2026-02-11T20:56:19Z",
+          "run_started_at": "2026-02-11T20:54:05Z",
+          "jobs": [
+            {
+              "job_id": 63306832061,
+              "name": "Build Simulation - test",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:54:06Z",
+              "started_at": "2026-02-11T20:56:19Z",
+              "completed_at": null,
+              "runner_id": 128,
+              "runner_name": "ecs-runner-bY84ImY432dBP",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            }
+          ]
+        },
+        {
+          "run_id": 21922577956,
+          "name": "Realistic Build With Multiple Workflows",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-11T20:51:10Z",
+          "updated_at": "2026-02-11T20:56:28Z",
+          "run_started_at": "2026-02-11T20:51:10Z",
+          "jobs": [
+            {
+              "job_id": 63306513434,
+              "name": "Build Simulation - test",
+              "status": "completed",
+              "conclusion": "success",
+              "created_at": "2026-02-11T20:51:12Z",
+              "started_at": "2026-02-11T20:52:29Z",
+              "completed_at": "2026-02-11T20:53:40Z",
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306786091,
+              "name": "Send Results",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-11T20:53:40Z",
+              "started_at": "2026-02-11T20:56:28Z",
+              "completed_at": null,
+              "runner_id": 131,
+              "runner_name": "ecs-runner-6UukmlU9Efqnw",
+              "runner_group_id": 1,
+              "runner_group_name": "Default"
+            },
+            {
+              "job_id": 63306786382,
+              "name": "Extended Security Scan",
+              "status": "completed",
+              "conclusion": "skipped",
+              "created_at": "2026-02-11T20:53:41Z",
+              "started_at": "2026-02-11T20:53:41Z",
+              "completed_at": "2026-02-11T20:53:40Z",
+              "runner_id": null,
+              "runner_name": null,
+              "runner_group_id": null,
+              "runner_group_name": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total_snapshots": 22,
+  "discovered_runners": [
+    "ecs-runner-bY84ImY432dBP",
+    "ecs-runner-SvC3C1flez7ic",
+    "ecs-runner-6UukmlU9Efqnw",
+    "ecs-runner-MviCnuoaPCdol"
+  ]
+}

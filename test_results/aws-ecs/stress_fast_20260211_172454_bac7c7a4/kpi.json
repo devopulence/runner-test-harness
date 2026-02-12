@@ -1,0 +1,44 @@
+{
+  "test_run_id": "stress_fast_20260211_172454_bac7c7a4",
+  "profile": "stress_fast",
+  "environment": "aws-ecs",
+  "generated_at": "2026-02-11T17:33:08.746588",
+  "totals": {
+    "workflows": 16,
+    "jobs": 32,
+    "jobs_per_workflow": 2.0,
+    "queue_time_minutes": 19.13,
+    "execution_time_minutes": 27.83,
+    "total_time_minutes": 66.52
+  },
+  "throughput": {
+    "jobs_per_hour": 246.15,
+    "workflows_per_hour": 123.08
+  },
+  "queue_time_minutes": {
+    "avg": 1.2,
+    "p95": 3.23,
+    "max": 3.23
+  },
+  "execution_time_minutes": {
+    "avg": 1.74,
+    "p95": 1.93,
+    "max": 1.93
+  },
+  "total_time_minutes": {
+    "avg": 4.16,
+    "p95": 5.95,
+    "max": 5.95
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 32,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 4,
+    "utilization_percent": 89.21
+  },
+  "test_duration_minutes": 7.8
+}

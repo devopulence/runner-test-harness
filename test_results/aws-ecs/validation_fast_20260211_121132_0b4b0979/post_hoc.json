@@ -1,0 +1,207 @@
+{
+  "test_run_id": "validation_fast_20260211_121132_0b4b0979",
+  "profile": "validation_fast",
+  "environment": "aws-ecs",
+  "kpi": {
+    "totals": {
+      "workflows": 5,
+      "jobs": 10,
+      "jobs_per_workflow": 2.0,
+      "queue_time_minutes": 0.13,
+      "execution_time_minutes": 8.33,
+      "total_time_minutes": 8.6
+    },
+    "throughput": {
+      "jobs_per_hour": 104.96,
+      "workflows_per_hour": 52.48
+    },
+    "queue_time_minutes": {
+      "avg": 0.03,
+      "p95": 0.03,
+      "max": 0.03
+    },
+    "execution_time_minutes": {
+      "avg": 1.67,
+      "p95": 1.87,
+      "max": 1.87
+    },
+    "total_time_minutes": {
+      "avg": 1.72,
+      "p95": 1.93,
+      "max": 1.93
+    },
+    "success": {
+      "rate_percent": 100.0,
+      "succeeded": 10,
+      "failed": 0,
+      "timed_out": 0
+    },
+    "runners": {
+      "count": 4,
+      "utilization_percent": 36.44
+    },
+    "test_duration_minutes": 5.72
+  },
+  "summary": {
+    "total_runs": 5,
+    "total_jobs": 10,
+    "successful_jobs": 10,
+    "failed_jobs": 0,
+    "success_rate": 1.0
+  },
+  "concurrency": {
+    "max_concurrent_jobs": 2,
+    "avg_concurrent_jobs": 1.4
+  },
+  "timing": {
+    "queue_time": {
+      "min": 1.0,
+      "max": 2.0,
+      "mean": 1.6,
+      "median": 2.0
+    },
+    "execution_time": {
+      "min": 93.0,
+      "max": 112.0,
+      "mean": 100.0,
+      "median": 95.0
+    }
+  },
+  "runners": {
+    "unique_count": 4,
+    "jobs_per_runner": {
+      "ecs-runner-6UukmlU9Efqnw": 2,
+      "ecs-runner-SvC3C1flez7ic": 4,
+      "ecs-runner-bY84ImY432dBP": 2,
+      "ecs-runner-MviCnuoaPCdol": 2
+    },
+    "busy_time_per_runner": {
+      "ecs-runner-6UukmlU9Efqnw": 113.0,
+      "ecs-runner-SvC3C1flez7ic": 200.0,
+      "ecs-runner-bY84ImY432dBP": 94.0,
+      "ecs-runner-MviCnuoaPCdol": 93.0
+    }
+  },
+  "jobs": [
+    {
+      "job_id": 63279931769,
+      "job_name": "Build Simulation - test",
+      "run_id": 21915070007,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-6UukmlU9Efqnw",
+      "queue_time_sec": 2.0,
+      "execution_time_sec": 80.0,
+      "started_at": "2026-02-11T17:11:39+00:00",
+      "completed_at": "2026-02-11T17:12:59+00:00"
+    },
+    {
+      "job_id": 63280109687,
+      "job_name": "Send Results",
+      "run_id": 21915070007,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-SvC3C1flez7ic",
+      "queue_time_sec": 1.0,
+      "execution_time_sec": 32.0,
+      "started_at": "2026-02-11T17:13:01+00:00",
+      "completed_at": "2026-02-11T17:13:33+00:00"
+    },
+    {
+      "job_id": 63280061483,
+      "job_name": "Build Simulation - test",
+      "run_id": 21915107149,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-bY84ImY432dBP",
+      "queue_time_sec": 2.0,
+      "execution_time_sec": 62.0,
+      "started_at": "2026-02-11T17:12:40+00:00",
+      "completed_at": "2026-02-11T17:13:42+00:00"
+    },
+    {
+      "job_id": 63280203171,
+      "job_name": "Send Results",
+      "run_id": 21915107149,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-bY84ImY432dBP",
+      "queue_time_sec": 2.0,
+      "execution_time_sec": 32.0,
+      "started_at": "2026-02-11T17:13:44+00:00",
+      "completed_at": "2026-02-11T17:14:16+00:00"
+    },
+    {
+      "job_id": 63280198592,
+      "job_name": "Build Simulation - test",
+      "run_id": 21915142987,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-SvC3C1flez7ic",
+      "queue_time_sec": 1.0,
+      "execution_time_sec": 73.0,
+      "started_at": "2026-02-11T17:13:42+00:00",
+      "completed_at": "2026-02-11T17:14:55+00:00"
+    },
+    {
+      "job_id": 63280354900,
+      "job_name": "Send Results",
+      "run_id": 21915142987,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-SvC3C1flez7ic",
+      "queue_time_sec": 1.0,
+      "execution_time_sec": 33.0,
+      "started_at": "2026-02-11T17:14:56+00:00",
+      "completed_at": "2026-02-11T17:15:29+00:00"
+    },
+    {
+      "job_id": 63280328649,
+      "job_name": "Build Simulation - test",
+      "run_id": 21915178142,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-MviCnuoaPCdol",
+      "queue_time_sec": 2.0,
+      "execution_time_sec": 61.0,
+      "started_at": "2026-02-11T17:14:44+00:00",
+      "completed_at": "2026-02-11T17:15:45+00:00"
+    },
+    {
+      "job_id": 63280459130,
+      "job_name": "Send Results",
+      "run_id": 21915178142,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-MviCnuoaPCdol",
+      "queue_time_sec": 1.0,
+      "execution_time_sec": 32.0,
+      "started_at": "2026-02-11T17:15:47+00:00",
+      "completed_at": "2026-02-11T17:16:19+00:00"
+    },
+    {
+      "job_id": 63280456648,
+      "job_name": "Build Simulation - test",
+      "run_id": 21915212206,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-SvC3C1flez7ic",
+      "queue_time_sec": 1.0,
+      "execution_time_sec": 62.0,
+      "started_at": "2026-02-11T17:15:46+00:00",
+      "completed_at": "2026-02-11T17:16:48+00:00"
+    },
+    {
+      "job_id": 63280590016,
+      "job_name": "Send Results",
+      "run_id": 21915212206,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "ecs-runner-6UukmlU9Efqnw",
+      "queue_time_sec": 1.0,
+      "execution_time_sec": 33.0,
+      "started_at": "2026-02-11T17:16:49+00:00",
+      "completed_at": "2026-02-11T17:17:22+00:00"
+    }
+  ]
+}

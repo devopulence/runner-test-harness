@@ -1,0 +1,44 @@
+{
+  "test_run_id": "capacity_fast_20260211_154440_7cc1fc66",
+  "profile": "capacity_fast",
+  "environment": "aws-ecs",
+  "generated_at": "2026-02-11T16:02:21.059503",
+  "totals": {
+    "workflows": 34,
+    "jobs": 68,
+    "jobs_per_workflow": 2.0,
+    "queue_time_minutes": 36.37,
+    "execution_time_minutes": 56.58,
+    "total_time_minutes": 138.13
+  },
+  "throughput": {
+    "jobs_per_hour": 237.44,
+    "workflows_per_hour": 118.72
+  },
+  "queue_time_minutes": {
+    "avg": 1.07,
+    "p95": 2.35,
+    "max": 2.43
+  },
+  "execution_time_minutes": {
+    "avg": 1.66,
+    "p95": 1.9,
+    "max": 1.95
+  },
+  "total_time_minutes": {
+    "avg": 4.06,
+    "p95": 6.08,
+    "max": 6.22
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 68,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 4,
+    "utilization_percent": 82.32
+  },
+  "test_duration_minutes": 17.18
+}

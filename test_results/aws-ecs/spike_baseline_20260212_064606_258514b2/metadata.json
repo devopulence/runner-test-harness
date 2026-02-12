@@ -1,0 +1,22 @@
+{
+  "test_run_id": "spike_baseline_20260212_064606_258514b2",
+  "profile": "spike_baseline",
+  "environment": "aws-ecs",
+  "environment_type": "test",
+  "runner_labels": [
+    "self-hosted",
+    "ecs-fargate",
+    "aws",
+    "linux"
+  ],
+  "generated_at": "2026-02-12T07:09:00.764667",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

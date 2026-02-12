@@ -1,0 +1,279 @@
+{
+  "test_name": "spike_baseline",
+  "timestamp": "2026-02-12T07:09:00.759499",
+  "summary": {
+    "total_workflows": 21,
+    "queue_time_avg_min": 3.5357142857142856,
+    "execution_time_avg_min": 1.1936507936507936,
+    "total_time_avg_min": 4.729365079365079
+  },
+  "detailed_statistics": {
+    "workflow_count": 21,
+    "queue_time": {
+      "min_seconds": 1.0,
+      "max_seconds": 457.0,
+      "mean_seconds": 212.14285714285714,
+      "median_seconds": 222.0,
+      "min_minutes": 0.016666666666666666,
+      "max_minutes": 7.616666666666666,
+      "mean_minutes": 3.5357142857142856,
+      "median_minutes": 3.7,
+      "p95_seconds": 453.9,
+      "p95_minutes": 7.5649999999999995,
+      "stdev_seconds": 158.29254111116092,
+      "stdev_minutes": 2.6382090185193485
+    },
+    "execution_time": {
+      "min_seconds": 55.0,
+      "max_seconds": 84.0,
+      "mean_seconds": 71.61904761904762,
+      "median_seconds": 71.0,
+      "min_minutes": 0.9166666666666666,
+      "max_minutes": 1.4,
+      "mean_minutes": 1.1936507936507936,
+      "median_minutes": 1.1833333333333333,
+      "p95_seconds": 83.9,
+      "p95_minutes": 1.3983333333333334,
+      "stdev_seconds": 7.2970966176705545,
+      "stdev_minutes": 0.12161827696117591
+    },
+    "total_time": {
+      "min_seconds": 72.0,
+      "max_seconds": 512.0,
+      "mean_seconds": 283.76190476190476,
+      "median_seconds": 296.0,
+      "min_minutes": 1.2,
+      "max_minutes": 8.533333333333333,
+      "mean_minutes": 4.729365079365079,
+      "median_minutes": 4.933333333333334,
+      "p95_seconds": 511.2,
+      "p95_minutes": 8.52,
+      "stdev_seconds": 157.52203171680614,
+      "stdev_minutes": 2.6253671952801025
+    },
+    "capacity_insights": {
+      "avg_execution_minutes": 1.1936507936507936,
+      "theoretical_throughput_per_runner_per_hour": 50.26595744680851,
+      "theoretical_throughput_total_per_hour": 100.53191489361701,
+      "observed_runners": 2
+    },
+    "queue_growth": {
+      "first_half_avg_minutes": 1.155,
+      "second_half_avg_minutes": 5.7,
+      "growth_minutes": 4.545,
+      "trend": "increasing"
+    }
+  },
+  "workflows": [
+    {
+      "id": 21945294732,
+      "name": "build_job_multiple",
+      "queue_time": 2.0,
+      "execution_time": 70.0,
+      "total_time": 72.0,
+      "queued_at": "2026-02-12 11:46:10+00:00",
+      "started_at": "2026-02-12 11:46:12+00:00",
+      "completed_at": "2026-02-12 11:47:22+00:00"
+    },
+    {
+      "id": 21945355263,
+      "name": "build_job_multiple",
+      "queue_time": 1.0,
+      "execution_time": 71.0,
+      "total_time": 72.0,
+      "queued_at": "2026-02-12 11:48:12+00:00",
+      "started_at": "2026-02-12 11:48:13+00:00",
+      "completed_at": "2026-02-12 11:49:24+00:00"
+    },
+    {
+      "id": 21945421240,
+      "name": "build_job_multiple",
+      "queue_time": 2.0,
+      "execution_time": 83.0,
+      "total_time": 85.0,
+      "queued_at": "2026-02-12 11:50:14+00:00",
+      "started_at": "2026-02-12 11:50:16+00:00",
+      "completed_at": "2026-02-12 11:51:39+00:00"
+    },
+    {
+      "id": 21945431028,
+      "name": "build_job_multiple",
+      "queue_time": 1.0,
+      "execution_time": 71.0,
+      "total_time": 72.0,
+      "queued_at": "2026-02-12 11:50:30+00:00",
+      "started_at": "2026-02-12 11:50:31+00:00",
+      "completed_at": "2026-02-12 11:51:42+00:00"
+    },
+    {
+      "id": 21945447915,
+      "name": "build_job_multiple",
+      "queue_time": 40.0,
+      "execution_time": 67.0,
+      "total_time": 107.0,
+      "queued_at": "2026-02-12 11:51:03+00:00",
+      "started_at": "2026-02-12 11:51:43+00:00",
+      "completed_at": "2026-02-12 11:52:50+00:00"
+    },
+    {
+      "id": 21945439975,
+      "name": "build_job_multiple",
+      "queue_time": 53.0,
+      "execution_time": 77.0,
+      "total_time": 130.0,
+      "queued_at": "2026-02-12 11:50:47+00:00",
+      "started_at": "2026-02-12 11:51:40+00:00",
+      "completed_at": "2026-02-12 11:52:57+00:00"
+    },
+    {
+      "id": 21945455869,
+      "name": "build_job_multiple",
+      "queue_time": 91.0,
+      "execution_time": 73.0,
+      "total_time": 164.0,
+      "queued_at": "2026-02-12 11:51:20+00:00",
+      "started_at": "2026-02-12 11:52:51+00:00",
+      "completed_at": "2026-02-12 11:54:04+00:00"
+    },
+    {
+      "id": 21945464144,
+      "name": "build_job_multiple",
+      "queue_time": 132.0,
+      "execution_time": 70.0,
+      "total_time": 202.0,
+      "queued_at": "2026-02-12 11:51:36+00:00",
+      "started_at": "2026-02-12 11:53:48+00:00",
+      "completed_at": "2026-02-12 11:54:58+00:00"
+    },
+    {
+      "id": 21945473236,
+      "name": "build_job_multiple",
+      "queue_time": 186.0,
+      "execution_time": 72.0,
+      "total_time": 258.0,
+      "queued_at": "2026-02-12 11:51:53+00:00",
+      "started_at": "2026-02-12 11:54:59+00:00",
+      "completed_at": "2026-02-12 11:56:11+00:00"
+    },
+    {
+      "id": 21945482503,
+      "name": "build_job_multiple",
+      "queue_time": 185.0,
+      "execution_time": 69.0,
+      "total_time": 254.0,
+      "queued_at": "2026-02-12 11:52:09+00:00",
+      "started_at": "2026-02-12 11:55:14+00:00",
+      "completed_at": "2026-02-12 11:56:23+00:00"
+    },
+    {
+      "id": 21945490426,
+      "name": "build_job_multiple",
+      "queue_time": 226.0,
+      "execution_time": 71.0,
+      "total_time": 297.0,
+      "queued_at": "2026-02-12 11:52:26+00:00",
+      "started_at": "2026-02-12 11:56:12+00:00",
+      "completed_at": "2026-02-12 11:57:23+00:00"
+    },
+    {
+      "id": 21945498530,
+      "name": "build_job_multiple",
+      "queue_time": 222.0,
+      "execution_time": 74.0,
+      "total_time": 296.0,
+      "queued_at": "2026-02-12 11:52:42+00:00",
+      "started_at": "2026-02-12 11:56:24+00:00",
+      "completed_at": "2026-02-12 11:57:38+00:00"
+    },
+    {
+      "id": 21945506827,
+      "name": "build_job_multiple",
+      "queue_time": 299.0,
+      "execution_time": 69.0,
+      "total_time": 368.0,
+      "queued_at": "2026-02-12 11:52:59+00:00",
+      "started_at": "2026-02-12 11:57:58+00:00",
+      "completed_at": "2026-02-12 11:59:07+00:00"
+    },
+    {
+      "id": 21945515602,
+      "name": "build_job_multiple",
+      "queue_time": 296.0,
+      "execution_time": 64.0,
+      "total_time": 360.0,
+      "queued_at": "2026-02-12 11:53:16+00:00",
+      "started_at": "2026-02-12 11:58:12+00:00",
+      "completed_at": "2026-02-12 11:59:16+00:00"
+    },
+    {
+      "id": 21945524921,
+      "name": "build_job_multiple",
+      "queue_time": 385.0,
+      "execution_time": 73.0,
+      "total_time": 458.0,
+      "queued_at": "2026-02-12 11:53:33+00:00",
+      "started_at": "2026-02-12 11:59:58+00:00",
+      "completed_at": "2026-02-12 12:01:11+00:00"
+    },
+    {
+      "id": 21945533815,
+      "name": "build_job_multiple",
+      "queue_time": 328.0,
+      "execution_time": 84.0,
+      "total_time": 412.0,
+      "queued_at": "2026-02-12 11:53:49+00:00",
+      "started_at": "2026-02-12 11:59:17+00:00",
+      "completed_at": "2026-02-12 12:00:41+00:00"
+    },
+    {
+      "id": 21945541753,
+      "name": "build_job_multiple",
+      "queue_time": 426.0,
+      "execution_time": 78.0,
+      "total_time": 504.0,
+      "queued_at": "2026-02-12 11:54:06+00:00",
+      "started_at": "2026-02-12 12:01:12+00:00",
+      "completed_at": "2026-02-12 12:02:30+00:00"
+    },
+    {
+      "id": 21945550639,
+      "name": "build_job_multiple",
+      "queue_time": 413.0,
+      "execution_time": 82.0,
+      "total_time": 495.0,
+      "queued_at": "2026-02-12 11:54:23+00:00",
+      "started_at": "2026-02-12 12:01:16+00:00",
+      "completed_at": "2026-02-12 12:02:38+00:00"
+    },
+    {
+      "id": 21945613025,
+      "name": "build_job_multiple",
+      "queue_time": 457.0,
+      "execution_time": 55.0,
+      "total_time": 512.0,
+      "queued_at": "2026-02-12 11:56:25+00:00",
+      "started_at": "2026-02-12 12:04:02+00:00",
+      "completed_at": "2026-02-12 12:04:57+00:00"
+    },
+    {
+      "id": 21945674932,
+      "name": "build_job_multiple",
+      "queue_time": 379.0,
+      "execution_time": 74.0,
+      "total_time": 453.0,
+      "queued_at": "2026-02-12 11:58:26+00:00",
+      "started_at": "2026-02-12 12:04:45+00:00",
+      "completed_at": "2026-02-12 12:05:59+00:00"
+    },
+    {
+      "id": 21945738937,
+      "name": "build_job_multiple",
+      "queue_time": 331.0,
+      "execution_time": 57.0,
+      "total_time": 388.0,
+      "queued_at": "2026-02-12 12:00:29+00:00",
+      "started_at": "2026-02-12 12:06:00+00:00",
+      "completed_at": "2026-02-12 12:06:57+00:00"
+    }
+  ]
+}

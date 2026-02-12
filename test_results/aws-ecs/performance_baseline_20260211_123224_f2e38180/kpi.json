@@ -1,0 +1,44 @@
+{
+  "test_run_id": "performance_baseline_20260211_123224_f2e38180",
+  "profile": "performance_baseline",
+  "environment": "aws-ecs",
+  "generated_at": "2026-02-11T13:19:55.662069",
+  "totals": {
+    "workflows": 35,
+    "jobs": 70,
+    "jobs_per_workflow": 2.0,
+    "queue_time_minutes": 192.88,
+    "execution_time_minutes": 173.55,
+    "total_time_minutes": 588.73
+  },
+  "throughput": {
+    "jobs_per_hour": 89.74,
+    "workflows_per_hour": 44.87
+  },
+  "queue_time_minutes": {
+    "avg": 5.51,
+    "p95": 11.62,
+    "max": 11.65
+  },
+  "execution_time_minutes": {
+    "avg": 4.96,
+    "p95": 5.65,
+    "max": 5.77
+  },
+  "total_time_minutes": {
+    "avg": 16.82,
+    "p95": 23.75,
+    "max": 23.85
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 70,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 4,
+    "utilization_percent": 92.71
+  },
+  "test_duration_minutes": 46.8
+}
