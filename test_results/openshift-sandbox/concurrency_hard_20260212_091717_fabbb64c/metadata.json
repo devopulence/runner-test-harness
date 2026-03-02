@@ -1,0 +1,19 @@
+{
+  "test_run_id": "concurrency_hard_20260212_091717_fabbb64c",
+  "profile": "concurrency_hard",
+  "environment": "openshift-sandbox",
+  "environment_type": "sandbox",
+  "runner_labels": [
+    "k8s"
+  ],
+  "generated_at": "2026-02-12T12:03:03.612722",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

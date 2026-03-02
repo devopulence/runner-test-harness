@@ -1,0 +1,247 @@
+{
+  "test_run_id": "performance_fast_20260211_123329_993f5305",
+  "profile": "performance_fast",
+  "environment": "openshift-sandbox",
+  "kpi": {
+    "totals": {
+      "workflows": 12,
+      "jobs": 12,
+      "jobs_per_workflow": 1.0,
+      "queue_time_minutes": 1.73,
+      "execution_time_minutes": 57.55,
+      "total_time_minutes": 59.28
+    },
+    "throughput": {
+      "jobs_per_hour": 50.29,
+      "workflows_per_hour": 50.29
+    },
+    "queue_time_minutes": {
+      "avg": 0.14,
+      "p95": 0.17,
+      "max": 0.17
+    },
+    "execution_time_minutes": {
+      "avg": 4.8,
+      "p95": 5.08,
+      "max": 5.08
+    },
+    "total_time_minutes": {
+      "avg": 4.94,
+      "p95": 5.23,
+      "max": 5.23
+    },
+    "success": {
+      "rate_percent": 100.0,
+      "succeeded": 12,
+      "failed": 0,
+      "timed_out": 0
+    },
+    "runners": {
+      "count": 12,
+      "utilization_percent": 33.5
+    },
+    "test_duration_minutes": 14.32
+  },
+  "summary": {
+    "total_runs": 12,
+    "total_jobs": 12,
+    "successful_jobs": 12,
+    "failed_jobs": 0,
+    "success_rate": 1.0
+  },
+  "concurrency": {
+    "max_concurrent_jobs": 6,
+    "avg_concurrent_jobs": 4.11
+  },
+  "timing": {
+    "queue_time": {
+      "min": 8.0,
+      "max": 10.0,
+      "mean": 8.666666666666666,
+      "median": 8.5
+    },
+    "execution_time": {
+      "min": 269.0,
+      "max": 305.0,
+      "mean": 287.75,
+      "median": 286.0
+    }
+  },
+  "runners": {
+    "unique_count": 12,
+    "jobs_per_runner": {
+      "k8s-gf9qx-runner-f9r4m": 1,
+      "k8s-gf9qx-runner-vnkv5": 1,
+      "k8s-gf9qx-runner-6zncq": 1,
+      "k8s-gf9qx-runner-8prh8": 1,
+      "k8s-gf9qx-runner-rn7gk": 1,
+      "k8s-gf9qx-runner-vbhzm": 1,
+      "k8s-gf9qx-runner-bvbxn": 1,
+      "k8s-gf9qx-runner-r6jw2": 1,
+      "k8s-gf9qx-runner-czv8m": 1,
+      "k8s-gf9qx-runner-tfl7c": 1,
+      "k8s-gf9qx-runner-6vpdw": 1,
+      "k8s-gf9qx-runner-vbrfg": 1
+    },
+    "busy_time_per_runner": {
+      "k8s-gf9qx-runner-f9r4m": 269.0,
+      "k8s-gf9qx-runner-vnkv5": 299.0,
+      "k8s-gf9qx-runner-6zncq": 294.0,
+      "k8s-gf9qx-runner-8prh8": 294.0,
+      "k8s-gf9qx-runner-rn7gk": 287.0,
+      "k8s-gf9qx-runner-vbhzm": 278.0,
+      "k8s-gf9qx-runner-bvbxn": 301.0,
+      "k8s-gf9qx-runner-r6jw2": 282.0,
+      "k8s-gf9qx-runner-czv8m": 280.0,
+      "k8s-gf9qx-runner-tfl7c": 305.0,
+      "k8s-gf9qx-runner-6vpdw": 279.0,
+      "k8s-gf9qx-runner-vbrfg": 285.0
+    }
+  },
+  "jobs": [
+    {
+      "job_id": 63282731537,
+      "job_name": "ci / build-npm",
+      "run_id": 21915842337,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-f9r4m",
+      "queue_time_sec": 10.0,
+      "execution_time_sec": 269.0,
+      "started_at": "2026-02-11T17:33:44+00:00",
+      "completed_at": "2026-02-11T17:38:13+00:00"
+    },
+    {
+      "job_id": 63282838241,
+      "job_name": "ci / build-npm",
+      "run_id": 21915873094,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-vnkv5",
+      "queue_time_sec": 10.0,
+      "execution_time_sec": 299.0,
+      "started_at": "2026-02-11T17:34:37+00:00",
+      "completed_at": "2026-02-11T17:39:36+00:00"
+    },
+    {
+      "job_id": 63282946221,
+      "job_name": "ci / build-npm",
+      "run_id": 21915903727,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-6zncq",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 294.0,
+      "started_at": "2026-02-11T17:35:27+00:00",
+      "completed_at": "2026-02-11T17:40:21+00:00"
+    },
+    {
+      "job_id": 63283057825,
+      "job_name": "ci / build-npm",
+      "run_id": 21915935563,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-8prh8",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 294.0,
+      "started_at": "2026-02-11T17:36:19+00:00",
+      "completed_at": "2026-02-11T17:41:13+00:00"
+    },
+    {
+      "job_id": 63283171726,
+      "job_name": "ci / build-npm",
+      "run_id": 21915966682,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-rn7gk",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 287.0,
+      "started_at": "2026-02-11T17:37:12+00:00",
+      "completed_at": "2026-02-11T17:41:59+00:00"
+    },
+    {
+      "job_id": 63283285379,
+      "job_name": "ci / build-npm",
+      "run_id": 21915998092,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-vbhzm",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 278.0,
+      "started_at": "2026-02-11T17:38:05+00:00",
+      "completed_at": "2026-02-11T17:42:43+00:00"
+    },
+    {
+      "job_id": 63283394459,
+      "job_name": "ci / build-npm",
+      "run_id": 21916028649,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-bvbxn",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 301.0,
+      "started_at": "2026-02-11T17:38:56+00:00",
+      "completed_at": "2026-02-11T17:43:57+00:00"
+    },
+    {
+      "job_id": 63283507923,
+      "job_name": "ci / build-npm",
+      "run_id": 21916059029,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-r6jw2",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 282.0,
+      "started_at": "2026-02-11T17:39:49+00:00",
+      "completed_at": "2026-02-11T17:44:31+00:00"
+    },
+    {
+      "job_id": 63283614820,
+      "job_name": "ci / build-npm",
+      "run_id": 21916088496,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-czv8m",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 280.0,
+      "started_at": "2026-02-11T17:40:42+00:00",
+      "completed_at": "2026-02-11T17:45:22+00:00"
+    },
+    {
+      "job_id": 63283726377,
+      "job_name": "ci / build-npm",
+      "run_id": 21916119818,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-tfl7c",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 305.0,
+      "started_at": "2026-02-11T17:41:35+00:00",
+      "completed_at": "2026-02-11T17:46:40+00:00"
+    },
+    {
+      "job_id": 63283830033,
+      "job_name": "ci / build-npm",
+      "run_id": 21916149757,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-6vpdw",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 279.0,
+      "started_at": "2026-02-11T17:42:26+00:00",
+      "completed_at": "2026-02-11T17:47:05+00:00"
+    },
+    {
+      "job_id": 63283937039,
+      "job_name": "ci / build-npm",
+      "run_id": 21916180016,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-vbrfg",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 285.0,
+      "started_at": "2026-02-11T17:43:18+00:00",
+      "completed_at": "2026-02-11T17:48:03+00:00"
+    }
+  ]
+}

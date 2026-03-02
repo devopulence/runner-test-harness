@@ -1,0 +1,44 @@
+{
+  "test_run_id": "performance_baseline_20260211_115608_20bbc58d",
+  "profile": "performance_baseline",
+  "environment": "openshift-sandbox",
+  "generated_at": "2026-02-11T12:31:03.966514",
+  "totals": {
+    "workflows": 35,
+    "jobs": 35,
+    "jobs_per_workflow": 1.0,
+    "queue_time_minutes": 5.35,
+    "execution_time_minutes": 170.68,
+    "total_time_minutes": 176.03
+  },
+  "throughput": {
+    "jobs_per_hour": 61.28,
+    "workflows_per_hour": 61.28
+  },
+  "queue_time_minutes": {
+    "avg": 0.15,
+    "p95": 0.18,
+    "max": 0.18
+  },
+  "execution_time_minutes": {
+    "avg": 4.88,
+    "p95": 5.27,
+    "max": 5.72
+  },
+  "total_time_minutes": {
+    "avg": 5.03,
+    "p95": 5.43,
+    "max": 5.87
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 35,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 35,
+    "utilization_percent": 14.23
+  },
+  "test_duration_minutes": 34.27
+}

@@ -1,0 +1,419 @@
+{
+  "test_name": "performance_baseline",
+  "timestamp": "2026-02-25T08:17:06.352865",
+  "summary": {
+    "total_workflows": 35,
+    "queue_time_avg_min": 0.1357142857142857,
+    "execution_time_avg_min": 4.342380952380952,
+    "total_time_avg_min": 4.478095238095238
+  },
+  "detailed_statistics": {
+    "workflow_count": 35,
+    "queue_time": {
+      "min_seconds": 7.0,
+      "max_seconds": 9.0,
+      "mean_seconds": 8.142857142857142,
+      "median_seconds": 8.0,
+      "min_minutes": 0.11666666666666667,
+      "max_minutes": 0.15,
+      "mean_minutes": 0.1357142857142857,
+      "median_minutes": 0.13333333333333333,
+      "p95_seconds": 9.0,
+      "p95_minutes": 0.15,
+      "stdev_seconds": 0.49365724849494175,
+      "stdev_minutes": 0.00822762080824903
+    },
+    "execution_time": {
+      "min_seconds": 233.0,
+      "max_seconds": 384.0,
+      "mean_seconds": 260.54285714285714,
+      "median_seconds": 254.0,
+      "min_minutes": 3.8833333333333333,
+      "max_minutes": 6.4,
+      "mean_minutes": 4.342380952380952,
+      "median_minutes": 4.233333333333333,
+      "p95_seconds": 327.2,
+      "p95_minutes": 5.453333333333333,
+      "stdev_seconds": 28.24300314928914,
+      "stdev_minutes": 0.470716719154819
+    },
+    "total_time": {
+      "min_seconds": 241.0,
+      "max_seconds": 392.0,
+      "mean_seconds": 268.6857142857143,
+      "median_seconds": 262.0,
+      "min_minutes": 4.016666666666667,
+      "max_minutes": 6.533333333333333,
+      "mean_minutes": 4.478095238095238,
+      "median_minutes": 4.366666666666666,
+      "p95_seconds": 335.2,
+      "p95_minutes": 5.586666666666667,
+      "stdev_seconds": 28.16315012938155,
+      "stdev_minutes": 0.4693858354896925
+    },
+    "capacity_insights": {
+      "avg_execution_minutes": 4.342380952380952,
+      "theoretical_throughput_per_runner_per_hour": 13.817304529005373,
+      "theoretical_throughput_total_per_hour": 82.90382717403224,
+      "observed_runners": 6
+    },
+    "queue_growth": {
+      "first_half_avg_minutes": 0.1323529411764706,
+      "second_half_avg_minutes": 0.1388888888888889,
+      "growth_minutes": 0.006535947712418307,
+      "trend": "increasing"
+    }
+  },
+  "workflows": [
+    {
+      "id": 22397355852,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 263.0,
+      "total_time": 272.0,
+      "queued_at": "2026-02-25 12:42:42+00:00",
+      "started_at": "2026-02-25 12:42:51+00:00",
+      "completed_at": "2026-02-25 12:47:14+00:00"
+    },
+    {
+      "id": 22397413752,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 246.0,
+      "total_time": 254.0,
+      "queued_at": "2026-02-25 12:44:26+00:00",
+      "started_at": "2026-02-25 12:44:34+00:00",
+      "completed_at": "2026-02-25 12:48:40+00:00"
+    },
+    {
+      "id": 22397385839,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 313.0,
+      "total_time": 321.0,
+      "queued_at": "2026-02-25 12:43:34+00:00",
+      "started_at": "2026-02-25 12:43:42+00:00",
+      "completed_at": "2026-02-25 12:48:55+00:00"
+    },
+    {
+      "id": 22397472313,
+      "name": "ci",
+      "queue_time": 7.0,
+      "execution_time": 311.0,
+      "total_time": 318.0,
+      "queued_at": "2026-02-25 12:46:11+00:00",
+      "started_at": "2026-02-25 12:46:18+00:00",
+      "completed_at": "2026-02-25 12:51:29+00:00"
+    },
+    {
+      "id": 22397501694,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 254.0,
+      "total_time": 262.0,
+      "queued_at": "2026-02-25 12:47:03+00:00",
+      "started_at": "2026-02-25 12:47:11+00:00",
+      "completed_at": "2026-02-25 12:51:25+00:00"
+    },
+    {
+      "id": 22397443153,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 384.0,
+      "total_time": 392.0,
+      "queued_at": "2026-02-25 12:45:19+00:00",
+      "started_at": "2026-02-25 12:45:27+00:00",
+      "completed_at": "2026-02-25 12:51:51+00:00"
+    },
+    {
+      "id": 22397530239,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 252.0,
+      "total_time": 260.0,
+      "queued_at": "2026-02-25 12:47:55+00:00",
+      "started_at": "2026-02-25 12:48:03+00:00",
+      "completed_at": "2026-02-25 12:52:15+00:00"
+    },
+    {
+      "id": 22397558769,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 251.0,
+      "total_time": 259.0,
+      "queued_at": "2026-02-25 12:48:47+00:00",
+      "started_at": "2026-02-25 12:48:55+00:00",
+      "completed_at": "2026-02-25 12:53:06+00:00"
+    },
+    {
+      "id": 22397588128,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 262.0,
+      "total_time": 270.0,
+      "queued_at": "2026-02-25 12:49:39+00:00",
+      "started_at": "2026-02-25 12:49:47+00:00",
+      "completed_at": "2026-02-25 12:54:09+00:00"
+    },
+    {
+      "id": 22397618195,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 269.0,
+      "total_time": 277.0,
+      "queued_at": "2026-02-25 12:50:32+00:00",
+      "started_at": "2026-02-25 12:50:40+00:00",
+      "completed_at": "2026-02-25 12:55:09+00:00"
+    },
+    {
+      "id": 22397647847,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 264.0,
+      "total_time": 272.0,
+      "queued_at": "2026-02-25 12:51:24+00:00",
+      "started_at": "2026-02-25 12:51:32+00:00",
+      "completed_at": "2026-02-25 12:55:56+00:00"
+    },
+    {
+      "id": 22397676732,
+      "name": "ci",
+      "queue_time": 7.0,
+      "execution_time": 252.0,
+      "total_time": 259.0,
+      "queued_at": "2026-02-25 12:52:16+00:00",
+      "started_at": "2026-02-25 12:52:23+00:00",
+      "completed_at": "2026-02-25 12:56:35+00:00"
+    },
+    {
+      "id": 22397706496,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 239.0,
+      "total_time": 247.0,
+      "queued_at": "2026-02-25 12:53:08+00:00",
+      "started_at": "2026-02-25 12:53:16+00:00",
+      "completed_at": "2026-02-25 12:57:15+00:00"
+    },
+    {
+      "id": 22397736037,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 244.0,
+      "total_time": 252.0,
+      "queued_at": "2026-02-25 12:54:00+00:00",
+      "started_at": "2026-02-25 12:54:08+00:00",
+      "completed_at": "2026-02-25 12:58:12+00:00"
+    },
+    {
+      "id": 22397765180,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 240.0,
+      "total_time": 248.0,
+      "queued_at": "2026-02-25 12:54:52+00:00",
+      "started_at": "2026-02-25 12:55:00+00:00",
+      "completed_at": "2026-02-25 12:59:00+00:00"
+    },
+    {
+      "id": 22397796349,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 240.0,
+      "total_time": 248.0,
+      "queued_at": "2026-02-25 12:55:44+00:00",
+      "started_at": "2026-02-25 12:55:52+00:00",
+      "completed_at": "2026-02-25 12:59:52+00:00"
+    },
+    {
+      "id": 22397825383,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 262.0,
+      "total_time": 270.0,
+      "queued_at": "2026-02-25 12:56:36+00:00",
+      "started_at": "2026-02-25 12:56:44+00:00",
+      "completed_at": "2026-02-25 13:01:06+00:00"
+    },
+    {
+      "id": 22397854699,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 247.0,
+      "total_time": 256.0,
+      "queued_at": "2026-02-25 12:57:28+00:00",
+      "started_at": "2026-02-25 12:57:37+00:00",
+      "completed_at": "2026-02-25 13:01:44+00:00"
+    },
+    {
+      "id": 22397882908,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 251.0,
+      "total_time": 259.0,
+      "queued_at": "2026-02-25 12:58:20+00:00",
+      "started_at": "2026-02-25 12:58:28+00:00",
+      "completed_at": "2026-02-25 13:02:39+00:00"
+    },
+    {
+      "id": 22397911490,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 268.0,
+      "total_time": 276.0,
+      "queued_at": "2026-02-25 12:59:13+00:00",
+      "started_at": "2026-02-25 12:59:21+00:00",
+      "completed_at": "2026-02-25 13:03:49+00:00"
+    },
+    {
+      "id": 22397940923,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 259.0,
+      "total_time": 267.0,
+      "queued_at": "2026-02-25 13:00:05+00:00",
+      "started_at": "2026-02-25 13:00:13+00:00",
+      "completed_at": "2026-02-25 13:04:32+00:00"
+    },
+    {
+      "id": 22397973122,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 272.0,
+      "total_time": 281.0,
+      "queued_at": "2026-02-25 13:00:57+00:00",
+      "started_at": "2026-02-25 13:01:06+00:00",
+      "completed_at": "2026-02-25 13:05:38+00:00"
+    },
+    {
+      "id": 22398006045,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 254.0,
+      "total_time": 262.0,
+      "queued_at": "2026-02-25 13:01:49+00:00",
+      "started_at": "2026-02-25 13:01:57+00:00",
+      "completed_at": "2026-02-25 13:06:11+00:00"
+    },
+    {
+      "id": 22398038833,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 247.0,
+      "total_time": 255.0,
+      "queued_at": "2026-02-25 13:02:42+00:00",
+      "started_at": "2026-02-25 13:02:50+00:00",
+      "completed_at": "2026-02-25 13:06:57+00:00"
+    },
+    {
+      "id": 22398071093,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 243.0,
+      "total_time": 251.0,
+      "queued_at": "2026-02-25 13:03:33+00:00",
+      "started_at": "2026-02-25 13:03:41+00:00",
+      "completed_at": "2026-02-25 13:07:44+00:00"
+    },
+    {
+      "id": 22398102301,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 265.0,
+      "total_time": 273.0,
+      "queued_at": "2026-02-25 13:04:26+00:00",
+      "started_at": "2026-02-25 13:04:34+00:00",
+      "completed_at": "2026-02-25 13:08:59+00:00"
+    },
+    {
+      "id": 22398132332,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 241.0,
+      "total_time": 249.0,
+      "queued_at": "2026-02-25 13:05:18+00:00",
+      "started_at": "2026-02-25 13:05:26+00:00",
+      "completed_at": "2026-02-25 13:09:27+00:00"
+    },
+    {
+      "id": 22398162801,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 269.0,
+      "total_time": 278.0,
+      "queued_at": "2026-02-25 13:06:10+00:00",
+      "started_at": "2026-02-25 13:06:19+00:00",
+      "completed_at": "2026-02-25 13:10:48+00:00"
+    },
+    {
+      "id": 22398192635,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 243.0,
+      "total_time": 251.0,
+      "queued_at": "2026-02-25 13:07:02+00:00",
+      "started_at": "2026-02-25 13:07:10+00:00",
+      "completed_at": "2026-02-25 13:11:13+00:00"
+    },
+    {
+      "id": 22398222772,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 291.0,
+      "total_time": 299.0,
+      "queued_at": "2026-02-25 13:07:54+00:00",
+      "started_at": "2026-02-25 13:08:02+00:00",
+      "completed_at": "2026-02-25 13:12:53+00:00"
+    },
+    {
+      "id": 22398252813,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 233.0,
+      "total_time": 241.0,
+      "queued_at": "2026-02-25 13:08:46+00:00",
+      "started_at": "2026-02-25 13:08:54+00:00",
+      "completed_at": "2026-02-25 13:12:47+00:00"
+    },
+    {
+      "id": 22398283319,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 242.0,
+      "total_time": 251.0,
+      "queued_at": "2026-02-25 13:09:38+00:00",
+      "started_at": "2026-02-25 13:09:47+00:00",
+      "completed_at": "2026-02-25 13:13:49+00:00"
+    },
+    {
+      "id": 22398314782,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 255.0,
+      "total_time": 264.0,
+      "queued_at": "2026-02-25 13:10:31+00:00",
+      "started_at": "2026-02-25 13:10:40+00:00",
+      "completed_at": "2026-02-25 13:14:55+00:00"
+    },
+    {
+      "id": 22398347148,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 237.0,
+      "total_time": 246.0,
+      "queued_at": "2026-02-25 13:11:23+00:00",
+      "started_at": "2026-02-25 13:11:32+00:00",
+      "completed_at": "2026-02-25 13:15:29+00:00"
+    },
+    {
+      "id": 22398378557,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 256.0,
+      "total_time": 264.0,
+      "queued_at": "2026-02-25 13:12:15+00:00",
+      "started_at": "2026-02-25 13:12:23+00:00",
+      "completed_at": "2026-02-25 13:16:39+00:00"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "test_run_id": "validation_fast_20260223_095511_fdd7c445",
+  "test_type": "validation_fast",
+  "analysis": {
+    "test_type": "performance",
+    "timestamp": "2026-02-23T10:02:18.980468",
+    "focus": "Baseline performance and consistency",
+    "queue_analysis": {
+      "metrics": {
+        "average": 0.14333333333333334,
+        "minimum": 0.13333333333333333,
+        "maximum": 0.15,
+        "median": 0.15,
+        "p95": 0.15,
+        "jobs_queued": 5
+      },
+      "health": "EXCELLENT",
+      "interpretation": "Virtually no queuing - runners immediately available",
+      "growth_pattern": "STABLE",
+      "recommendations": [
+        "System performing within acceptable parameters"
+      ]
+    },
+    "execution_analysis": {
+      "metrics": {
+        "average": 3.0533333333333332,
+        "minimum": 2.1666666666666665,
+        "maximum": 4.233333333333333,
+        "std_deviation": 1.023298044994169,
+        "coefficient_variation": 33.51412811116275
+      },
+      "consistency": "HIGH_VARIATION",
+      "interpretation": "Significant variation - investigate runner performance",
+      "range_compliance": {
+        "expected_range": "3-5 minutes",
+        "within_range_pct": 40.0,
+        "assessment": "INVESTIGATE"
+      },
+      "recommendations": [
+        "High variation suggests runner performance issues",
+        "Check: Runner resources, network stability, noisy neighbors",
+        "Only 40% of jobs completed within expected time",
+        "Investigate outliers for root cause"
+      ]
+    },
+    "predictability": {
+      "score": "FAIR",
+      "coefficient_variation": 31.94127522867367,
+      "interpretation": "Moderate variability - may need investigation"
+    },
+    "baseline_metrics": {
+      "recommended_sla": {
+        "p50": 2.716666666666667,
+        "p95": 4.500000000000002,
+        "p99": 4.383333333333334
+      },
+      "typical_range": {
+        "min": 2.316666666666667,
+        "max": 4.383333333333334
+      }
+    },
+    "overall_rating": "\u26a0\ufe0f NEEDS IMPROVEMENT - Address issues before production"
+  },
+  "metrics": {
+    "queue_times": [
+      0.15,
+      0.13333333333333333,
+      0.15,
+      0.15,
+      0.13333333333333333
+    ],
+    "execution_times": [
+      4.233333333333333,
+      4.083333333333333,
+      2.2,
+      2.1666666666666665,
+      2.5833333333333335
+    ],
+    "total_times": [
+      4.383333333333334,
+      4.216666666666667,
+      2.35,
+      2.316666666666667,
+      2.716666666666667
+    ],
+    "job_count": 5,
+    "total_workflows": 5,
+    "failed_workflows": 3,
+    "duration_minutes": 5.193769816666667,
+    "runner_count": 4,
+    "runner_utilization": [
+      0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      75.0,
+      75.0
+    ]
+  },
+  "recommendations": [
+    "\ud83d\udd34 Investigate sources of execution time variance"
+  ]
+}

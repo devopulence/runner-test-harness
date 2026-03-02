@@ -1,0 +1,359 @@
+{
+  "test_name": "spike_baseline",
+  "timestamp": "2026-02-12T08:53:31.608934",
+  "summary": {
+    "total_workflows": 29,
+    "queue_time_avg_min": 0.1367816091954023,
+    "execution_time_avg_min": 4.902873563218391,
+    "total_time_avg_min": 5.039655172413792
+  },
+  "detailed_statistics": {
+    "workflow_count": 29,
+    "queue_time": {
+      "min_seconds": 2.0,
+      "max_seconds": 10.0,
+      "mean_seconds": 8.206896551724139,
+      "median_seconds": 9.0,
+      "min_minutes": 0.03333333333333333,
+      "max_minutes": 0.16666666666666666,
+      "mean_minutes": 0.1367816091954023,
+      "median_minutes": 0.15,
+      "p95_seconds": 9.5,
+      "p95_minutes": 0.15833333333333333,
+      "stdev_seconds": 1.8003831009940154,
+      "stdev_minutes": 0.030006385016566925
+    },
+    "execution_time": {
+      "min_seconds": 108.0,
+      "max_seconds": 387.0,
+      "mean_seconds": 294.17241379310343,
+      "median_seconds": 287.0,
+      "min_minutes": 1.8,
+      "max_minutes": 6.45,
+      "mean_minutes": 4.902873563218391,
+      "median_minutes": 4.783333333333333,
+      "p95_seconds": 383.5,
+      "p95_minutes": 6.391666666666667,
+      "stdev_seconds": 47.07522017664711,
+      "stdev_minutes": 0.7845870029441184
+    },
+    "total_time": {
+      "min_seconds": 118.0,
+      "max_seconds": 395.0,
+      "mean_seconds": 302.37931034482756,
+      "median_seconds": 296.0,
+      "min_minutes": 1.9666666666666666,
+      "max_minutes": 6.583333333333333,
+      "mean_minutes": 5.039655172413792,
+      "median_minutes": 4.933333333333334,
+      "p95_seconds": 392.0,
+      "p95_minutes": 6.533333333333333,
+      "stdev_seconds": 47.08610182656529,
+      "stdev_minutes": 0.7847683637760882
+    },
+    "capacity_insights": {
+      "avg_execution_minutes": 4.902873563218391,
+      "theoretical_throughput_per_runner_per_hour": 12.23772125190482,
+      "theoretical_throughput_total_per_hour": 122.37721251904819,
+      "observed_runners": 10
+    },
+    "queue_growth": {
+      "first_half_avg_minutes": 0.14761904761904762,
+      "second_half_avg_minutes": 0.12666666666666665,
+      "growth_minutes": -0.020952380952380965,
+      "trend": "decreasing"
+    }
+  },
+  "workflows": [
+    {
+      "id": 21947378819,
+      "name": "k8s",
+      "queue_time": 10.0,
+      "execution_time": 108.0,
+      "total_time": 118.0,
+      "queued_at": "2026-02-12 12:52:39+00:00",
+      "started_at": "2026-02-12 12:52:49+00:00",
+      "completed_at": "2026-02-12 12:54:37+00:00"
+    },
+    {
+      "id": 21947536907,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 291.0,
+      "total_time": 300.0,
+      "queued_at": "2026-02-12 12:57:41+00:00",
+      "started_at": "2026-02-12 12:57:50+00:00",
+      "completed_at": "2026-02-12 13:02:41+00:00"
+    },
+    {
+      "id": 21947699683,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 309.0,
+      "total_time": 318.0,
+      "queued_at": "2026-02-12 13:02:44+00:00",
+      "started_at": "2026-02-12 13:02:53+00:00",
+      "completed_at": "2026-02-12 13:08:02+00:00"
+    },
+    {
+      "id": 21947861864,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 276.0,
+      "total_time": 285.0,
+      "queued_at": "2026-02-12 13:07:46+00:00",
+      "started_at": "2026-02-12 13:07:55+00:00",
+      "completed_at": "2026-02-12 13:12:31+00:00"
+    },
+    {
+      "id": 21948025200,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 291.0,
+      "total_time": 300.0,
+      "queued_at": "2026-02-12 13:12:48+00:00",
+      "started_at": "2026-02-12 13:12:57+00:00",
+      "completed_at": "2026-02-12 13:17:48+00:00"
+    },
+    {
+      "id": 21948043051,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 282.0,
+      "total_time": 291.0,
+      "queued_at": "2026-02-12 13:13:21+00:00",
+      "started_at": "2026-02-12 13:13:30+00:00",
+      "completed_at": "2026-02-12 13:18:12+00:00"
+    },
+    {
+      "id": 21948060848,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 280.0,
+      "total_time": 289.0,
+      "queued_at": "2026-02-12 13:13:53+00:00",
+      "started_at": "2026-02-12 13:14:02+00:00",
+      "completed_at": "2026-02-12 13:18:42+00:00"
+    },
+    {
+      "id": 21948078150,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 280.0,
+      "total_time": 288.0,
+      "queued_at": "2026-02-12 13:14:25+00:00",
+      "started_at": "2026-02-12 13:14:33+00:00",
+      "completed_at": "2026-02-12 13:19:13+00:00"
+    },
+    {
+      "id": 21948095128,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 334.0,
+      "total_time": 343.0,
+      "queued_at": "2026-02-12 13:14:58+00:00",
+      "started_at": "2026-02-12 13:15:07+00:00",
+      "completed_at": "2026-02-12 13:20:41+00:00"
+    },
+    {
+      "id": 21948113165,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 292.0,
+      "total_time": 300.0,
+      "queued_at": "2026-02-12 13:15:30+00:00",
+      "started_at": "2026-02-12 13:15:38+00:00",
+      "completed_at": "2026-02-12 13:20:30+00:00"
+    },
+    {
+      "id": 21948131782,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 311.0,
+      "total_time": 319.0,
+      "queued_at": "2026-02-12 13:16:02+00:00",
+      "started_at": "2026-02-12 13:16:10+00:00",
+      "completed_at": "2026-02-12 13:21:21+00:00"
+    },
+    {
+      "id": 21948166943,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 287.0,
+      "total_time": 296.0,
+      "queued_at": "2026-02-12 13:17:07+00:00",
+      "started_at": "2026-02-12 13:17:16+00:00",
+      "completed_at": "2026-02-12 13:22:03+00:00"
+    },
+    {
+      "id": 21948149246,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 337.0,
+      "total_time": 346.0,
+      "queued_at": "2026-02-12 13:16:34+00:00",
+      "started_at": "2026-02-12 13:16:43+00:00",
+      "completed_at": "2026-02-12 13:22:20+00:00"
+    },
+    {
+      "id": 21948184639,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 310.0,
+      "total_time": 319.0,
+      "queued_at": "2026-02-12 13:17:39+00:00",
+      "started_at": "2026-02-12 13:17:48+00:00",
+      "completed_at": "2026-02-12 13:22:58+00:00"
+    },
+    {
+      "id": 21948201211,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 278.0,
+      "total_time": 286.0,
+      "queued_at": "2026-02-12 13:18:12+00:00",
+      "started_at": "2026-02-12 13:18:20+00:00",
+      "completed_at": "2026-02-12 13:22:58+00:00"
+    },
+    {
+      "id": 21948235240,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 311.0,
+      "total_time": 319.0,
+      "queued_at": "2026-02-12 13:19:16+00:00",
+      "started_at": "2026-02-12 13:19:24+00:00",
+      "completed_at": "2026-02-12 13:24:35+00:00"
+    },
+    {
+      "id": 21948251543,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 285.0,
+      "total_time": 293.0,
+      "queued_at": "2026-02-12 13:19:48+00:00",
+      "started_at": "2026-02-12 13:19:56+00:00",
+      "completed_at": "2026-02-12 13:24:41+00:00"
+    },
+    {
+      "id": 21948217796,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 387.0,
+      "total_time": 395.0,
+      "queued_at": "2026-02-12 13:18:44+00:00",
+      "started_at": "2026-02-12 13:18:52+00:00",
+      "completed_at": "2026-02-12 13:25:19+00:00"
+    },
+    {
+      "id": 21948286005,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 281.0,
+      "total_time": 290.0,
+      "queued_at": "2026-02-12 13:20:52+00:00",
+      "started_at": "2026-02-12 13:21:01+00:00",
+      "completed_at": "2026-02-12 13:25:42+00:00"
+    },
+    {
+      "id": 21948302879,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 278.0,
+      "total_time": 287.0,
+      "queued_at": "2026-02-12 13:21:24+00:00",
+      "started_at": "2026-02-12 13:21:33+00:00",
+      "completed_at": "2026-02-12 13:26:11+00:00"
+    },
+    {
+      "id": 21948268929,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 359.0,
+      "total_time": 368.0,
+      "queued_at": "2026-02-12 13:20:20+00:00",
+      "started_at": "2026-02-12 13:20:29+00:00",
+      "completed_at": "2026-02-12 13:26:28+00:00"
+    },
+    {
+      "id": 21948320109,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 288.0,
+      "total_time": 297.0,
+      "queued_at": "2026-02-12 13:21:56+00:00",
+      "started_at": "2026-02-12 13:22:05+00:00",
+      "completed_at": "2026-02-12 13:26:53+00:00"
+    },
+    {
+      "id": 21948337631,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 283.0,
+      "total_time": 291.0,
+      "queued_at": "2026-02-12 13:22:29+00:00",
+      "started_at": "2026-02-12 13:22:37+00:00",
+      "completed_at": "2026-02-12 13:27:20+00:00"
+    },
+    {
+      "id": 21948354932,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 287.0,
+      "total_time": 295.0,
+      "queued_at": "2026-02-12 13:23:01+00:00",
+      "started_at": "2026-02-12 13:23:09+00:00",
+      "completed_at": "2026-02-12 13:27:56+00:00"
+    },
+    {
+      "id": 21948523781,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 380.0,
+      "total_time": 389.0,
+      "queued_at": "2026-02-12 13:28:03+00:00",
+      "started_at": "2026-02-12 13:28:12+00:00",
+      "completed_at": "2026-02-12 13:34:32+00:00"
+    },
+    {
+      "id": 21948698586,
+      "name": "k8s",
+      "queue_time": 2.0,
+      "execution_time": 280.0,
+      "total_time": 282.0,
+      "queued_at": "2026-02-12 13:33:05+00:00",
+      "started_at": "2026-02-12 13:33:07+00:00",
+      "completed_at": "2026-02-12 13:37:47+00:00"
+    },
+    {
+      "id": 21948871687,
+      "name": "k8s",
+      "queue_time": 2.0,
+      "execution_time": 277.0,
+      "total_time": 279.0,
+      "queued_at": "2026-02-12 13:38:08+00:00",
+      "started_at": "2026-02-12 13:38:10+00:00",
+      "completed_at": "2026-02-12 13:42:47+00:00"
+    },
+    {
+      "id": 21949035336,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 277.0,
+      "total_time": 286.0,
+      "queued_at": "2026-02-12 13:43:10+00:00",
+      "started_at": "2026-02-12 13:43:19+00:00",
+      "completed_at": "2026-02-12 13:47:56+00:00"
+    },
+    {
+      "id": 21949204630,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 292.0,
+      "total_time": 300.0,
+      "queued_at": "2026-02-12 13:48:13+00:00",
+      "started_at": "2026-02-12 13:48:21+00:00",
+      "completed_at": "2026-02-12 13:53:13+00:00"
+    }
+  ]
+}

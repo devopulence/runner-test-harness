@@ -204,8 +204,19 @@ class TestHarness:
 
             # Prepare metrics for analysis
             stats = metrics.calculate_statistics()
-            # Use observed runner count (max concurrent jobs) instead of hardcoded config
-            observed_runners = max(metrics.concurrent_jobs) if metrics.concurrent_jobs else 4
+            # Use post-hoc max concurrent (accurate) > snapshot max > fallback
+            if metrics.post_hoc_max_concurrent and metrics.post_hoc_max_concurrent > 0:
+                observed_runners = metrics.post_hoc_max_concurrent
+            elif metrics.concurrent_jobs:
+                observed_runners = max(metrics.concurrent_jobs)
+            else:
+                observed_runners = 4
+            # Use job-based duration (first job start to last job end) over dispatcher wall-clock
+            duration_minutes = (
+                metrics.job_based_duration_minutes
+                if metrics.job_based_duration_minutes and metrics.job_based_duration_minutes > 0
+                else stats.get('duration_minutes', 30)
+            )
             analysis_metrics = {
                 'queue_times': [qt / 60 for qt in metrics.queue_times],  # Convert to minutes
                 'execution_times': [et / 60 for et in metrics.execution_times],  # Convert to minutes
@@ -213,8 +224,8 @@ class TestHarness:
                 'job_count': metrics.total_workflows,
                 'total_workflows': metrics.total_workflows,
                 'failed_workflows': metrics.failed_workflows,
-                'duration_minutes': stats.get('duration_minutes', 30),
-                'runner_count': observed_runners,  # Now uses observed max, not config
+                'duration_minutes': duration_minutes,
+                'runner_count': observed_runners,
                 'runner_utilization': [u * 100 for u in metrics.runner_utilization] if metrics.runner_utilization else []
             }
 

@@ -1,0 +1,19 @@
+{
+  "test_run_id": "spike_baseline_20260212_075233_8da5e959",
+  "profile": "spike_baseline",
+  "environment": "openshift-sandbox",
+  "environment_type": "sandbox",
+  "runner_labels": [
+    "k8s"
+  ],
+  "generated_at": "2026-02-12T08:53:31.612108",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

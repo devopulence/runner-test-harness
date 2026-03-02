@@ -1,0 +1,103 @@
+{
+  "test_run_id": "validation_fast_20260211_113520_b4605646",
+  "test_type": "validation_fast",
+  "analysis": {
+    "test_type": "performance",
+    "timestamp": "2026-02-11T11:44:54.002418",
+    "focus": "Baseline performance and consistency",
+    "queue_analysis": {
+      "metrics": {
+        "average": 0.15333333333333332,
+        "minimum": 0.15,
+        "maximum": 0.16666666666666666,
+        "median": 0.15,
+        "p95": 0.16666666666666666,
+        "jobs_queued": 5
+      },
+      "health": "EXCELLENT",
+      "interpretation": "Virtually no queuing - runners immediately available",
+      "growth_pattern": "STABLE",
+      "recommendations": [
+        "System performing within acceptable parameters"
+      ]
+    },
+    "execution_analysis": {
+      "metrics": {
+        "average": 4.9,
+        "minimum": 4.75,
+        "maximum": 5.066666666666666,
+        "std_deviation": 0.11843892002959912,
+        "coefficient_variation": 2.417120816930594
+      },
+      "consistency": "HIGHLY_CONSISTENT",
+      "interpretation": "Execution times very predictable",
+      "range_compliance": {
+        "expected_range": "3-5 minutes",
+        "within_range_pct": 80.0,
+        "assessment": "INVESTIGATE"
+      },
+      "recommendations": [
+        "Only 80% of jobs completed within expected time",
+        "Investigate outliers for root cause"
+      ]
+    },
+    "predictability": {
+      "score": "EXCELLENT",
+      "coefficient_variation": 2.3714614791883286,
+      "interpretation": "Highly predictable - excellent for setting SLAs"
+    },
+    "baseline_metrics": {
+      "recommended_sla": {
+        "p50": 5.066666666666666,
+        "p95": 5.298333333333334,
+        "p99": 5.216666666666667
+      },
+      "typical_range": {
+        "min": 4.9,
+        "max": 5.216666666666667
+      }
+    },
+    "overall_rating": "\u2b50 EXCELLENT - Production ready"
+  },
+  "metrics": {
+    "queue_times": [
+      0.16666666666666666,
+      0.15,
+      0.15,
+      0.15,
+      0.15
+    ],
+    "execution_times": [
+      4.933333333333334,
+      4.833333333333333,
+      5.066666666666666,
+      4.75,
+      4.916666666666667
+    ],
+    "total_times": [
+      5.1,
+      4.983333333333333,
+      5.216666666666667,
+      4.9,
+      5.066666666666666
+    ],
+    "job_count": 5,
+    "total_workflows": 5,
+    "failed_workflows": 0,
+    "duration_minutes": 5.257490266666666,
+    "runner_count": 4,
+    "runner_utilization": [
+      0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ]
+  },
+  "recommendations": []
+}

@@ -1,0 +1,44 @@
+{
+  "test_run_id": "spike_baseline_20260212_075233_8da5e959",
+  "profile": "spike_baseline",
+  "environment": "openshift-sandbox",
+  "generated_at": "2026-02-12T08:53:31.611702",
+  "totals": {
+    "workflows": 29,
+    "jobs": 29,
+    "jobs_per_workflow": 1.0,
+    "queue_time_minutes": 3.97,
+    "execution_time_minutes": 142.18,
+    "total_time_minutes": 146.15
+  },
+  "throughput": {
+    "jobs_per_hour": 28.81,
+    "workflows_per_hour": 28.81
+  },
+  "queue_time_minutes": {
+    "avg": 0.14,
+    "p95": 0.15,
+    "max": 0.17
+  },
+  "execution_time_minutes": {
+    "avg": 4.9,
+    "p95": 6.33,
+    "max": 6.45
+  },
+  "total_time_minutes": {
+    "avg": 5.04,
+    "p95": 6.48,
+    "max": 6.58
+  },
+  "success": {
+    "rate_percent": 96.55,
+    "succeeded": 28,
+    "failed": 1,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 29,
+    "utilization_percent": 8.12
+  },
+  "test_duration_minutes": 60.4
+}

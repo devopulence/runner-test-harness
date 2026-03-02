@@ -1,0 +1,119 @@
+{
+  "test_name": "validation_fast",
+  "timestamp": "2026-02-11T11:44:53.998841",
+  "summary": {
+    "total_workflows": 5,
+    "queue_time_avg_min": 0.15333333333333332,
+    "execution_time_avg_min": 4.9,
+    "total_time_avg_min": 5.053333333333333
+  },
+  "detailed_statistics": {
+    "workflow_count": 5,
+    "queue_time": {
+      "min_seconds": 9.0,
+      "max_seconds": 10.0,
+      "mean_seconds": 9.2,
+      "median_seconds": 9.0,
+      "min_minutes": 0.15,
+      "max_minutes": 0.16666666666666666,
+      "mean_minutes": 0.15333333333333332,
+      "median_minutes": 0.15,
+      "p95_seconds": 10.7,
+      "p95_minutes": 0.17833333333333332,
+      "stdev_seconds": 0.4472135954999579,
+      "stdev_minutes": 0.007453559924999299
+    },
+    "execution_time": {
+      "min_seconds": 285.0,
+      "max_seconds": 304.0,
+      "mean_seconds": 294.0,
+      "median_seconds": 295.0,
+      "min_minutes": 4.75,
+      "max_minutes": 5.066666666666666,
+      "mean_minutes": 4.9,
+      "median_minutes": 4.916666666666667,
+      "p95_seconds": 309.6,
+      "p95_minutes": 5.16,
+      "stdev_seconds": 7.106335201775948,
+      "stdev_minutes": 0.11843892002959913
+    },
+    "total_time": {
+      "min_seconds": 294.0,
+      "max_seconds": 313.0,
+      "mean_seconds": 303.2,
+      "median_seconds": 304.0,
+      "min_minutes": 4.9,
+      "max_minutes": 5.216666666666667,
+      "mean_minutes": 5.053333333333333,
+      "median_minutes": 5.066666666666666,
+      "p95_seconds": 317.9,
+      "p95_minutes": 5.298333333333333,
+      "stdev_seconds": 7.19027120489902,
+      "stdev_minutes": 0.11983785341498367
+    },
+    "capacity_insights": {
+      "avg_execution_minutes": 4.9,
+      "theoretical_throughput_per_runner_per_hour": 12.244897959183673,
+      "theoretical_throughput_total_per_hour": 48.97959183673469,
+      "observed_runners": 4
+    },
+    "queue_growth": {
+      "first_half_avg_minutes": 0.15833333333333333,
+      "second_half_avg_minutes": 0.15,
+      "growth_minutes": -0.008333333333333333,
+      "trend": "decreasing"
+    }
+  },
+  "workflows": [
+    {
+      "id": 21913777035,
+      "name": "k8s",
+      "queue_time": 10.0,
+      "execution_time": 296.0,
+      "total_time": 306.0,
+      "queued_at": "2026-02-11 16:35:27+00:00",
+      "started_at": "2026-02-11 16:35:37+00:00",
+      "completed_at": "2026-02-11 16:40:33+00:00"
+    },
+    {
+      "id": 21913814180,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 290.0,
+      "total_time": 299.0,
+      "queued_at": "2026-02-11 16:36:30+00:00",
+      "started_at": "2026-02-11 16:36:39+00:00",
+      "completed_at": "2026-02-11 16:41:29+00:00"
+    },
+    {
+      "id": 21913852418,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 304.0,
+      "total_time": 313.0,
+      "queued_at": "2026-02-11 16:37:33+00:00",
+      "started_at": "2026-02-11 16:37:42+00:00",
+      "completed_at": "2026-02-11 16:42:46+00:00"
+    },
+    {
+      "id": 21913889318,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 285.0,
+      "total_time": 294.0,
+      "queued_at": "2026-02-11 16:38:36+00:00",
+      "started_at": "2026-02-11 16:38:45+00:00",
+      "completed_at": "2026-02-11 16:43:30+00:00"
+    },
+    {
+      "id": 21913926357,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 295.0,
+      "total_time": 304.0,
+      "queued_at": "2026-02-11 16:39:39+00:00",
+      "started_at": "2026-02-11 16:39:48+00:00",
+      "completed_at": "2026-02-11 16:44:43+00:00"
+    }
+  ]
+}

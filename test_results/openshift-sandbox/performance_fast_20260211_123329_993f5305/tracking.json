@@ -1,0 +1,41 @@
+{
+  "test_run_id": "performance_fast_20260211_123329_993f5305",
+  "test_type": "performance_fast",
+  "environment": "openshift-sandbox",
+  "start_time": "2026-02-11T12:33:29.417286",
+  "end_time": "2026-02-11T12:48:12.823462",
+  "duration_minutes": 14.723436266666665,
+  "workflow_count": 12,
+  "workflow_ids": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "workflow_names": [
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default",
+    "default"
+  ],
+  "metadata": {
+    "job_name_tag": "performance_fast_20260211_123329_993f5305",
+    "query_hint": "Search for workflows with job_name=performance_fast_20260211_123329_993f5305"
+  }
+}

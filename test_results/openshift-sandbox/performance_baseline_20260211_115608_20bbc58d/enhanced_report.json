@@ -1,0 +1,419 @@
+{
+  "test_name": "performance_baseline",
+  "timestamp": "2026-02-11T12:31:03.964783",
+  "summary": {
+    "total_workflows": 35,
+    "queue_time_avg_min": 0.15285714285714286,
+    "execution_time_avg_min": 4.876666666666667,
+    "total_time_avg_min": 5.029523809523809
+  },
+  "detailed_statistics": {
+    "workflow_count": 35,
+    "queue_time": {
+      "min_seconds": 8.0,
+      "max_seconds": 11.0,
+      "mean_seconds": 9.17142857142857,
+      "median_seconds": 9.0,
+      "min_minutes": 0.13333333333333333,
+      "max_minutes": 0.18333333333333332,
+      "mean_minutes": 0.15285714285714286,
+      "median_minutes": 0.15,
+      "p95_seconds": 11.0,
+      "p95_minutes": 0.18333333333333332,
+      "stdev_seconds": 0.8219673059804996,
+      "stdev_minutes": 0.013699455099674993
+    },
+    "execution_time": {
+      "min_seconds": 271.0,
+      "max_seconds": 343.0,
+      "mean_seconds": 292.6,
+      "median_seconds": 291.0,
+      "min_minutes": 4.516666666666667,
+      "max_minutes": 5.716666666666667,
+      "mean_minutes": 4.876666666666667,
+      "median_minutes": 4.85,
+      "p95_seconds": 321.4,
+      "p95_minutes": 5.3566666666666665,
+      "stdev_seconds": 14.623108223549707,
+      "stdev_minutes": 0.2437184703924951
+    },
+    "total_time": {
+      "min_seconds": 281.0,
+      "max_seconds": 352.0,
+      "mean_seconds": 301.77142857142854,
+      "median_seconds": 300.0,
+      "min_minutes": 4.683333333333334,
+      "max_minutes": 5.866666666666666,
+      "mean_minutes": 5.029523809523809,
+      "median_minutes": 5.0,
+      "p95_seconds": 331.2,
+      "p95_minutes": 5.52,
+      "stdev_seconds": 14.649002604645968,
+      "stdev_minutes": 0.24415004341076613
+    },
+    "capacity_insights": {
+      "avg_execution_minutes": 4.876666666666667,
+      "theoretical_throughput_per_runner_per_hour": 12.303485987696513,
+      "theoretical_throughput_total_per_hour": 73.82091592617908,
+      "observed_runners": 6
+    },
+    "queue_growth": {
+      "first_half_avg_minutes": 0.15,
+      "second_half_avg_minutes": 0.15555555555555556,
+      "growth_minutes": 0.005555555555555565,
+      "trend": "increasing"
+    }
+  },
+  "workflows": [
+    {
+      "id": 21914517264,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 290.0,
+      "total_time": 299.0,
+      "queued_at": "2026-02-11 16:56:15+00:00",
+      "started_at": "2026-02-11 16:56:24+00:00",
+      "completed_at": "2026-02-11 17:01:14+00:00"
+    },
+    {
+      "id": 21914548177,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 294.0,
+      "total_time": 303.0,
+      "queued_at": "2026-02-11 16:57:08+00:00",
+      "started_at": "2026-02-11 16:57:17+00:00",
+      "completed_at": "2026-02-11 17:02:11+00:00"
+    },
+    {
+      "id": 21914579111,
+      "name": "k8s",
+      "queue_time": 10.0,
+      "execution_time": 296.0,
+      "total_time": 306.0,
+      "queued_at": "2026-02-11 16:57:59+00:00",
+      "started_at": "2026-02-11 16:58:09+00:00",
+      "completed_at": "2026-02-11 17:03:05+00:00"
+    },
+    {
+      "id": 21914610057,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 295.0,
+      "total_time": 304.0,
+      "queued_at": "2026-02-11 16:58:52+00:00",
+      "started_at": "2026-02-11 16:59:01+00:00",
+      "completed_at": "2026-02-11 17:03:56+00:00"
+    },
+    {
+      "id": 21914640807,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 301.0,
+      "total_time": 310.0,
+      "queued_at": "2026-02-11 16:59:45+00:00",
+      "started_at": "2026-02-11 16:59:54+00:00",
+      "completed_at": "2026-02-11 17:04:55+00:00"
+    },
+    {
+      "id": 21914673742,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 290.0,
+      "total_time": 299.0,
+      "queued_at": "2026-02-11 17:00:37+00:00",
+      "started_at": "2026-02-11 17:00:46+00:00",
+      "completed_at": "2026-02-11 17:05:36+00:00"
+    },
+    {
+      "id": 21914704832,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 280.0,
+      "total_time": 288.0,
+      "queued_at": "2026-02-11 17:01:30+00:00",
+      "started_at": "2026-02-11 17:01:38+00:00",
+      "completed_at": "2026-02-11 17:06:18+00:00"
+    },
+    {
+      "id": 21914736763,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 291.0,
+      "total_time": 300.0,
+      "queued_at": "2026-02-11 17:02:22+00:00",
+      "started_at": "2026-02-11 17:02:31+00:00",
+      "completed_at": "2026-02-11 17:07:22+00:00"
+    },
+    {
+      "id": 21914768514,
+      "name": "k8s",
+      "queue_time": 11.0,
+      "execution_time": 286.0,
+      "total_time": 297.0,
+      "queued_at": "2026-02-11 17:03:14+00:00",
+      "started_at": "2026-02-11 17:03:25+00:00",
+      "completed_at": "2026-02-11 17:08:11+00:00"
+    },
+    {
+      "id": 21914800534,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 280.0,
+      "total_time": 289.0,
+      "queued_at": "2026-02-11 17:04:07+00:00",
+      "started_at": "2026-02-11 17:04:16+00:00",
+      "completed_at": "2026-02-11 17:08:56+00:00"
+    },
+    {
+      "id": 21914832718,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 292.0,
+      "total_time": 301.0,
+      "queued_at": "2026-02-11 17:04:59+00:00",
+      "started_at": "2026-02-11 17:05:08+00:00",
+      "completed_at": "2026-02-11 17:10:00+00:00"
+    },
+    {
+      "id": 21914864201,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 294.0,
+      "total_time": 302.0,
+      "queued_at": "2026-02-11 17:05:52+00:00",
+      "started_at": "2026-02-11 17:06:00+00:00",
+      "completed_at": "2026-02-11 17:10:54+00:00"
+    },
+    {
+      "id": 21914895326,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 288.0,
+      "total_time": 297.0,
+      "queued_at": "2026-02-11 17:06:44+00:00",
+      "started_at": "2026-02-11 17:06:53+00:00",
+      "completed_at": "2026-02-11 17:11:41+00:00"
+    },
+    {
+      "id": 21914926583,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 305.0,
+      "total_time": 314.0,
+      "queued_at": "2026-02-11 17:07:38+00:00",
+      "started_at": "2026-02-11 17:07:47+00:00",
+      "completed_at": "2026-02-11 17:12:52+00:00"
+    },
+    {
+      "id": 21914958838,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 287.0,
+      "total_time": 295.0,
+      "queued_at": "2026-02-11 17:08:29+00:00",
+      "started_at": "2026-02-11 17:08:37+00:00",
+      "completed_at": "2026-02-11 17:13:24+00:00"
+    },
+    {
+      "id": 21914990166,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 316.0,
+      "total_time": 325.0,
+      "queued_at": "2026-02-11 17:09:21+00:00",
+      "started_at": "2026-02-11 17:09:30+00:00",
+      "completed_at": "2026-02-11 17:14:46+00:00"
+    },
+    {
+      "id": 21915021192,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 285.0,
+      "total_time": 294.0,
+      "queued_at": "2026-02-11 17:10:13+00:00",
+      "started_at": "2026-02-11 17:10:22+00:00",
+      "completed_at": "2026-02-11 17:15:07+00:00"
+    },
+    {
+      "id": 21915051847,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 287.0,
+      "total_time": 296.0,
+      "queued_at": "2026-02-11 17:11:06+00:00",
+      "started_at": "2026-02-11 17:11:15+00:00",
+      "completed_at": "2026-02-11 17:16:02+00:00"
+    },
+    {
+      "id": 21915082114,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 274.0,
+      "total_time": 283.0,
+      "queued_at": "2026-02-11 17:11:58+00:00",
+      "started_at": "2026-02-11 17:12:07+00:00",
+      "completed_at": "2026-02-11 17:16:41+00:00"
+    },
+    {
+      "id": 21915113553,
+      "name": "k8s",
+      "queue_time": 10.0,
+      "execution_time": 316.0,
+      "total_time": 326.0,
+      "queued_at": "2026-02-11 17:12:52+00:00",
+      "started_at": "2026-02-11 17:13:02+00:00",
+      "completed_at": "2026-02-11 17:18:18+00:00"
+    },
+    {
+      "id": 21915143621,
+      "name": "k8s",
+      "queue_time": 11.0,
+      "execution_time": 301.0,
+      "total_time": 312.0,
+      "queued_at": "2026-02-11 17:13:42+00:00",
+      "started_at": "2026-02-11 17:13:53+00:00",
+      "completed_at": "2026-02-11 17:18:54+00:00"
+    },
+    {
+      "id": 21915173374,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 292.0,
+      "total_time": 300.0,
+      "queued_at": "2026-02-11 17:14:35+00:00",
+      "started_at": "2026-02-11 17:14:43+00:00",
+      "completed_at": "2026-02-11 17:19:35+00:00"
+    },
+    {
+      "id": 21915202228,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 343.0,
+      "total_time": 352.0,
+      "queued_at": "2026-02-11 17:15:26+00:00",
+      "started_at": "2026-02-11 17:15:35+00:00",
+      "completed_at": "2026-02-11 17:21:18+00:00"
+    },
+    {
+      "id": 21915231474,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 290.0,
+      "total_time": 299.0,
+      "queued_at": "2026-02-11 17:16:20+00:00",
+      "started_at": "2026-02-11 17:16:29+00:00",
+      "completed_at": "2026-02-11 17:21:19+00:00"
+    },
+    {
+      "id": 21915261456,
+      "name": "k8s",
+      "queue_time": 11.0,
+      "execution_time": 280.0,
+      "total_time": 291.0,
+      "queued_at": "2026-02-11 17:17:12+00:00",
+      "started_at": "2026-02-11 17:17:23+00:00",
+      "completed_at": "2026-02-11 17:22:03+00:00"
+    },
+    {
+      "id": 21915290588,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 306.0,
+      "total_time": 315.0,
+      "queued_at": "2026-02-11 17:18:04+00:00",
+      "started_at": "2026-02-11 17:18:13+00:00",
+      "completed_at": "2026-02-11 17:23:19+00:00"
+    },
+    {
+      "id": 21915322735,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 298.0,
+      "total_time": 307.0,
+      "queued_at": "2026-02-11 17:18:57+00:00",
+      "started_at": "2026-02-11 17:19:06+00:00",
+      "completed_at": "2026-02-11 17:24:04+00:00"
+    },
+    {
+      "id": 21915353947,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 278.0,
+      "total_time": 287.0,
+      "queued_at": "2026-02-11 17:19:50+00:00",
+      "started_at": "2026-02-11 17:19:59+00:00",
+      "completed_at": "2026-02-11 17:24:37+00:00"
+    },
+    {
+      "id": 21915386150,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 284.0,
+      "total_time": 293.0,
+      "queued_at": "2026-02-11 17:20:42+00:00",
+      "started_at": "2026-02-11 17:20:51+00:00",
+      "completed_at": "2026-02-11 17:25:35+00:00"
+    },
+    {
+      "id": 21915416038,
+      "name": "k8s",
+      "queue_time": 10.0,
+      "execution_time": 316.0,
+      "total_time": 326.0,
+      "queued_at": "2026-02-11 17:21:34+00:00",
+      "started_at": "2026-02-11 17:21:44+00:00",
+      "completed_at": "2026-02-11 17:27:00+00:00"
+    },
+    {
+      "id": 21915447116,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 272.0,
+      "total_time": 281.0,
+      "queued_at": "2026-02-11 17:22:27+00:00",
+      "started_at": "2026-02-11 17:22:36+00:00",
+      "completed_at": "2026-02-11 17:27:08+00:00"
+    },
+    {
+      "id": 21915478131,
+      "name": "k8s",
+      "queue_time": 11.0,
+      "execution_time": 271.0,
+      "total_time": 282.0,
+      "queued_at": "2026-02-11 17:23:19+00:00",
+      "started_at": "2026-02-11 17:23:30+00:00",
+      "completed_at": "2026-02-11 17:28:01+00:00"
+    },
+    {
+      "id": 21915509801,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 295.0,
+      "total_time": 304.0,
+      "queued_at": "2026-02-11 17:24:12+00:00",
+      "started_at": "2026-02-11 17:24:21+00:00",
+      "completed_at": "2026-02-11 17:29:16+00:00"
+    },
+    {
+      "id": 21915541945,
+      "name": "k8s",
+      "queue_time": 8.0,
+      "execution_time": 294.0,
+      "total_time": 302.0,
+      "queued_at": "2026-02-11 17:25:05+00:00",
+      "started_at": "2026-02-11 17:25:13+00:00",
+      "completed_at": "2026-02-11 17:30:07+00:00"
+    },
+    {
+      "id": 21915575107,
+      "name": "k8s",
+      "queue_time": 9.0,
+      "execution_time": 274.0,
+      "total_time": 283.0,
+      "queued_at": "2026-02-11 17:25:57+00:00",
+      "started_at": "2026-02-11 17:26:06+00:00",
+      "completed_at": "2026-02-11 17:30:40+00:00"
+    }
+  ]
+}

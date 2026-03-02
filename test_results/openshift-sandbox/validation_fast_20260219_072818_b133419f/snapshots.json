@@ -1,0 +1,665 @@
+{
+  "test_run_id": "validation_fast_20260219_072818_b133419f",
+  "environment": "openshift-sandbox",
+  "started_at": "2026-02-19T07:28:18.947854",
+  "completed_at": "2026-02-19T07:36:58.362614",
+  "snapshots": [
+    {
+      "timestamp": "2026-02-19T12:28:22.764062+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-19T12:28:54.061695+00:00",
+      "workflows": [
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:29:27.599751+00:00",
+      "workflows": [
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:29:58.775951+00:00",
+      "workflows": [
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:30:30.801154+00:00",
+      "workflows": [
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:31:02.456791+00:00",
+      "workflows": [
+        {
+          "run_id": 22181850347,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:30:26Z",
+          "updated_at": "2026-02-19T12:30:38Z",
+          "run_started_at": "2026-02-19T12:30:26Z",
+          "jobs": [
+            {
+              "job_id": 64144951225,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:30:29Z",
+              "started_at": "2026-02-19T12:30:38Z",
+              "completed_at": null,
+              "runner_id": 172885,
+              "runner_name": "k8s-f86pr-runner-phfvd",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:31:35.394371+00:00",
+      "workflows": [
+        {
+          "run_id": 22181850347,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:30:26Z",
+          "updated_at": "2026-02-19T12:30:38Z",
+          "run_started_at": "2026-02-19T12:30:26Z",
+          "jobs": [
+            {
+              "job_id": 64144951225,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:30:29Z",
+              "started_at": "2026-02-19T12:30:38Z",
+              "completed_at": null,
+              "runner_id": 172885,
+              "runner_name": "k8s-f86pr-runner-phfvd",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:32:07.274009+00:00",
+      "workflows": [
+        {
+          "run_id": 22181884216,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:31:28Z",
+          "updated_at": "2026-02-19T12:31:39Z",
+          "run_started_at": "2026-02-19T12:31:28Z",
+          "jobs": [
+            {
+              "job_id": 64145067424,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:31:31Z",
+              "started_at": "2026-02-19T12:31:39Z",
+              "completed_at": null,
+              "runner_id": 172886,
+              "runner_name": "k8s-f86pr-runner-2vrgl",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181850347,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:30:26Z",
+          "updated_at": "2026-02-19T12:30:38Z",
+          "run_started_at": "2026-02-19T12:30:26Z",
+          "jobs": [
+            {
+              "job_id": 64144951225,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:30:29Z",
+              "started_at": "2026-02-19T12:30:38Z",
+              "completed_at": null,
+              "runner_id": 172885,
+              "runner_name": "k8s-f86pr-runner-phfvd",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:32:40.035865+00:00",
+      "workflows": [
+        {
+          "run_id": 22181917208,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:32:30Z",
+          "updated_at": "2026-02-19T12:32:36Z",
+          "run_started_at": "2026-02-19T12:32:30Z",
+          "jobs": [
+            {
+              "job_id": 64145183880,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:32:33Z",
+              "started_at": "2026-02-19T12:32:35Z",
+              "completed_at": null,
+              "runner_id": 172887,
+              "runner_name": "k8s-f86pr-runner-xl4nc",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181884216,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:31:28Z",
+          "updated_at": "2026-02-19T12:31:39Z",
+          "run_started_at": "2026-02-19T12:31:28Z",
+          "jobs": [
+            {
+              "job_id": 64145067424,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:31:31Z",
+              "started_at": "2026-02-19T12:31:39Z",
+              "completed_at": null,
+              "runner_id": 172886,
+              "runner_name": "k8s-f86pr-runner-2vrgl",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181850347,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:30:26Z",
+          "updated_at": "2026-02-19T12:30:38Z",
+          "run_started_at": "2026-02-19T12:30:26Z",
+          "jobs": [
+            {
+              "job_id": 64144951225,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:30:29Z",
+              "started_at": "2026-02-19T12:30:38Z",
+              "completed_at": null,
+              "runner_id": 172885,
+              "runner_name": "k8s-f86pr-runner-phfvd",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181782729,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:28:21Z",
+          "updated_at": "2026-02-19T12:28:33Z",
+          "run_started_at": "2026-02-19T12:28:21Z",
+          "jobs": [
+            {
+              "job_id": 64144715965,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:28:24Z",
+              "started_at": "2026-02-19T12:28:32Z",
+              "completed_at": null,
+              "runner_id": 172883,
+              "runner_name": "k8s-f86pr-runner-gm7tb",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-19T12:33:12.678171+00:00",
+      "workflows": [
+        {
+          "run_id": 22181917208,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:32:30Z",
+          "updated_at": "2026-02-19T12:32:36Z",
+          "run_started_at": "2026-02-19T12:32:30Z",
+          "jobs": [
+            {
+              "job_id": 64145183880,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:32:33Z",
+              "started_at": "2026-02-19T12:32:35Z",
+              "completed_at": null,
+              "runner_id": 172887,
+              "runner_name": "k8s-f86pr-runner-xl4nc",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181884216,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:31:28Z",
+          "updated_at": "2026-02-19T12:31:39Z",
+          "run_started_at": "2026-02-19T12:31:28Z",
+          "jobs": [
+            {
+              "job_id": 64145067424,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:31:31Z",
+              "started_at": "2026-02-19T12:31:39Z",
+              "completed_at": null,
+              "runner_id": 172886,
+              "runner_name": "k8s-f86pr-runner-2vrgl",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181850347,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:30:26Z",
+          "updated_at": "2026-02-19T12:30:38Z",
+          "run_started_at": "2026-02-19T12:30:26Z",
+          "jobs": [
+            {
+              "job_id": 64144951225,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:30:29Z",
+              "started_at": "2026-02-19T12:30:38Z",
+              "completed_at": null,
+              "runner_id": 172885,
+              "runner_name": "k8s-f86pr-runner-phfvd",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        },
+        {
+          "run_id": 22181816673,
+          "name": "ci",
+          "status": "in_progress",
+          "conclusion": null,
+          "created_at": "2026-02-19T12:29:24Z",
+          "updated_at": "2026-02-19T12:29:36Z",
+          "run_started_at": "2026-02-19T12:29:24Z",
+          "jobs": [
+            {
+              "job_id": 64144832351,
+              "name": "ci / build-npm",
+              "status": "in_progress",
+              "conclusion": null,
+              "created_at": "2026-02-19T12:29:26Z",
+              "started_at": "2026-02-19T12:29:35Z",
+              "completed_at": null,
+              "runner_id": 172884,
+              "runner_name": "k8s-f86pr-runner-d66s2",
+              "runner_group_id": 1,
+              "runner_group_name": "enterprise"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total_snapshots": 10,
+  "discovered_runners": [
+    "k8s-f86pr-runner-gm7tb",
+    "k8s-f86pr-runner-2vrgl",
+    "k8s-f86pr-runner-phfvd",
+    "k8s-f86pr-runner-d66s2",
+    "k8s-f86pr-runner-xl4nc"
+  ]
+}

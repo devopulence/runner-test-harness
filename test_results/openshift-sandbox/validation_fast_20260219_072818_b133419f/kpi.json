@@ -1,0 +1,44 @@
+{
+  "test_run_id": "validation_fast_20260219_072818_b133419f",
+  "profile": "validation_fast",
+  "environment": "openshift-sandbox",
+  "generated_at": "2026-02-19T07:37:00.639157",
+  "totals": {
+    "workflows": 5,
+    "jobs": 5,
+    "jobs_per_workflow": 1.0,
+    "queue_time_minutes": 0.6,
+    "execution_time_minutes": 22.07,
+    "total_time_minutes": 22.67
+  },
+  "throughput": {
+    "jobs_per_hour": 36.14,
+    "workflows_per_hour": 36.14
+  },
+  "queue_time_minutes": {
+    "avg": 0.12,
+    "p95": 0.15,
+    "max": 0.15
+  },
+  "execution_time_minutes": {
+    "avg": 4.41,
+    "p95": 4.8,
+    "max": 4.8
+  },
+  "total_time_minutes": {
+    "avg": 4.53,
+    "p95": 4.95,
+    "max": 4.95
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 5,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 5,
+    "utilization_percent": 53.17
+  },
+  "test_duration_minutes": 8.3
+}

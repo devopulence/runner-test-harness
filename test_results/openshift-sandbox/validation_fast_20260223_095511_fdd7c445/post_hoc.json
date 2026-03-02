@@ -1,0 +1,149 @@
+{
+  "test_run_id": "validation_fast_20260223_095511_fdd7c445",
+  "profile": "validation_fast",
+  "environment": "openshift-sandbox",
+  "kpi": {
+    "totals": {
+      "workflows": 5,
+      "jobs": 5,
+      "jobs_per_workflow": 1.0,
+      "queue_time_minutes": 0.72,
+      "execution_time_minutes": 15.27,
+      "total_time_minutes": 15.98
+    },
+    "throughput": {
+      "jobs_per_hour": 44.55,
+      "workflows_per_hour": 44.55
+    },
+    "queue_time_minutes": {
+      "avg": 0.14,
+      "p95": 0.15,
+      "max": 0.15
+    },
+    "execution_time_minutes": {
+      "avg": 3.05,
+      "p95": 4.23,
+      "max": 4.23
+    },
+    "total_time_minutes": {
+      "avg": 3.2,
+      "p95": 4.38,
+      "max": 4.38
+    },
+    "success": {
+      "rate_percent": 40.0,
+      "succeeded": 2,
+      "failed": 3,
+      "timed_out": 0
+    },
+    "runners": {
+      "count": 5,
+      "utilization_percent": 45.35
+    },
+    "test_duration_minutes": 6.73
+  },
+  "summary": {
+    "total_runs": 5,
+    "total_jobs": 5,
+    "successful_jobs": 2,
+    "failed_jobs": 3,
+    "success_rate": 0.4
+  },
+  "concurrency": {
+    "max_concurrent_jobs": 4,
+    "avg_concurrent_jobs": 2.2
+  },
+  "timing": {
+    "queue_time": {
+      "min": 8.0,
+      "max": 9.0,
+      "mean": 8.6,
+      "median": 9.0
+    },
+    "execution_time": {
+      "min": 130.0,
+      "max": 254.0,
+      "mean": 183.2,
+      "median": 155.0
+    }
+  },
+  "runners": {
+    "unique_count": 5,
+    "jobs_per_runner": {
+      "k8s-f86pr-runner-m6dnp": 1,
+      "k8s-f86pr-runner-kccrt": 1,
+      "k8s-f86pr-runner-kjxq2": 1,
+      "k8s-f86pr-runner-2r4fj": 1,
+      "k8s-f86pr-runner-p45h6": 1
+    },
+    "busy_time_per_runner": {
+      "k8s-f86pr-runner-m6dnp": 254.0,
+      "k8s-f86pr-runner-kccrt": 245.0,
+      "k8s-f86pr-runner-kjxq2": 132.0,
+      "k8s-f86pr-runner-2r4fj": 130.0,
+      "k8s-f86pr-runner-p45h6": 155.0
+    }
+  },
+  "jobs": [
+    {
+      "job_id": 64544225746,
+      "job_name": "ci / build-npm",
+      "run_id": 22311403493,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-f86pr-runner-m6dnp",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 254.0,
+      "started_at": "2026-02-23T14:55:25+00:00",
+      "completed_at": "2026-02-23T14:59:39+00:00"
+    },
+    {
+      "job_id": 64544374682,
+      "job_name": "ci / build-npm",
+      "run_id": 22311445781,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-f86pr-runner-kccrt",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 245.0,
+      "started_at": "2026-02-23T14:56:26+00:00",
+      "completed_at": "2026-02-23T15:00:31+00:00"
+    },
+    {
+      "job_id": 64544523386,
+      "job_name": "ci / build-npm",
+      "run_id": 22311487291,
+      "status": "completed",
+      "conclusion": "failure",
+      "runner_name": "k8s-f86pr-runner-kjxq2",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 132.0,
+      "started_at": "2026-02-23T14:57:29+00:00",
+      "completed_at": "2026-02-23T14:59:41+00:00"
+    },
+    {
+      "job_id": 64544674364,
+      "job_name": "ci / build-npm",
+      "run_id": 22311529782,
+      "status": "completed",
+      "conclusion": "failure",
+      "runner_name": "k8s-f86pr-runner-2r4fj",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 130.0,
+      "started_at": "2026-02-23T14:58:32+00:00",
+      "completed_at": "2026-02-23T15:00:42+00:00"
+    },
+    {
+      "job_id": 64544826476,
+      "job_name": "ci / build-npm",
+      "run_id": 22311570958,
+      "status": "completed",
+      "conclusion": "failure",
+      "runner_name": "k8s-f86pr-runner-p45h6",
+      "queue_time_sec": 8.0,
+      "execution_time_sec": 155.0,
+      "started_at": "2026-02-23T14:59:34+00:00",
+      "completed_at": "2026-02-23T15:02:09+00:00"
+    }
+  ]
+}

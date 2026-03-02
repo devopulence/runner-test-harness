@@ -1,0 +1,44 @@
+{
+  "test_run_id": "stress_baseline_20260212_064047_09eea772",
+  "profile": "stress_baseline",
+  "environment": "openshift-sandbox",
+  "generated_at": "2026-02-12T07:26:57.550852",
+  "totals": {
+    "workflows": 24,
+    "jobs": 24,
+    "jobs_per_workflow": 1.0,
+    "queue_time_minutes": 3.23,
+    "execution_time_minutes": 123.07,
+    "total_time_minutes": 126.3
+  },
+  "throughput": {
+    "jobs_per_hour": 39.83,
+    "workflows_per_hour": 39.83
+  },
+  "queue_time_minutes": {
+    "avg": 0.13,
+    "p95": 0.15,
+    "max": 0.15
+  },
+  "execution_time_minutes": {
+    "avg": 5.13,
+    "p95": 6.0,
+    "max": 6.62
+  },
+  "total_time_minutes": {
+    "avg": 5.26,
+    "p95": 6.13,
+    "max": 6.77
+  },
+  "success": {
+    "rate_percent": 100.0,
+    "succeeded": 24,
+    "failed": 0,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 24,
+    "utilization_percent": 14.18
+  },
+  "test_duration_minutes": 36.15
+}

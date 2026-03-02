@@ -1,0 +1,19 @@
+{
+  "test_run_id": "validation_fast_20260218_093754_58bf4a51",
+  "profile": "validation_fast",
+  "environment": "openshift-sandbox",
+  "environment_type": "sandbox",
+  "runner_labels": [
+    "k8s"
+  ],
+  "generated_at": "2026-02-18T09:45:08.056111",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

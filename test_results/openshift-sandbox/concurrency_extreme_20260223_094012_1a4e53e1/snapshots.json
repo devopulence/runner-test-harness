@@ -1,0 +1,12 @@
+{
+  "test_run_id": "concurrency_extreme_20260223_094012_1a4e53e1",
+  "environment": "openshift-sandbox",
+  "started_at": "2026-02-23T09:40:12.388175",
+  "completed_at": null,
+  "snapshots": [
+    {
+      "timestamp": "2026-02-23T14:40:12.910628+00:00",
+      "workflows": []
+    }
+  ]
+}

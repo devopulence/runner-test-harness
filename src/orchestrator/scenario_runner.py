@@ -62,6 +62,9 @@ class TestMetrics:
     concurrent_jobs: List[int] = field(default_factory=list)
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
+    post_hoc_max_concurrent: Optional[int] = None
+    post_hoc_avg_concurrent: Optional[float] = None
+    job_based_duration_minutes: Optional[float] = None
 
     def calculate_statistics(self) -> Dict[str, Any]:
         """Calculate statistical metrics"""
@@ -356,6 +359,9 @@ class ScenarioRunner:
             # Close tracker session
             await self.tracker.close()
 
+            # Sync real workflow IDs before saving tracking data
+            self._sync_workflow_ids_to_tracker()
+
             # Save test run tracking data
             if self.test_run_tracker:
                 self.test_run_tracker.save_tracking_data()
@@ -485,13 +491,11 @@ class ScenarioRunner:
                     if post_hoc_analysis.execution_times:
                         self.metrics.execution_times = post_hoc_analysis.execution_times
 
-                    # Replace real-time concurrent job estimates with accurate post-hoc data
+                    # Store post-hoc concurrency summary in dedicated fields
+                    # (preserve the full snapshot time-series in concurrent_jobs)
                     if post_hoc_analysis.max_concurrent_jobs > 0:
-                        # Post-hoc is accurate (from timestamp overlaps), real-time was estimated
-                        self.metrics.concurrent_jobs = [post_hoc_analysis.max_concurrent_jobs]
-                        if post_hoc_analysis.avg_concurrent_jobs > 0:
-                            # Add avg to give better stats (will show max=4, avg close to actual)
-                            self.metrics.concurrent_jobs.append(int(post_hoc_analysis.avg_concurrent_jobs))
+                        self.metrics.post_hoc_max_concurrent = post_hoc_analysis.max_concurrent_jobs
+                        self.metrics.post_hoc_avg_concurrent = post_hoc_analysis.avg_concurrent_jobs
 
             except Exception as e:
                 logger.error(f"Post-hoc analysis failed: {e}")
@@ -599,6 +603,30 @@ class ScenarioRunner:
             # Check if spike ended
             if not in_spike and elapsed > (spike_start + spike_duration) and workflow_index == 1:
                 logger.info(f"SPIKE ENDED - Returning to normal rate: {normal_rate} jobs/minute")
+
+    def _sync_workflow_ids_to_tracker(self):
+        """Sync real workflow run IDs from the workflow tracker to the test run tracker.
+
+        At dispatch time we record placeholder ID 0 because the real GitHub run ID
+        isn't known yet. By the time we call this (after polling completes), the
+        workflow tracker has matched dispatches to actual run IDs.
+        """
+        if not self.test_run_tracker:
+            return
+
+        real_ids = []
+        real_names = []
+        for workflow in self.tracker.tracked_workflows.values():
+            run_id = workflow.get("run_id")
+            name = workflow.get("workflow_name", "unknown")
+            real_ids.append(run_id if run_id else 0)
+            real_names.append(name)
+
+        if real_ids:
+            self.test_run_tracker.workflow_ids = real_ids
+            self.test_run_tracker.workflow_names = real_names
+            matched = sum(1 for rid in real_ids if rid != 0)
+            logger.info(f"Synced {matched}/{len(real_ids)} workflow IDs to test run tracker")
 
     async def _dispatch_workflow(self, workflow_name: str, profile_inputs: Dict[str, Any] = None) -> Optional[WorkflowRun]:
         """
@@ -873,6 +901,9 @@ class ScenarioRunner:
                 last_end = max(job_ends)
                 test_duration_minutes = (last_end - first_start).total_seconds() / 60.0
 
+        # Store job-based duration on metrics for downstream consumers
+        self.metrics.job_based_duration_minutes = test_duration_minutes
+
         # Helper function for p95 calculation
         def calc_p95(values: List[float]) -> float:
             if not values:
@@ -890,7 +921,10 @@ class ScenarioRunner:
             total_times = [q + e for q, e in zip(analysis.queue_times, analysis.execution_times)]
 
         # Calculate runner utilization
-        runner_count = len(analysis.runners_used) if analysis.runners_used else 0
+        # Use max concurrent jobs (actual parallelism) instead of unique runner names
+        # In ephemeral/K8s environments, each job gets a unique pod name, so
+        # len(runners_used) == total_jobs, which vastly overstates runner count
+        runner_count = analysis.max_concurrent_jobs if analysis.max_concurrent_jobs > 0 else len(analysis.runners_used)
         total_busy_time_sec = sum(analysis.runner_busy_time.values()) if analysis.runner_busy_time else 0
         runner_utilization_percent = 0.0
         if runner_count > 0 and test_duration_minutes > 0:
@@ -942,6 +976,8 @@ class ScenarioRunner:
             },
             "runners": {
                 "count": runner_count,
+                "unique_runner_names": len(analysis.runners_used) if analysis.runners_used else 0,
+                "count_method": "max_concurrent_jobs" if analysis.max_concurrent_jobs > 0 else "unique_runner_names",
                 "utilization_percent": round(runner_utilization_percent, 2)
             },
             "test_duration_minutes": round(test_duration_minutes, 2)

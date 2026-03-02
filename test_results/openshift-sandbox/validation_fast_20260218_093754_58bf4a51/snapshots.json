@@ -1,0 +1,50 @@
+{
+  "test_run_id": "validation_fast_20260218_093754_58bf4a51",
+  "environment": "openshift-sandbox",
+  "started_at": "2026-02-18T09:37:54.431708",
+  "completed_at": "2026-02-18T09:45:04.632529",
+  "snapshots": [
+    {
+      "timestamp": "2026-02-18T14:38:03.364064+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:38:34.058215+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:39:10.520334+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:39:41.214743+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:40:14.696974+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:40:45.359059+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:41:19.345893+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:41:49.985497+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:42:23.916207+00:00",
+      "workflows": []
+    },
+    {
+      "timestamp": "2026-02-18T14:42:54.584185+00:00",
+      "workflows": []
+    }
+  ],
+  "total_snapshots": 10,
+  "discovered_runners": []
+}

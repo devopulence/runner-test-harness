@@ -1,0 +1,12 @@
+{
+  "test_run_id": "validation_fast_20260219_072657_78c0aff4",
+  "environment": "openshift-sandbox",
+  "started_at": "2026-02-19T07:26:57.544803",
+  "completed_at": null,
+  "snapshots": [
+    {
+      "timestamp": "2026-02-19T12:26:58.738666+00:00",
+      "workflows": []
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "test_run_id": "capacity_baseline_20260226_074051_3cf45f6d",
+  "profile": "capacity_baseline",
+  "environment": "openshift-sandbox",
+  "environment_type": "sandbox",
+  "runner_labels": [
+    "k8s"
+  ],
+  "generated_at": "2026-02-26T08:45:11.495438",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

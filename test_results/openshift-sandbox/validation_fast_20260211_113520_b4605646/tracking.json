@@ -1,0 +1,27 @@
+{
+  "test_run_id": "validation_fast_20260211_113520_b4605646",
+  "test_type": "validation_fast",
+  "environment": "openshift-sandbox",
+  "start_time": "2026-02-11T11:35:20.746840",
+  "end_time": "2026-02-11T11:44:51.458518",
+  "duration_minutes": 9.5118613,
+  "workflow_count": 5,
+  "workflow_ids": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "workflow_names": [
+    "default",
+    "default",
+    "default",
+    "default",
+    "default"
+  ],
+  "metadata": {
+    "job_name_tag": "validation_fast_20260211_113520_b4605646",
+    "query_hint": "Search for workflows with job_name=validation_fast_20260211_113520_b4605646"
+  }
+}

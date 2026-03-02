@@ -248,14 +248,27 @@ class PerformanceAnalyzer:
         }
 
     def _analyze_capacity(self, avg_util: float, time_at_100: float, runner_count: int) -> Dict[str, Any]:
-        """Analyze system capacity."""
+        """Analyze system capacity.
+
+        Uses both avg_util and time_at_100 to avoid misleading verdicts.
+        A system that spends significant time at 100% is capacity-constrained
+        even if avg utilization looks moderate (due to ramp-up/ramp-down periods).
+        """
         if time_at_100 > 50:
             status = "AT_CAPACITY"
             headroom = 0
+        elif time_at_100 > 30:
+            # Significant time at full saturation overrides avg-based headroom
+            status = "LIMITED_HEADROOM"
+            headroom = 100 - avg_util
         else:
             headroom = 100 - avg_util
             if headroom > 30:
-                status = "SIGNIFICANT_HEADROOM"
+                # Even with high avg headroom, cap at MODERATE if often saturated
+                if time_at_100 > 15:
+                    status = "MODERATE_HEADROOM"
+                else:
+                    status = "SIGNIFICANT_HEADROOM"
             elif headroom > 15:
                 status = "MODERATE_HEADROOM"
             else:
@@ -264,11 +277,16 @@ class PerformanceAnalyzer:
         # Calculate theoretical max throughput increase
         max_increase = (100 / avg_util - 1) * 100 if avg_util > 0 else 0
 
+        interpretation = f"System can handle {max_increase:.0f}% more load before saturation"
+        if time_at_100 > 15:
+            interpretation += f" (runners at 100% for {time_at_100:.0f}% of test duration)"
+
         return {
             'status': status,
             'headroom_pct': headroom,
             'max_throughput_increase_pct': max_increase,
-            'interpretation': f"System can handle {max_increase:.0f}% more load before saturation"
+            'time_at_100_pct': time_at_100,
+            'interpretation': interpretation
         }
 
     def _get_utilization_recommendations(self, avg_util: float, time_at_100: float, runner_count: int) -> List[str]:

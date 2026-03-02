@@ -1,0 +1,103 @@
+{
+  "environment": {
+    "name": "openshift-sandbox",
+    "type": "sandbox",
+    "observed_runners": 6,
+    "runner_labels": [
+      "k8s"
+    ]
+  },
+  "test_execution": {
+    "start_time": "2026-02-11T12:33:29.417245",
+    "end_time": "2026-02-11T12:43:57.840783",
+    "duration_minutes": 10.473725633333334
+  },
+  "metrics": {
+    "total_workflows": 12,
+    "successful_workflows": 12,
+    "failed_workflows": 0,
+    "success_rate": 1.0,
+    "duration_minutes": 10.473725633333334,
+    "queue_time": {
+      "min": 8.0,
+      "max": 10.0,
+      "mean": 8.666666666666666,
+      "median": 8.5,
+      "p95": 10.0,
+      "stdev": 0.778498944161523
+    },
+    "execution_time": {
+      "min": 269.0,
+      "max": 305.0,
+      "mean": 287.75,
+      "median": 286.0,
+      "p95": 306.4,
+      "stdev": 10.880549785574424
+    },
+    "runner_utilization": {
+      "min": 0,
+      "max": 1.0,
+      "mean": 0.9035087719298246
+    },
+    "concurrent_jobs": {
+      "max": 6,
+      "mean": 5,
+      "min": 4
+    }
+  },
+  "raw_data": {
+    "queue_times": [
+      10.0,
+      10.0,
+      9.0,
+      8.0,
+      8.0,
+      9.0,
+      8.0,
+      8.0,
+      8.0,
+      9.0,
+      9.0,
+      8.0
+    ],
+    "execution_times": [
+      269.0,
+      299.0,
+      294.0,
+      294.0,
+      287.0,
+      278.0,
+      301.0,
+      282.0,
+      280.0,
+      305.0,
+      279.0,
+      285.0
+    ],
+    "runner_utilization": [
+      0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.8333333333333334,
+      0.8333333333333334,
+      1.0,
+      0.8333333333333334,
+      0.8333333333333334,
+      0.8333333333333334,
+      1.0,
+      1.0
+    ],
+    "concurrent_jobs": [
+      6,
+      4
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "test_run_id": "performance_fast_20260211_123329_993f5305",
+  "test_type": "performance_fast",
+  "analysis": {
+    "test_type": "performance",
+    "timestamp": "2026-02-11T12:48:19.067751",
+    "focus": "Baseline performance and consistency",
+    "queue_analysis": {
+      "metrics": {
+        "average": 0.14444444444444443,
+        "minimum": 0.13333333333333333,
+        "maximum": 0.16666666666666666,
+        "median": 0.15,
+        "p95": 0.16666666666666666,
+        "jobs_queued": 12
+      },
+      "health": "EXCELLENT",
+      "interpretation": "Virtually no queuing - runners immediately available",
+      "growth_pattern": "STABLE",
+      "recommendations": [
+        "System performing within acceptable parameters"
+      ]
+    },
+    "execution_analysis": {
+      "metrics": {
+        "average": 4.795833333333333,
+        "minimum": 4.483333333333333,
+        "maximum": 5.083333333333333,
+        "std_deviation": 0.18134249642624028,
+        "coefficient_variation": 3.78125101149415
+      },
+      "consistency": "HIGHLY_CONSISTENT",
+      "interpretation": "Execution times very predictable",
+      "range_compliance": {
+        "expected_range": "3-5 minutes",
+        "within_range_pct": 83.33333333333334,
+        "assessment": "INVESTIGATE"
+      },
+      "recommendations": [
+        "Only 83% of jobs completed within expected time",
+        "Investigate outliers for root cause"
+      ]
+    },
+    "predictability": {
+      "score": "EXCELLENT",
+      "coefficient_variation": 3.6518544353526576,
+      "interpretation": "Highly predictable - excellent for setting SLAs"
+    },
+    "baseline_metrics": {
+      "recommended_sla": {
+        "p50": 4.9,
+        "p95": 5.2625,
+        "p99": 5.305833333333332
+      },
+      "typical_range": {
+        "min": 4.65,
+        "max": 5.233333333333333
+      }
+    },
+    "overall_rating": "\u2b50 EXCELLENT - Production ready"
+  },
+  "metrics": {
+    "queue_times": [
+      0.16666666666666666,
+      0.16666666666666666,
+      0.15,
+      0.13333333333333333,
+      0.13333333333333333,
+      0.15,
+      0.13333333333333333,
+      0.13333333333333333,
+      0.13333333333333333,
+      0.15,
+      0.15,
+      0.13333333333333333
+    ],
+    "execution_times": [
+      4.483333333333333,
+      4.983333333333333,
+      4.9,
+      4.9,
+      4.783333333333333,
+      4.633333333333334,
+      5.016666666666667,
+      4.7,
+      4.666666666666667,
+      5.083333333333333,
+      4.65,
+      4.75
+    ],
+    "total_times": [
+      4.65,
+      5.15,
+      5.05,
+      5.033333333333333,
+      4.916666666666667,
+      4.783333333333333,
+      5.15,
+      4.833333333333333,
+      4.8,
+      5.233333333333333,
+      4.8,
+      4.883333333333334
+    ],
+    "job_count": 12,
+    "total_workflows": 12,
+    "failed_workflows": 0,
+    "duration_minutes": 10.473725633333334,
+    "runner_count": 6,
+    "runner_utilization": [
+      0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      83.33333333333334,
+      83.33333333333334,
+      100.0,
+      83.33333333333334,
+      83.33333333333334,
+      83.33333333333334,
+      100.0,
+      100.0
+    ]
+  },
+  "recommendations": []
+}

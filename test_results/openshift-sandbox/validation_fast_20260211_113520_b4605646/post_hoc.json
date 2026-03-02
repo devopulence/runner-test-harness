@@ -1,0 +1,149 @@
+{
+  "test_run_id": "validation_fast_20260211_113520_b4605646",
+  "profile": "validation_fast",
+  "environment": "openshift-sandbox",
+  "kpi": {
+    "totals": {
+      "workflows": 5,
+      "jobs": 5,
+      "jobs_per_workflow": 1.0,
+      "queue_time_minutes": 0.77,
+      "execution_time_minutes": 24.5,
+      "total_time_minutes": 25.27
+    },
+    "throughput": {
+      "jobs_per_hour": 32.97,
+      "workflows_per_hour": 32.97
+    },
+    "queue_time_minutes": {
+      "avg": 0.15,
+      "p95": 0.17,
+      "max": 0.17
+    },
+    "execution_time_minutes": {
+      "avg": 4.9,
+      "p95": 5.07,
+      "max": 5.07
+    },
+    "total_time_minutes": {
+      "avg": 5.05,
+      "p95": 5.22,
+      "max": 5.22
+    },
+    "success": {
+      "rate_percent": 100.0,
+      "succeeded": 5,
+      "failed": 0,
+      "timed_out": 0
+    },
+    "runners": {
+      "count": 5,
+      "utilization_percent": 53.85
+    },
+    "test_duration_minutes": 9.1
+  },
+  "summary": {
+    "total_runs": 5,
+    "total_jobs": 5,
+    "successful_jobs": 5,
+    "failed_jobs": 0,
+    "success_rate": 1.0
+  },
+  "concurrency": {
+    "max_concurrent_jobs": 4,
+    "avg_concurrent_jobs": 2.4
+  },
+  "timing": {
+    "queue_time": {
+      "min": 9.0,
+      "max": 10.0,
+      "mean": 9.2,
+      "median": 9.0
+    },
+    "execution_time": {
+      "min": 285.0,
+      "max": 304.0,
+      "mean": 294.0,
+      "median": 295.0
+    }
+  },
+  "runners": {
+    "unique_count": 5,
+    "jobs_per_runner": {
+      "k8s-gf9qx-runner-7s9pr": 1,
+      "k8s-gf9qx-runner-9n79l": 1,
+      "k8s-gf9qx-runner-zbq5f": 1,
+      "k8s-gf9qx-runner-dns7l": 1,
+      "k8s-gf9qx-runner-sstx9": 1
+    },
+    "busy_time_per_runner": {
+      "k8s-gf9qx-runner-7s9pr": 296.0,
+      "k8s-gf9qx-runner-9n79l": 290.0,
+      "k8s-gf9qx-runner-zbq5f": 304.0,
+      "k8s-gf9qx-runner-dns7l": 285.0,
+      "k8s-gf9qx-runner-sstx9": 295.0
+    }
+  },
+  "jobs": [
+    {
+      "job_id": 63275085865,
+      "job_name": "ci / build-npm",
+      "run_id": 21913777035,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-7s9pr",
+      "queue_time_sec": 10.0,
+      "execution_time_sec": 296.0,
+      "started_at": "2026-02-11T16:35:37+00:00",
+      "completed_at": "2026-02-11T16:40:33+00:00"
+    },
+    {
+      "job_id": 63275232623,
+      "job_name": "ci / build-npm",
+      "run_id": 21913814180,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-9n79l",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 290.0,
+      "started_at": "2026-02-11T16:36:39+00:00",
+      "completed_at": "2026-02-11T16:41:29+00:00"
+    },
+    {
+      "job_id": 63275376400,
+      "job_name": "ci / build-npm",
+      "run_id": 21913852418,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-zbq5f",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 304.0,
+      "started_at": "2026-02-11T16:37:42+00:00",
+      "completed_at": "2026-02-11T16:42:46+00:00"
+    },
+    {
+      "job_id": 63275518849,
+      "job_name": "ci / build-npm",
+      "run_id": 21913889318,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-dns7l",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 285.0,
+      "started_at": "2026-02-11T16:38:45+00:00",
+      "completed_at": "2026-02-11T16:43:30+00:00"
+    },
+    {
+      "job_id": 63275660522,
+      "job_name": "ci / build-npm",
+      "run_id": 21913926357,
+      "status": "completed",
+      "conclusion": "success",
+      "runner_name": "k8s-gf9qx-runner-sstx9",
+      "queue_time_sec": 9.0,
+      "execution_time_sec": 295.0,
+      "started_at": "2026-02-11T16:39:48+00:00",
+      "completed_at": "2026-02-11T16:44:43+00:00"
+    }
+  ]
+}

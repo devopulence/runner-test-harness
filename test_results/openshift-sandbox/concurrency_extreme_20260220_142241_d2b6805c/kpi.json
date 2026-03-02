@@ -1,0 +1,44 @@
+{
+  "test_run_id": "concurrency_extreme_20260220_142241_d2b6805c",
+  "profile": "concurrency_extreme",
+  "environment": "openshift-sandbox",
+  "generated_at": "2026-02-20T19:31:36.788539",
+  "totals": {
+    "workflows": 1200,
+    "jobs": 1200,
+    "jobs_per_workflow": 1.0,
+    "queue_time_minutes": 59931.37,
+    "execution_time_minutes": 5831.55,
+    "total_time_minutes": 65762.92
+  },
+  "throughput": {
+    "jobs_per_hour": 265.01,
+    "workflows_per_hour": 265.01
+  },
+  "queue_time_minutes": {
+    "avg": 59.28,
+    "p95": 79.07,
+    "max": 82.35
+  },
+  "execution_time_minutes": {
+    "avg": 5.77,
+    "p95": 7.18,
+    "max": 9.18
+  },
+  "total_time_minutes": {
+    "avg": 65.05,
+    "p95": 84.98,
+    "max": 88.15
+  },
+  "success": {
+    "rate_percent": 84.0,
+    "succeeded": 1008,
+    "failed": 3,
+    "timed_out": 0
+  },
+  "runners": {
+    "count": 1100,
+    "utilization_percent": 1.95
+  },
+  "test_duration_minutes": 271.68
+}

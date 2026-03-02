@@ -1,0 +1,19 @@
+{
+  "test_run_id": "concurrency_extreme_20260220_092602_40ed3fa1",
+  "profile": "concurrency_extreme",
+  "environment": "openshift-sandbox",
+  "environment_type": "sandbox",
+  "runner_labels": [
+    "k8s"
+  ],
+  "generated_at": "2026-02-20T14:19:04.905146",
+  "files": {
+    "kpi": "kpi.json",
+    "post_hoc": "post_hoc.json",
+    "analysis": "analysis.json",
+    "snapshots": "snapshots.json",
+    "enhanced_report": "enhanced_report.json",
+    "test_report": "test_report.json",
+    "tracking": "tracking.json"
+  }
+}

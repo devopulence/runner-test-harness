@@ -1,0 +1,649 @@
+{
+  "test_name": "capacity_baseline",
+  "timestamp": "2026-02-26T08:45:11.491229",
+  "summary": {
+    "total_workflows": 58,
+    "queue_time_avg_min": 0.12988505747126436,
+    "execution_time_avg_min": 4.588218390804598,
+    "total_time_avg_min": 4.718103448275863
+  },
+  "detailed_statistics": {
+    "workflow_count": 58,
+    "queue_time": {
+      "min_seconds": 2.0,
+      "max_seconds": 10.0,
+      "mean_seconds": 7.793103448275862,
+      "median_seconds": 8.0,
+      "min_minutes": 0.03333333333333333,
+      "max_minutes": 0.16666666666666666,
+      "mean_minutes": 0.12988505747126436,
+      "median_minutes": 0.13333333333333333,
+      "p95_seconds": 9.0,
+      "p95_minutes": 0.15,
+      "stdev_seconds": 1.861508732464216,
+      "stdev_minutes": 0.03102514554107027
+    },
+    "execution_time": {
+      "min_seconds": 240.0,
+      "max_seconds": 401.0,
+      "mean_seconds": 275.2931034482759,
+      "median_seconds": 264.0,
+      "min_minutes": 4.0,
+      "max_minutes": 6.683333333333334,
+      "mean_minutes": 4.588218390804598,
+      "median_minutes": 4.4,
+      "p95_seconds": 353.2,
+      "p95_minutes": 5.886666666666667,
+      "stdev_seconds": 32.03616849677912,
+      "stdev_minutes": 0.5339361416129853
+    },
+    "total_time": {
+      "min_seconds": 250.0,
+      "max_seconds": 409.0,
+      "mean_seconds": 283.08620689655174,
+      "median_seconds": 272.5,
+      "min_minutes": 4.166666666666667,
+      "max_minutes": 6.816666666666666,
+      "mean_minutes": 4.718103448275863,
+      "median_minutes": 4.541666666666667,
+      "p95_seconds": 361.2,
+      "p95_minutes": 6.02,
+      "stdev_seconds": 31.973829475445445,
+      "stdev_minutes": 0.5328971579240908
+    },
+    "capacity_insights": {
+      "avg_execution_minutes": 4.588218390804598,
+      "theoretical_throughput_per_runner_per_hour": 13.076971253209745,
+      "theoretical_throughput_total_per_hour": 78.46182751925846,
+      "observed_runners": 6
+    },
+    "queue_growth": {
+      "first_half_avg_minutes": 0.13793103448275862,
+      "second_half_avg_minutes": 0.12183908045977013,
+      "growth_minutes": -0.01609195402298851,
+      "trend": "decreasing"
+    }
+  },
+  "workflows": [
+    {
+      "id": 22442505405,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 257.0,
+      "total_time": 266.0,
+      "queued_at": "2026-02-26 12:40:56+00:00",
+      "started_at": "2026-02-26 12:41:05+00:00",
+      "completed_at": "2026-02-26 12:45:22+00:00"
+    },
+    {
+      "id": 22442575831,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 263.0,
+      "total_time": 271.0,
+      "queued_at": "2026-02-26 12:43:01+00:00",
+      "started_at": "2026-02-26 12:43:09+00:00",
+      "completed_at": "2026-02-26 12:47:32+00:00"
+    },
+    {
+      "id": 22442539919,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 353.0,
+      "total_time": 361.0,
+      "queued_at": "2026-02-26 12:41:58+00:00",
+      "started_at": "2026-02-26 12:42:06+00:00",
+      "completed_at": "2026-02-26 12:47:59+00:00"
+    },
+    {
+      "id": 22442611333,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 263.0,
+      "total_time": 271.0,
+      "queued_at": "2026-02-26 12:44:03+00:00",
+      "started_at": "2026-02-26 12:44:11+00:00",
+      "completed_at": "2026-02-26 12:48:34+00:00"
+    },
+    {
+      "id": 22442646639,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 321.0,
+      "total_time": 329.0,
+      "queued_at": "2026-02-26 12:45:05+00:00",
+      "started_at": "2026-02-26 12:45:13+00:00",
+      "completed_at": "2026-02-26 12:50:34+00:00"
+    },
+    {
+      "id": 22442684014,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 255.0,
+      "total_time": 263.0,
+      "queued_at": "2026-02-26 12:46:07+00:00",
+      "started_at": "2026-02-26 12:46:15+00:00",
+      "completed_at": "2026-02-26 12:50:30+00:00"
+    },
+    {
+      "id": 22442718728,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 252.0,
+      "total_time": 260.0,
+      "queued_at": "2026-02-26 12:47:10+00:00",
+      "started_at": "2026-02-26 12:47:18+00:00",
+      "completed_at": "2026-02-26 12:51:30+00:00"
+    },
+    {
+      "id": 22442753843,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 262.0,
+      "total_time": 271.0,
+      "queued_at": "2026-02-26 12:48:12+00:00",
+      "started_at": "2026-02-26 12:48:21+00:00",
+      "completed_at": "2026-02-26 12:52:43+00:00"
+    },
+    {
+      "id": 22442789912,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 259.0,
+      "total_time": 268.0,
+      "queued_at": "2026-02-26 12:49:13+00:00",
+      "started_at": "2026-02-26 12:49:22+00:00",
+      "completed_at": "2026-02-26 12:53:41+00:00"
+    },
+    {
+      "id": 22442825052,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 241.0,
+      "total_time": 250.0,
+      "queued_at": "2026-02-26 12:50:16+00:00",
+      "started_at": "2026-02-26 12:50:25+00:00",
+      "completed_at": "2026-02-26 12:54:26+00:00"
+    },
+    {
+      "id": 22442861893,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 333.0,
+      "total_time": 341.0,
+      "queued_at": "2026-02-26 12:51:18+00:00",
+      "started_at": "2026-02-26 12:51:26+00:00",
+      "completed_at": "2026-02-26 12:56:59+00:00"
+    },
+    {
+      "id": 22442897145,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 265.0,
+      "total_time": 273.0,
+      "queued_at": "2026-02-26 12:52:20+00:00",
+      "started_at": "2026-02-26 12:52:28+00:00",
+      "completed_at": "2026-02-26 12:56:53+00:00"
+    },
+    {
+      "id": 22442933268,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 242.0,
+      "total_time": 250.0,
+      "queued_at": "2026-02-26 12:53:22+00:00",
+      "started_at": "2026-02-26 12:53:30+00:00",
+      "completed_at": "2026-02-26 12:57:32+00:00"
+    },
+    {
+      "id": 22442969460,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 299.0,
+      "total_time": 307.0,
+      "queued_at": "2026-02-26 12:54:25+00:00",
+      "started_at": "2026-02-26 12:54:33+00:00",
+      "completed_at": "2026-02-26 12:59:32+00:00"
+    },
+    {
+      "id": 22443004923,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 260.0,
+      "total_time": 268.0,
+      "queued_at": "2026-02-26 12:55:26+00:00",
+      "started_at": "2026-02-26 12:55:34+00:00",
+      "completed_at": "2026-02-26 12:59:54+00:00"
+    },
+    {
+      "id": 22443041437,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 279.0,
+      "total_time": 287.0,
+      "queued_at": "2026-02-26 12:56:28+00:00",
+      "started_at": "2026-02-26 12:56:36+00:00",
+      "completed_at": "2026-02-26 13:01:15+00:00"
+    },
+    {
+      "id": 22443076183,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 298.0,
+      "total_time": 307.0,
+      "queued_at": "2026-02-26 12:57:30+00:00",
+      "started_at": "2026-02-26 12:57:39+00:00",
+      "completed_at": "2026-02-26 13:02:37+00:00"
+    },
+    {
+      "id": 22443112024,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 253.0,
+      "total_time": 261.0,
+      "queued_at": "2026-02-26 12:58:32+00:00",
+      "started_at": "2026-02-26 12:58:40+00:00",
+      "completed_at": "2026-02-26 13:02:53+00:00"
+    },
+    {
+      "id": 22443147533,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 278.0,
+      "total_time": 286.0,
+      "queued_at": "2026-02-26 12:59:34+00:00",
+      "started_at": "2026-02-26 12:59:42+00:00",
+      "completed_at": "2026-02-26 13:04:20+00:00"
+    },
+    {
+      "id": 22443221960,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 266.0,
+      "total_time": 274.0,
+      "queued_at": "2026-02-26 13:01:39+00:00",
+      "started_at": "2026-02-26 13:01:47+00:00",
+      "completed_at": "2026-02-26 13:06:13+00:00"
+    },
+    {
+      "id": 22443185088,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 401.0,
+      "total_time": 409.0,
+      "queued_at": "2026-02-26 13:00:37+00:00",
+      "started_at": "2026-02-26 13:00:45+00:00",
+      "completed_at": "2026-02-26 13:07:26+00:00"
+    },
+    {
+      "id": 22443258982,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 263.0,
+      "total_time": 271.0,
+      "queued_at": "2026-02-26 13:02:41+00:00",
+      "started_at": "2026-02-26 13:02:49+00:00",
+      "completed_at": "2026-02-26 13:07:12+00:00"
+    },
+    {
+      "id": 22443296327,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 250.0,
+      "total_time": 258.0,
+      "queued_at": "2026-02-26 13:03:44+00:00",
+      "started_at": "2026-02-26 13:03:52+00:00",
+      "completed_at": "2026-02-26 13:08:02+00:00"
+    },
+    {
+      "id": 22443331334,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 325.0,
+      "total_time": 333.0,
+      "queued_at": "2026-02-26 13:04:46+00:00",
+      "started_at": "2026-02-26 13:04:54+00:00",
+      "completed_at": "2026-02-26 13:10:19+00:00"
+    },
+    {
+      "id": 22443368051,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 259.0,
+      "total_time": 268.0,
+      "queued_at": "2026-02-26 13:05:48+00:00",
+      "started_at": "2026-02-26 13:05:57+00:00",
+      "completed_at": "2026-02-26 13:10:16+00:00"
+    },
+    {
+      "id": 22443403987,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 278.0,
+      "total_time": 287.0,
+      "queued_at": "2026-02-26 13:06:50+00:00",
+      "started_at": "2026-02-26 13:06:59+00:00",
+      "completed_at": "2026-02-26 13:11:37+00:00"
+    },
+    {
+      "id": 22443440179,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 261.0,
+      "total_time": 269.0,
+      "queued_at": "2026-02-26 13:07:52+00:00",
+      "started_at": "2026-02-26 13:08:00+00:00",
+      "completed_at": "2026-02-26 13:12:21+00:00"
+    },
+    {
+      "id": 22443476118,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 312.0,
+      "total_time": 320.0,
+      "queued_at": "2026-02-26 13:08:55+00:00",
+      "started_at": "2026-02-26 13:09:03+00:00",
+      "completed_at": "2026-02-26 13:14:15+00:00"
+    },
+    {
+      "id": 22443549467,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 265.0,
+      "total_time": 274.0,
+      "queued_at": "2026-02-26 13:11:00+00:00",
+      "started_at": "2026-02-26 13:11:09+00:00",
+      "completed_at": "2026-02-26 13:15:34+00:00"
+    },
+    {
+      "id": 22443511826,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 357.0,
+      "total_time": 365.0,
+      "queued_at": "2026-02-26 13:09:57+00:00",
+      "started_at": "2026-02-26 13:10:05+00:00",
+      "completed_at": "2026-02-26 13:16:02+00:00"
+    },
+    {
+      "id": 22443584183,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 268.0,
+      "total_time": 277.0,
+      "queued_at": "2026-02-26 13:12:02+00:00",
+      "started_at": "2026-02-26 13:12:11+00:00",
+      "completed_at": "2026-02-26 13:16:39+00:00"
+    },
+    {
+      "id": 22443621004,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 281.0,
+      "total_time": 289.0,
+      "queued_at": "2026-02-26 13:13:05+00:00",
+      "started_at": "2026-02-26 13:13:13+00:00",
+      "completed_at": "2026-02-26 13:17:54+00:00"
+    },
+    {
+      "id": 22443656882,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 274.0,
+      "total_time": 283.0,
+      "queued_at": "2026-02-26 13:14:07+00:00",
+      "started_at": "2026-02-26 13:14:16+00:00",
+      "completed_at": "2026-02-26 13:18:50+00:00"
+    },
+    {
+      "id": 22443693919,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 261.0,
+      "total_time": 269.0,
+      "queued_at": "2026-02-26 13:15:09+00:00",
+      "started_at": "2026-02-26 13:15:17+00:00",
+      "completed_at": "2026-02-26 13:19:38+00:00"
+    },
+    {
+      "id": 22443730443,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 267.0,
+      "total_time": 276.0,
+      "queued_at": "2026-02-26 13:16:12+00:00",
+      "started_at": "2026-02-26 13:16:21+00:00",
+      "completed_at": "2026-02-26 13:20:48+00:00"
+    },
+    {
+      "id": 22443766727,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 248.0,
+      "total_time": 256.0,
+      "queued_at": "2026-02-26 13:17:14+00:00",
+      "started_at": "2026-02-26 13:17:22+00:00",
+      "completed_at": "2026-02-26 13:21:30+00:00"
+    },
+    {
+      "id": 22443803594,
+      "name": "ci",
+      "queue_time": 10.0,
+      "execution_time": 240.0,
+      "total_time": 250.0,
+      "queued_at": "2026-02-26 13:18:16+00:00",
+      "started_at": "2026-02-26 13:18:26+00:00",
+      "completed_at": "2026-02-26 13:22:26+00:00"
+    },
+    {
+      "id": 22443840842,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 251.0,
+      "total_time": 259.0,
+      "queued_at": "2026-02-26 13:19:18+00:00",
+      "started_at": "2026-02-26 13:19:26+00:00",
+      "completed_at": "2026-02-26 13:23:37+00:00"
+    },
+    {
+      "id": 22443880376,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 289.0,
+      "total_time": 298.0,
+      "queued_at": "2026-02-26 13:20:21+00:00",
+      "started_at": "2026-02-26 13:20:30+00:00",
+      "completed_at": "2026-02-26 13:25:19+00:00"
+    },
+    {
+      "id": 22443955494,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 250.0,
+      "total_time": 258.0,
+      "queued_at": "2026-02-26 13:22:25+00:00",
+      "started_at": "2026-02-26 13:22:33+00:00",
+      "completed_at": "2026-02-26 13:26:43+00:00"
+    },
+    {
+      "id": 22443917621,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 318.0,
+      "total_time": 326.0,
+      "queued_at": "2026-02-26 13:21:23+00:00",
+      "started_at": "2026-02-26 13:21:31+00:00",
+      "completed_at": "2026-02-26 13:26:49+00:00"
+    },
+    {
+      "id": 22443992501,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 269.0,
+      "total_time": 277.0,
+      "queued_at": "2026-02-26 13:23:28+00:00",
+      "started_at": "2026-02-26 13:23:36+00:00",
+      "completed_at": "2026-02-26 13:28:05+00:00"
+    },
+    {
+      "id": 22444029919,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 254.0,
+      "total_time": 262.0,
+      "queued_at": "2026-02-26 13:24:30+00:00",
+      "started_at": "2026-02-26 13:24:38+00:00",
+      "completed_at": "2026-02-26 13:28:52+00:00"
+    },
+    {
+      "id": 22444066135,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 263.0,
+      "total_time": 272.0,
+      "queued_at": "2026-02-26 13:25:32+00:00",
+      "started_at": "2026-02-26 13:25:41+00:00",
+      "completed_at": "2026-02-26 13:30:04+00:00"
+    },
+    {
+      "id": 22444104479,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 257.0,
+      "total_time": 265.0,
+      "queued_at": "2026-02-26 13:26:34+00:00",
+      "started_at": "2026-02-26 13:26:42+00:00",
+      "completed_at": "2026-02-26 13:30:59+00:00"
+    },
+    {
+      "id": 22444143887,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 261.0,
+      "total_time": 270.0,
+      "queued_at": "2026-02-26 13:27:36+00:00",
+      "started_at": "2026-02-26 13:27:45+00:00",
+      "completed_at": "2026-02-26 13:32:06+00:00"
+    },
+    {
+      "id": 22444182543,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 248.0,
+      "total_time": 256.0,
+      "queued_at": "2026-02-26 13:28:38+00:00",
+      "started_at": "2026-02-26 13:28:46+00:00",
+      "completed_at": "2026-02-26 13:32:54+00:00"
+    },
+    {
+      "id": 22444222438,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 274.0,
+      "total_time": 283.0,
+      "queued_at": "2026-02-26 13:29:41+00:00",
+      "started_at": "2026-02-26 13:29:50+00:00",
+      "completed_at": "2026-02-26 13:34:24+00:00"
+    },
+    {
+      "id": 22444261480,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 273.0,
+      "total_time": 281.0,
+      "queued_at": "2026-02-26 13:30:43+00:00",
+      "started_at": "2026-02-26 13:30:51+00:00",
+      "completed_at": "2026-02-26 13:35:24+00:00"
+    },
+    {
+      "id": 22444302126,
+      "name": "ci",
+      "queue_time": 9.0,
+      "execution_time": 287.0,
+      "total_time": 296.0,
+      "queued_at": "2026-02-26 13:31:45+00:00",
+      "started_at": "2026-02-26 13:31:54+00:00",
+      "completed_at": "2026-02-26 13:36:41+00:00"
+    },
+    {
+      "id": 22444340635,
+      "name": "ci",
+      "queue_time": 2.0,
+      "execution_time": 291.0,
+      "total_time": 293.0,
+      "queued_at": "2026-02-26 13:32:47+00:00",
+      "started_at": "2026-02-26 13:32:49+00:00",
+      "completed_at": "2026-02-26 13:37:40+00:00"
+    },
+    {
+      "id": 22444380161,
+      "name": "ci",
+      "queue_time": 2.0,
+      "execution_time": 258.0,
+      "total_time": 260.0,
+      "queued_at": "2026-02-26 13:33:49+00:00",
+      "started_at": "2026-02-26 13:33:51+00:00",
+      "completed_at": "2026-02-26 13:38:09+00:00"
+    },
+    {
+      "id": 22444419488,
+      "name": "ci",
+      "queue_time": 2.0,
+      "execution_time": 251.0,
+      "total_time": 253.0,
+      "queued_at": "2026-02-26 13:34:51+00:00",
+      "started_at": "2026-02-26 13:34:53+00:00",
+      "completed_at": "2026-02-26 13:39:04+00:00"
+    },
+    {
+      "id": 22444458810,
+      "name": "ci",
+      "queue_time": 2.0,
+      "execution_time": 328.0,
+      "total_time": 330.0,
+      "queued_at": "2026-02-26 13:35:53+00:00",
+      "started_at": "2026-02-26 13:35:55+00:00",
+      "completed_at": "2026-02-26 13:41:23+00:00"
+    },
+    {
+      "id": 22444498304,
+      "name": "ci",
+      "queue_time": 2.0,
+      "execution_time": 255.0,
+      "total_time": 257.0,
+      "queued_at": "2026-02-26 13:36:56+00:00",
+      "started_at": "2026-02-26 13:36:58+00:00",
+      "completed_at": "2026-02-26 13:41:13+00:00"
+    },
+    {
+      "id": 22444534841,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 271.0,
+      "total_time": 279.0,
+      "queued_at": "2026-02-26 13:37:58+00:00",
+      "started_at": "2026-02-26 13:38:06+00:00",
+      "completed_at": "2026-02-26 13:42:37+00:00"
+    },
+    {
+      "id": 22444572348,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 245.0,
+      "total_time": 253.0,
+      "queued_at": "2026-02-26 13:39:00+00:00",
+      "started_at": "2026-02-26 13:39:08+00:00",
+      "completed_at": "2026-02-26 13:43:13+00:00"
+    },
+    {
+      "id": 22444608888,
+      "name": "ci",
+      "queue_time": 8.0,
+      "execution_time": 265.0,
+      "total_time": 273.0,
+      "queued_at": "2026-02-26 13:40:03+00:00",
+      "started_at": "2026-02-26 13:40:11+00:00",
+      "completed_at": "2026-02-26 13:44:36+00:00"
+    }
+  ]
+}
