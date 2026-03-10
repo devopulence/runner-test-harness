@@ -55,3 +55,28 @@ This is where it gets powerful — correlating both sources:
 | **Right-size runners?** | Job X takes 8 min | But only uses 20% CPU |
 | **Autoscaling lag** | Job queued at 9:01 | Pod provisioned at 9:03 |
 | **Capacity planning** | Demand growing 10%/week | Currently 4 runners, headroom shrinking |
+
+## JIRA Stories (Chronological Order)
+
+1. Create JSON storage structure for daily stats collection
+2. Build GitHub API client module with pagination and rate limiting
+3. Collect workflow run data via GitHub API (status, timestamps, actors, branches)
+4. Collect job-level data via GitHub API (timestamps, runner assignment, steps, conclusions)
+5. Create scheduled GitHub workflow for hourly stats collection
+6. Compute pipeline health metrics (success/failure rates per workflow, repo, branch)
+7. Identify flaky workflows and failure patterns (time of day, runner, step)
+8. Calculate mean time to recovery per workflow
+9. Compute queue time and developer wait time metrics (avg, by hour, peak windows)
+10. Calculate total pipeline time (commit push to all jobs complete)
+11. Build step-level timing breakdown per workflow
+12. Compute throughput metrics (runs/jobs per hour/day, by repo, trend over weeks)
+13. Build execution time distributions per workflow (p50, p95, p99)
+14. Track retries, re-runs, and cancelled runs
+15. Build ARC API client for runner and pod metrics
+16. Collect runner pool status (busy, idle, total, scale events)
+17. Track runner pod provisioning time and failures/restarts
+18. Collect runner pod resource usage (CPU/memory per pod, node utilization)
+19. Detect capacity saturation (queue depth, time at max capacity, pending pods)
+20. Correlate GitHub API and ARC data for combined analysis
+21. Build capacity planning report (demand trends vs runner supply)
+22. Add monitoring dashboard to Electron app
