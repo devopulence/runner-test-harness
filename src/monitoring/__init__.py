@@ -6,3 +6,4 @@ for capacity planning and performance monitoring.
 """
 
 from .storage import DailyStatsStore, StatsRecord
+from .github_client import GitHubClient, GitHubAPIError, RateLimitError
