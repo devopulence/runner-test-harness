@@ -1,0 +1,142 @@
+[
+  {
+    "collector": "collect_workflow_runs",
+    "summary": {
+      "owner": "Devopulence",
+      "repo": "test-workflows",
+      "collection_date": "2026-03-16",
+      "filters": {
+        "status": null,
+        "branch": null,
+        "event": null,
+        "created": null,
+        "actor": null,
+        "workflow_id": null
+      },
+      "runs_fetched": 0,
+      "runs_new": 0,
+      "runs_skipped_duplicate": 0,
+      "errors": [
+        "GitHub API error 404: Not Found"
+      ],
+      "duration_seconds": 0.18
+    },
+    "timestamp": "2026-03-16T11:30:49Z"
+  },
+  {
+    "collector": "collect_workflow_runs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "runner-test-harness",
+      "collection_date": "2026-03-16",
+      "filters": {
+        "status": null,
+        "branch": null,
+        "event": null,
+        "created": null,
+        "actor": null,
+        "workflow_id": null
+      },
+      "runs_fetched": 0,
+      "runs_new": 0,
+      "runs_skipped_duplicate": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4997,
+        "limit": 5000,
+        "used": 3,
+        "reset": 1773664249,
+        "reset_in_seconds": 3541
+      },
+      "api_requests": 1,
+      "duration_seconds": 0.3
+    },
+    "timestamp": "2026-03-16T11:31:48Z"
+  },
+  {
+    "collector": "collect_workflow_runs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "pythonProject",
+      "collection_date": "2026-03-16",
+      "filters": {
+        "status": null,
+        "branch": null,
+        "event": null,
+        "created": null,
+        "actor": null,
+        "workflow_id": null
+      },
+      "runs_fetched": 300,
+      "runs_new": 300,
+      "runs_skipped_duplicate": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4990,
+        "limit": 5000,
+        "used": 10,
+        "reset": 1773664249,
+        "reset_in_seconds": 3514
+      },
+      "api_requests": 3,
+      "duration_seconds": 9.16
+    },
+    "timestamp": "2026-03-16T11:32:15Z"
+  },
+  {
+    "collector": "collect_workflow_runs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "pythonProject",
+      "collection_date": "2026-03-16",
+      "filters": {
+        "status": null,
+        "branch": null,
+        "event": null,
+        "created": null,
+        "actor": null,
+        "workflow_id": null
+      },
+      "runs_fetched": 300,
+      "runs_new": 0,
+      "runs_skipped_duplicate": 300,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4987,
+        "limit": 5000,
+        "used": 13,
+        "reset": 1773664249,
+        "reset_in_seconds": 3491
+      },
+      "api_requests": 3,
+      "duration_seconds": 8.36
+    },
+    "timestamp": "2026-03-16T11:32:38Z"
+  },
+  {
+    "collector": "collect_workflow_runs",
+    "summary": {
+      "org": "devopulence",
+      "collection_date": "2026-03-16",
+      "filters": {
+        "status": null,
+        "created": null
+      },
+      "runs_fetched": 392,
+      "runs_new": 192,
+      "runs_skipped_duplicate": 200,
+      "repos_scanned": 8,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4805,
+        "limit": 5000,
+        "used": 195,
+        "reset": 1773664249,
+        "reset_in_seconds": 3347
+      },
+      "api_requests": 183,
+      "duration_seconds": 43.82
+    },
+    "timestamp": "2026-03-16T11:35:02Z"
+  }
+]

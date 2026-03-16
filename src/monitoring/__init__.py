@@ -7,3 +7,4 @@ for capacity planning and performance monitoring.
 
 from .storage import DailyStatsStore, StatsRecord
 from .github_client import GitHubClient, GitHubAPIError, RateLimitError
+from .collect_workflow_runs import collect_workflow_runs, collect_org_workflow_runs
