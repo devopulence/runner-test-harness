@@ -1,14 +1,14 @@
-# Story 3: Collect Workflow Run Data via GitHub API
+# Task 3: Collect Workflow Run Data via GitHub API
 
 **Status:** Complete
 **Date Completed:** 2026-03-16
-**JIRA Reference:** MONITORING_PLAN.md - Story #3
+**JIRA Reference:** MONITORING_PLAN.md - Task #3
 
 ---
 
 ## Overview
 
-A workflow run collector (`src/monitoring/collect_workflow_runs.py`) that fetches workflow run data from the GitHub API and persists it to daily storage. Supports single-repo and org-wide collection with deduplication, filtering, and collection logging. This is the first data pipeline that connects Story 2 (GitHub API client) to Story 1 (JSON storage).
+A workflow run collector (`src/monitoring/collect_workflow_runs.py`) that fetches workflow run data from the GitHub API and persists it to daily storage. Supports single-repo and org-wide collection with deduplication, filtering, and collection logging. This is the first data pipeline that connects Task 2 (GitHub API client) to Task 1 (JSON storage).
 
 ## Files Created
 
@@ -197,13 +197,13 @@ python -m pytest src/monitoring/test_collect_workflow_runs.py -v
 
 ## Dependencies
 
-- `src/monitoring/github_client.py` (Story 2) — API client with pagination and rate limiting
-- `src/monitoring/storage.py` (Story 1) — Daily JSON storage
+- `src/monitoring/github_client.py` (Task 2) — API client with pagination and rate limiting
+- `src/monitoring/storage.py` (Task 1) — Daily JSON storage
 - `python-dotenv` — Loads `.env` for GITHUB_TOKEN
 - Python standard library: `time`, `argparse`, `logging`, `datetime`
 
 ## Downstream Stories That Depend on This
 
-- **Story 4**: Job-level collection — similar pattern, calls `list_jobs_for_run()` for each collected run
-- **Story 5**: Scheduled collection workflow — triggers `collect_workflow_runs()` on a cron
-- **Story 6-14**: All metric computation stories — read workflow_runs.json written by this collector
+- **Task 4**: Job-level collection — similar pattern, calls `list_jobs_for_run()` for each collected run
+- **Task 5**: Scheduled collection workflow — triggers `collect_workflow_runs()` on a cron
+- **Task 6-14**: All metric computation stories — read workflow_runs.json written by this collector
