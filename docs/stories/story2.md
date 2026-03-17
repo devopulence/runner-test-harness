@@ -8,7 +8,7 @@
 
 ## Overview
 
-A synchronous GitHub REST API client (`src/monitoring/github_client.py`) purpose-built for monitoring data collection. Handles automatic pagination, rate limit compliance, and retry with exponential backoff. This is the HTTP layer that Stories 3-5 will use to collect workflow and job data.
+A synchronous GitHub REST API client (`src/monitoring/github_client.py`) purpose-built for monitoring data collection. Handles automatic pagination, rate limit compliance, and retry with exponential backoff. This is the HTTP layer that Tasks 3-5 will use to collect workflow and job data.
 
 ## Files Created
 
@@ -126,9 +126,9 @@ cd src/monitoring && python test_github_client.py
 - `urllib3` (transitive dependency of requests)
 - Python standard library: `time`, `random`, `re`, `os`, `logging`
 
-## Downstream Stories That Depend on This
+## Downstream Tasks That Depend on This
 
 - **Task 3**: Collect workflow run data - calls `list_workflow_runs()`
 - **Task 4**: Collect job-level data - calls `list_jobs_for_run()`
 - **Task 5**: Scheduled collection workflow - uses this client in the collection script
-- **Task 6-14**: All metric computation stories benefit from paginated data collection
+- **Task 6-14**: All metric computation tasks benefit from paginated data collection

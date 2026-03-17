@@ -138,5 +138,411 @@
       "duration_seconds": 43.82
     },
     "timestamp": "2026-03-16T11:35:02Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "actions",
+      "collection_date": "2026-03-16",
+      "runs_processed": 7,
+      "jobs_fetched": 6,
+      "jobs_new": 6,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4992,
+        "limit": 5000,
+        "used": 8,
+        "reset": 1773748223,
+        "reset_in_seconds": 2652
+      },
+      "api_requests": 7,
+      "duration_seconds": 1.43
+    },
+    "timestamp": "2026-03-17T11:06:11Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "demo-terraform-modules-releases",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 15,
+      "jobs_new": 15,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4982,
+        "limit": 5000,
+        "used": 18,
+        "reset": 1773748223,
+        "reset_in_seconds": 2650
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.49
+    },
+    "timestamp": "2026-03-17T11:06:13Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "git-tfs",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 9,
+      "jobs_new": 9,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4972,
+        "limit": 5000,
+        "used": 28,
+        "reset": 1773748223,
+        "reset_in_seconds": 2647
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.66
+    },
+    "timestamp": "2026-03-17T11:06:16Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "njt-kong",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 10,
+      "jobs_new": 10,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4962,
+        "limit": 5000,
+        "used": 38,
+        "reset": 1773748223,
+        "reset_in_seconds": 2645
+      },
+      "api_requests": 10,
+      "duration_seconds": 1.96
+    },
+    "timestamp": "2026-03-17T11:06:18Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "pythonProject",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 40,
+      "jobs_new": 40,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4952,
+        "limit": 5000,
+        "used": 48,
+        "reset": 1773748223,
+        "reset_in_seconds": 2641
+      },
+      "api_requests": 10,
+      "duration_seconds": 3.53
+    },
+    "timestamp": "2026-03-17T11:06:22Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "releast-terraform-modules",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 13,
+      "jobs_new": 13,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4942,
+        "limit": 5000,
+        "used": 58,
+        "reset": 1773748223,
+        "reset_in_seconds": 2639
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.12
+    },
+    "timestamp": "2026-03-17T11:06:24Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "runner-builder",
+      "collection_date": "2026-03-16",
+      "runs_processed": 5,
+      "jobs_fetched": 7,
+      "jobs_new": 7,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4937,
+        "limit": 5000,
+        "used": 63,
+        "reset": 1773748223,
+        "reset_in_seconds": 2638
+      },
+      "api_requests": 5,
+      "duration_seconds": 1.01
+    },
+    "timestamp": "2026-03-17T11:06:25Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "terraform-modules-demo",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 26,
+      "jobs_new": 26,
+      "jobs_skipped_duplicate": 0,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4927,
+        "limit": 5000,
+        "used": 73,
+        "reset": 1773748223,
+        "reset_in_seconds": 2636
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.47
+    },
+    "timestamp": "2026-03-17T11:06:27Z"
+  },
+  {
+    "collector": "collect_org_jobs",
+    "summary": {
+      "org": "devopulence",
+      "repos_processed": 8,
+      "total_jobs_fetched": 126,
+      "total_jobs_new": 126,
+      "duration_seconds": 17.68
+    },
+    "timestamp": "2026-03-17T11:06:27Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "actions",
+      "collection_date": "2026-03-16",
+      "runs_processed": 7,
+      "jobs_fetched": 6,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 6,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4920,
+        "limit": 5000,
+        "used": 80,
+        "reset": 1773748223,
+        "reset_in_seconds": 2603
+      },
+      "api_requests": 7,
+      "duration_seconds": 1.62
+    },
+    "timestamp": "2026-03-17T11:07:00Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "demo-terraform-modules-releases",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 15,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 15,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4910,
+        "limit": 5000,
+        "used": 90,
+        "reset": 1773748223,
+        "reset_in_seconds": 2601
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.33
+    },
+    "timestamp": "2026-03-17T11:07:02Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "git-tfs",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 9,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 9,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4900,
+        "limit": 5000,
+        "used": 100,
+        "reset": 1773748223,
+        "reset_in_seconds": 2599
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.27
+    },
+    "timestamp": "2026-03-17T11:07:04Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "njt-kong",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 10,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 10,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4890,
+        "limit": 5000,
+        "used": 110,
+        "reset": 1773748223,
+        "reset_in_seconds": 2597
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.18
+    },
+    "timestamp": "2026-03-17T11:07:06Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "pythonProject",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 40,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 40,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4880,
+        "limit": 5000,
+        "used": 120,
+        "reset": 1773748223,
+        "reset_in_seconds": 2593
+      },
+      "api_requests": 10,
+      "duration_seconds": 3.18
+    },
+    "timestamp": "2026-03-17T11:07:10Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "releast-terraform-modules",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 13,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 13,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4870,
+        "limit": 5000,
+        "used": 130,
+        "reset": 1773748223,
+        "reset_in_seconds": 2591
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.24
+    },
+    "timestamp": "2026-03-17T11:07:12Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "runner-builder",
+      "collection_date": "2026-03-16",
+      "runs_processed": 5,
+      "jobs_fetched": 7,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 7,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4865,
+        "limit": 5000,
+        "used": 135,
+        "reset": 1773748223,
+        "reset_in_seconds": 2590
+      },
+      "api_requests": 5,
+      "duration_seconds": 1.18
+    },
+    "timestamp": "2026-03-17T11:07:13Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "owner": "devopulence",
+      "repo": "terraform-modules-demo",
+      "collection_date": "2026-03-16",
+      "runs_processed": 10,
+      "jobs_fetched": 26,
+      "jobs_new": 0,
+      "jobs_skipped_duplicate": 26,
+      "runs_with_errors": 0,
+      "errors": [],
+      "rate_limit": {
+        "remaining": 4855,
+        "limit": 5000,
+        "used": 145,
+        "reset": 1773748223,
+        "reset_in_seconds": 2587
+      },
+      "api_requests": 10,
+      "duration_seconds": 2.57
+    },
+    "timestamp": "2026-03-17T11:07:16Z"
+  },
+  {
+    "collector": "collect_org_jobs",
+    "summary": {
+      "org": "devopulence",
+      "repos_processed": 8,
+      "total_jobs_fetched": 126,
+      "total_jobs_new": 0,
+      "duration_seconds": 17.59
+    },
+    "timestamp": "2026-03-17T11:07:16Z"
   }
 ]

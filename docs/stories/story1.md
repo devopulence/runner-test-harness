@@ -1,14 +1,14 @@
-# Story 1: Create JSON Storage Structure for Daily Stats Collection
+# Task 1: Create JSON Storage Structure for Daily Stats Collection
 
 **Status:** Complete
 **Date Completed:** 2026-03-11
-**JIRA Reference:** MONITORING_PLAN.md - Story #1
+**JIRA Reference:** MONITORING_PLAN.md - Task #1
 
 ---
 
 ## Overview
 
-A JSON file storage system (`src/monitoring/storage.py`) that organizes GitHub Actions monitoring data into daily directories. It's the data layer that all future stories will write to and read from.
+A JSON file storage system (`src/monitoring/storage.py`) that organizes GitHub Actions monitoring data into daily directories. It's the data layer that all future tasks will write to and read from.
 
 ## New Directory: `src/monitoring/`
 
@@ -111,12 +111,12 @@ cd src/monitoring && python test_storage.py
 - Python standard library only (`json`, `pathlib`, `dataclasses`, `datetime`, `logging`)
 - No external packages required
 
-## Downstream Stories That Depend on This
+## Downstream Tasks That Depend on This
 
-- **Story 2**: GitHub API client module - will write collected data into this storage
-- **Story 3**: Workflow run collection - uses `append_workflow_runs()`
-- **Story 4**: Job-level collection - uses `append_jobs()`
-- **Story 5**: Scheduled collection workflow - triggers writes to this store
-- **Story 6-14**: All metric computation stories - read from and write computed metrics to this store
-- **Story 15-19**: ARC/runner stories - use `append_runner_status()`
-- **Story 20-21**: Combined analysis - reads across all file types
+- **Task 2**: GitHub API client module - will write collected data into this storage
+- **Task 3**: Workflow run collection - uses `append_workflow_runs()`
+- **Task 4**: Job-level collection - uses `append_jobs()`
+- **Task 5**: Scheduled collection workflow - triggers writes to this store
+- **Task 6-14**: All metric computation tasks - read from and write computed metrics to this store
+- **Task 15-19**: ARC/runner tasks - use `append_runner_status()`
+- **Task 20-21**: Combined analysis - reads across all file types
