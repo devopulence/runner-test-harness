@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub Actions Monitoring Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 20px;
+      color: #f0f6fc;
+      font-weight: 600;
+    }
+
+    header .date-picker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header select {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #8b949e;
+      font-size: 16px;
+    }
+
+    .dashboard {
+      padding: 24px;
+      display: none;
+    }
+
+    /* Summary cards */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card.summary {
+      text-align: center;
+    }
+
+    .card.summary .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin: 8px 0 4px;
+    }
+
+    .card.summary .label {
+      font-size: 12px;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card.summary .sub {
+      font-size: 13px;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+
+    .card h3 {
+      font-size: 14px;
+      color: #f0f6fc;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+
+    /* Two-column layout */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      color: #8b949e;
+      font-weight: 500;
+      padding: 8px 10px;
+      border-bottom: 1px solid #30363d;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #21262d;
+    }
+
+    tr:hover td {
+      background: #1c2128;
+    }
+
+    /* Bar charts */
+    .bar-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 4px 0;
+    }
+
+    .bar-label {
+      width: 180px;
+      font-size: 13px;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 20px;
+      background: #21262d;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      min-width: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .bar-value {
+      width: 60px;
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    /* Status colors */
+    .success { color: #3fb950; }
+    .failure { color: #f85149; }
+    .cancelled { color: #d29922; }
+    .skipped { color: #8b949e; }
+    .neutral { color: #c9d1d9; }
+
+    .fill-success { background: #238636; }
+    .fill-failure { background: #da3633; }
+    .fill-cancelled { background: #9e6a03; }
+    .fill-skipped { background: #484f58; }
+    .fill-blue { background: #1f6feb; }
+    .fill-purple { background: #8957e5; }
+    .fill-teal { background: #3fb9a0; }
+
+    /* Assessment badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.excellent { background: #0d4429; color: #3fb950; }
+    .badge.good { background: #0c2d6b; color: #58a6ff; }
+    .badge.moderate { background: #3d2e00; color: #d29922; }
+    .badge.attention { background: #490202; color: #f85149; }
+
+    /* Section headers */
+    .section-header {
+      font-size: 16px;
+      color: #f0f6fc;
+      margin: 24px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+
+    /* Donut chart (CSS only) */
+    .donut-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 12px 0;
+    }
+
+    .donut {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .donut-center .pct {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f0f6fc;
+    }
+
+    .donut-center .pct-label {
+      font-size: 10px;
+      color: #8b949e;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #21262d;
+    }
+
+    .metric-row .metric-label {
+      color: #8b949e;
+      font-size: 13px;
+    }
+
+    .metric-row .metric-value {
+      color: #f0f6fc;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1000px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>GitHub Actions Monitoring Dashboard</h1>
+  <div class="date-picker">
+    <label for="date-select">Collection Date:</label>
+    <select id="date-select"></select>
+  </div>
+</header>
+
+<div id="loading" class="loading">Loading monitoring data...</div>
+<div id="dashboard" class="dashboard"></div>
+
+<script>
+
+// ── Helpers ──────────────────────────────────────────────
+
+function parseTS(ts) {
+  if (!ts) return null;
+  return new Date(ts.replace('Z', '+00:00'));
+}
+
+function formatDuration(seconds) {
+  if (seconds == null || isNaN(seconds)) return '—';
+  if (seconds < 60) return `${seconds.toFixed(1)}s`;
+  if (seconds < 3600) return `${(seconds / 60).toFixed(1)} min`;
+  return `${(seconds / 3600).toFixed(1)} hrs`;
+}
+
+function percentile(sorted, pct) {
+  if (!sorted.length) return 0;
+  const idx = Math.min(Math.floor(sorted.length * pct / 100), sorted.length - 1);
+  return sorted[idx];
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ── Analysis ─────────────────────────────────────────────
+
+function analyze(raw) {
+  const runs = (raw.workflow_runs || []).map(r => r.data || r);
+  const jobs = (raw.jobs || []).map(j => j.data || j);
+
+  // Repos
+  const repoCount = {};
+  runs.forEach(r => {
+    const repo = r.repository_full_name || 'unknown';
+    repoCount[repo] = (repoCount[repo] || 0) + 1;
+  });
+
+  // Conclusions
+  const conclusions = {};
+  runs.forEach(r => {
+    const c = r.conclusion || 'unknown';
+    conclusions[c] = (conclusions[c] || 0) + 1;
+  });
+  const successRate = runs.length ? ((conclusions.success || 0) / runs.length * 100) : 0;
+
+  // Events
+  const events = {};
+  runs.forEach(r => {
+    const e = r.event || 'unknown';
+    events[e] = (events[e] || 0) + 1;
+  });
+
+  // Actors
+  const actors = {};
+  runs.forEach(r => {
+    const a = r.actor_login || 'unknown';
+    actors[a] = (actors[a] || 0) + 1;
+  });
+
+  // Workflows
+  const workflows = {};
+  runs.forEach(r => {
+    const w = r.name || 'unknown';
+    workflows[w] = (workflows[w] || 0) + 1;
+  });
+
+  // Jobs analysis
+  const jobConclusions = {};
+  const queueTimes = [];
+  const execTimes = [];
+  const runners = {};
+  const labels = {};
+
+  jobs.forEach(j => {
+    const jc = j.conclusion || 'unknown';
+    jobConclusions[jc] = (jobConclusions[jc] || 0) + 1;
+
+    const rn = j.runner_name || 'unassigned';
+    if (rn && rn !== 'None') runners[rn] = (runners[rn] || 0) + 1;
+
+    (j.labels || []).forEach(l => { labels[l] = (labels[l] || 0) + 1; });
+
+    const created = parseTS(j.created_at);
+    const started = parseTS(j.started_at);
+    const completed = parseTS(j.completed_at);
+    if (created && started && completed) {
+      const qt = (started - created) / 1000;
+      const et = (completed - started) / 1000;
+      if (qt >= 0 && qt <= 86400 && et >= 0 && et <= 86400) {
+        queueTimes.push(qt);
+        execTimes.push(et);
+      }
+    }
+  });
+
+  queueTimes.sort((a, b) => a - b);
+  execTimes.sort((a, b) => a - b);
+
+  const jobSuccessRate = jobs.length ? ((jobConclusions.success || 0) / jobs.length * 100) : 0;
+
+  // Per-repo failures
+  const repoHealth = {};
+  runs.forEach(r => {
+    const repo = r.repository_full_name || 'unknown';
+    if (!repoHealth[repo]) repoHealth[repo] = { total: 0, failure: 0, success: 0 };
+    repoHealth[repo].total++;
+    if (r.conclusion === 'failure') repoHealth[repo].failure++;
+    if (r.conclusion === 'success') repoHealth[repo].success++;
+  });
+
+  // Queue time assessment
+  const p95Queue = percentile(queueTimes, 95);
+  let queueAssessment, queueBadge;
+  if (p95Queue < 30) { queueAssessment = 'Excellent - P95 under 30s'; queueBadge = 'excellent'; }
+  else if (p95Queue < 120) { queueAssessment = 'Good - P95 under 2 min'; queueBadge = 'good'; }
+  else if (p95Queue < 300) { queueAssessment = 'Moderate - Consider adding runners'; queueBadge = 'moderate'; }
+  else { queueAssessment = 'Needs Attention - Runners saturated'; queueBadge = 'attention'; }
+
+  return {
+    runs, jobs, repoCount, conclusions, events, actors, workflows,
+    jobConclusions, queueTimes, execTimes, runners, labels,
+    successRate, jobSuccessRate, repoHealth,
+    queueAssessment, queueBadge, p95Queue,
+  };
+}
+
+// ── Rendering ────────────────────────────────────────────
+
+function sortedEntries(obj) {
+  return Object.entries(obj).sort((a, b) => b[1] - a[1]);
+}
+
+function conclusionClass(c) {
+  if (c === 'success') return 'success';
+  if (c === 'failure') return 'failure';
+  if (c === 'cancelled') return 'cancelled';
+  if (c === 'skipped') return 'skipped';
+  return 'neutral';
+}
+
+function fillClass(c) {
+  if (c === 'success') return 'fill-success';
+  if (c === 'failure') return 'fill-failure';
+  if (c === 'cancelled') return 'fill-cancelled';
+  if (c === 'skipped') return 'fill-skipped';
+  return 'fill-blue';
+}
+
+function renderBarChart(entries, maxVal, fillCls) {
+  return entries.map(([label, value]) => {
+    const pct = maxVal ? (value / maxVal * 100) : 0;
+    const cls = typeof fillCls === 'function' ? fillCls(label) : (fillCls || 'fill-blue');
+    return `
+      <div class="bar-container">
+        <div class="bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+        <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <div class="bar-value">${value}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderDonut(successRate, conclusions, total) {
+  const s = conclusions.success || 0;
+  const f = conclusions.failure || 0;
+  const c = conclusions.cancelled || 0;
+  const o = total - s - f - c;
+  // CSS conic-gradient donut
+  const pcts = [
+    { pct: s/total*100, color: '#238636' },
+    { pct: f/total*100, color: '#da3633' },
+    { pct: c/total*100, color: '#9e6a03' },
+    { pct: o/total*100, color: '#484f58' },
+  ];
+  let acc = 0;
+  const stops = pcts.map(p => {
+    const start = acc;
+    acc += p.pct;
+    return `${p.color} ${start}% ${acc}%`;
+  }).join(', ');
+
+  return `
+    <div class="donut-container">
+      <div class="donut" style="background: conic-gradient(${stops});">
+        <div class="donut-center">
+          <div class="pct">${successRate.toFixed(0)}%</div>
+          <div class="pct-label">success</div>
+        </div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#238636"></div> Success: ${s}</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#da3633"></div> Failure: ${f}</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#9e6a03"></div> Cancelled: ${c}</div>
+        ${o > 0 ? `<div class="legend-item"><div class="legend-dot" style="background:#484f58"></div> Other: ${o}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function render(a, date) {
+  const repoEntries = sortedEntries(a.repoCount);
+  const maxRuns = repoEntries.length ? repoEntries[0][1] : 1;
+  const runnerEntries = sortedEntries(a.runners).slice(0, 15);
+  const maxJobs = runnerEntries.length ? runnerEntries[0][1] : 1;
+  const workflowEntries = sortedEntries(a.workflows).slice(0, 12);
+  const maxWf = workflowEntries.length ? workflowEntries[0][1] : 1;
+  const actorEntries = sortedEntries(a.actors).slice(0, 10);
+  const maxActor = actorEntries.length ? actorEntries[0][1] : 1;
+  const labelEntries = sortedEntries(a.labels);
+  const n = a.queueTimes.length;
+
+  return `
+    <!-- Summary Cards -->
+    <div class="summary-row">
+      <div class="card summary">
+        <div class="label">Repositories</div>
+        <div class="value">${Object.keys(a.repoCount).length}</div>
+        <div class="sub">with workflow activity</div>
+      </div>
+      <div class="card summary">
+        <div class="label">Workflow Runs</div>
+        <div class="value">${a.runs.length.toLocaleString()}</div>
+        <div class="sub">${a.jobs.length} jobs</div>
+      </div>
+      <div class="card summary">
+        <div class="label">Success Rate</div>
+        <div class="value ${a.successRate >= 80 ? 'success' : a.successRate >= 60 ? 'cancelled' : 'failure'}">${a.successRate.toFixed(1)}%</div>
+        <div class="sub">workflow runs</div>
+      </div>
+      <div class="card summary">
+        <div class="label">Avg Queue Time</div>
+        <div class="value">${n ? formatDuration(a.queueTimes.reduce((s,v)=>s+v,0)/n) : '—'}</div>
+        <div class="sub">P95: ${n ? formatDuration(percentile(a.queueTimes, 95)) : '—'}</div>
+      </div>
+      <div class="card summary">
+        <div class="label">Unique Runners</div>
+        <div class="value">${Object.keys(a.runners).length}</div>
+        <div class="sub">${Object.keys(a.labels).length} label types</div>
+      </div>
+      <div class="card summary">
+        <div class="label">Active Users</div>
+        <div class="value">${Object.keys(a.actors).length}</div>
+        <div class="sub">${Object.keys(a.workflows).length} workflows</div>
+      </div>
+    </div>
+
+    <!-- Pipeline Health + Queue Time -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Pipeline Health</h3>
+        ${renderDonut(a.successRate, a.conclusions, a.runs.length)}
+      </div>
+      <div class="card">
+        <h3>Queue Time Assessment</h3>
+        <div style="margin: 12px 0;">
+          <span class="badge ${a.queueBadge}">${a.queueAssessment}</span>
+        </div>
+        <div class="metric-row"><span class="metric-label">Average</span><span class="metric-value">${n ? formatDuration(a.queueTimes.reduce((s,v)=>s+v,0)/n) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">P50 (Median)</span><span class="metric-value">${n ? formatDuration(percentile(a.queueTimes, 50)) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">P95</span><span class="metric-value">${n ? formatDuration(percentile(a.queueTimes, 95)) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">P99</span><span class="metric-value">${n ? formatDuration(percentile(a.queueTimes, 99)) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">Max</span><span class="metric-value">${n ? formatDuration(Math.max(...a.queueTimes)) : '—'}</span></div>
+        <h3 style="margin-top:16px">Execution Time (Build Duration)</h3>
+        <div class="metric-row"><span class="metric-label">Average</span><span class="metric-value">${n ? formatDuration(a.execTimes.reduce((s,v)=>s+v,0)/n) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">P50</span><span class="metric-value">${n ? formatDuration(percentile(a.execTimes, 50)) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">P95</span><span class="metric-value">${n ? formatDuration(percentile(a.execTimes, 95)) : '—'}</span></div>
+        <div class="metric-row"><span class="metric-label">Max</span><span class="metric-value">${n ? formatDuration(Math.max(...a.execTimes)) : '—'}</span></div>
+      </div>
+    </div>
+
+    <!-- Repos + Runners -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Repositories (${Object.keys(a.repoCount).length})</h3>
+        ${renderBarChart(repoEntries, maxRuns, 'fill-blue')}
+      </div>
+      <div class="card">
+        <h3>Top Runners by Workload</h3>
+        ${renderBarChart(runnerEntries, maxJobs, 'fill-teal')}
+      </div>
+    </div>
+
+    <!-- Repo Health Table -->
+    <div class="card" style="margin-bottom:16px">
+      <h3>Repository Health</h3>
+      <table>
+        <thead>
+          <tr><th>Repository</th><th>Total Runs</th><th>Success</th><th>Failures</th><th>Failure Rate</th></tr>
+        </thead>
+        <tbody>
+          ${sortedEntries(a.repoCount).map(([repo]) => {
+            const h = a.repoHealth[repo] || { total: 0, failure: 0, success: 0 };
+            const fr = h.total ? (h.failure / h.total * 100) : 0;
+            const cls = fr === 0 ? 'success' : fr < 20 ? 'cancelled' : 'failure';
+            return `<tr>
+              <td>${escapeHtml(repo)}</td>
+              <td>${h.total}</td>
+              <td class="success">${h.success}</td>
+              <td class="failure">${h.failure}</td>
+              <td class="${cls}">${fr.toFixed(0)}%</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Workflows + Events -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Workflows (${Object.keys(a.workflows).length})</h3>
+        ${renderBarChart(workflowEntries, maxWf, 'fill-purple')}
+      </div>
+      <div class="card">
+        <h3>Trigger Events</h3>
+        ${renderBarChart(sortedEntries(a.events), sortedEntries(a.events)[0]?.[1] || 1, 'fill-blue')}
+        <h3 style="margin-top:16px">Runner Labels</h3>
+        ${renderBarChart(labelEntries, labelEntries[0]?.[1] || 1, 'fill-teal')}
+      </div>
+    </div>
+
+    <!-- Actors + Job Outcomes -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Active Users (${Object.keys(a.actors).length})</h3>
+        ${renderBarChart(actorEntries, maxActor, 'fill-purple')}
+      </div>
+      <div class="card">
+        <h3>Job Outcomes (${a.jobs.length} total, ${a.jobSuccessRate.toFixed(0)}% success)</h3>
+        ${renderDonut(a.jobSuccessRate, a.jobConclusions, a.jobs.length)}
+      </div>
+    </div>
+  `;
+}
+
+// ── Init ─────────────────────────────────────────────────
+
+async function init() {
+  const dates = await window.api.getAvailableDates();
+  const select = document.getElementById('date-select');
+
+  if (!dates.length) {
+    document.getElementById('loading').textContent = 'No monitoring data found. Run the collectors first.';
+    return;
+  }
+
+  dates.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    select.appendChild(opt);
+  });
+
+  select.addEventListener('change', () => loadDate(select.value));
+  loadDate(dates[0]);
+}
+
+async function loadDate(dateStr) {
+  const loading = document.getElementById('loading');
+  const dashboard = document.getElementById('dashboard');
+
+  loading.style.display = 'block';
+  dashboard.style.display = 'none';
+
+  const raw = await window.api.getMonitoringData(dateStr);
+  const a = analyze(raw);
+
+  dashboard.innerHTML = render(a, dateStr);
+  loading.style.display = 'none';
+  dashboard.style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>
