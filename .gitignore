@@ -215,3 +215,7 @@ docker-compose.override.yml
 # Electron
 electron-app/node_modules/
 !electron-app/*.tgz
+
+# Monitoring app
+monitoring-app/node_modules/
+node-24.10.13.tgz
