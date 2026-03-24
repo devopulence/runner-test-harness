@@ -66,7 +66,7 @@ jobs:
           fi
 
           echo "Running: python -m src.monitoring.scheduled_collect ${ARGS} -v"
-          python -m src.monitoring.scheduled_collect ${ARGS} -v
+          python -m src.monitoring.scheduled_collect ${ARGS} --token "${{ secrets.GH_MONITORING_TOKEN }}" -v
 
       - name: Commit monitoring data
         run: |
