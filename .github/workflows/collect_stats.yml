@@ -78,6 +78,7 @@ jobs:
           else
             DATE=$(date -u +%Y-%m-%d)
             git commit -m "chore: collect monitoring stats for ${DATE}"
+            git pull --rebase
             git push
           fi
 
