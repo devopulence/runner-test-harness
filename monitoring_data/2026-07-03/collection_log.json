@@ -134,5 +134,73 @@
       "total_duration_seconds": 0.0
     },
     "timestamp": "2026-07-03T07:11:49Z"
+  },
+  {
+    "collector": "collect_workflow_runs",
+    "summary": {
+      "org": "devopulence",
+      "collection_date": "2026-07-03",
+      "filters": {
+        "status": null,
+        "created": null
+      },
+      "runs_fetched": 0,
+      "runs_new": 0,
+      "runs_skipped_duplicate": 0,
+      "repos_scanned": 0,
+      "errors": [
+        "No token provided. Set GITHUB_TOKEN env var or pass token="
+      ],
+      "duration_seconds": 0.0
+    },
+    "timestamp": "2026-07-03T12:43:38Z"
+  },
+  {
+    "collector": "collect_jobs",
+    "summary": {
+      "org": "devopulence",
+      "collection_date": "2026-07-03",
+      "repos_processed": 0,
+      "total_runs_processed": 0,
+      "total_jobs_fetched": 0,
+      "total_jobs_new": 0,
+      "total_jobs_skipped_duplicate": 0,
+      "repo_summaries": {},
+      "errors": [],
+      "duration_seconds": 0.0
+    },
+    "timestamp": "2026-07-03T12:43:38Z"
+  },
+  {
+    "collector": "scheduled_collect",
+    "summary": {
+      "collection_date": "2026-07-03",
+      "mode": "org",
+      "target": "devopulence",
+      "steps": {
+        "workflow_runs": {
+          "runs_fetched": 0,
+          "runs_new": 0,
+          "runs_skipped_duplicate": 0,
+          "duration_seconds": 0.0,
+          "errors": [
+            "No token provided. Set GITHUB_TOKEN env var or pass token="
+          ]
+        },
+        "jobs": {
+          "jobs_fetched": 0,
+          "jobs_new": 0,
+          "jobs_skipped_duplicate": 0,
+          "duration_seconds": 0.0,
+          "errors": []
+        }
+      },
+      "errors": [
+        "No token provided. Set GITHUB_TOKEN env var or pass token="
+      ],
+      "success": true,
+      "total_duration_seconds": 0.0
+    },
+    "timestamp": "2026-07-03T12:43:38Z"
   }
 ]
